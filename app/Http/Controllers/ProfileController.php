@@ -2,25 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ProfileCollection;
 use App\Models\Profile;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use SebastianBergmann\Diff\Exception;
 
 class ProfileController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return response()->json([
+            'success' => true,
+            'message' => 'Lista de todos os perfis de acesso',
+            'data' => Profile::all()->toResourceCollection()
+        ]);
     }
 
     /**
@@ -28,23 +28,19 @@ class ProfileController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Profile $profile)
+    public function show(Profile $profile): JsonResponse
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Profile $profile)
-    {
-        //
+        return response()->json([
+            'success' => true,
+            'message' => 'Perfil encontrado',
+            'data' => [ $profile ]
+        ]);
     }
 
     /**
@@ -60,6 +56,21 @@ class ProfileController extends Controller
      */
     public function destroy(Profile $profile)
     {
-        //
+        try {
+            $profile->deleteOrFail();
+        }
+        catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao deletar perfil',
+                'data' => null
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Perfil deletado',
+            'data' => null
+        ]);
     }
 }
