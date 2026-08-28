@@ -2,9 +2,12 @@
 
 namespace Database\Seeders;
 
+use App\Models\Profile;
+use App\Models\Secretariat;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -20,6 +23,15 @@ class DatabaseSeeder extends Seeder
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
+            'password' => Hash::make('senha'),
+            'profile_id' => Profile::create([
+                'name' => 'Test Profile',
+                'description' => 'Test Profile',
+            ]),
+            'secretariat_id' => Secretariat::create([
+                'name' => 'Test Secretariat',
+                'acronym' => 'Test Secretariat',
+            ]),
         ]);
     }
 }
