@@ -11,17 +11,17 @@ use function Knuckles\Scribe\Config\removeStrategies;
 
 return [
     // The HTML <title> for the generated documentation.
-    'title' => config('app.name').' API Documentation',
+    'title' => config('app.name').' - Documentação da API',
 
     // A short description of your API. Will be included in the docs webpage, Postman collection and OpenAPI spec.
     'description' => '',
 
     // Text to place in the "Introduction" section, right after the `description`. Markdown and HTML are supported.
     'intro_text' => <<<'INTRO'
-            This documentation aims to provide all the information you need to work with our API.
+            Esta documentação tem como objetivo fornecer todas as informações necessárias para trabalhar com nossa API.
 
-            <aside>As you scroll, you'll see code examples for working with the API in different programming languages in the dark area to the right (or as part of the content on mobile).
-            You can switch the language used with the tabs at the top right (or from the nav menu at the top left on mobile).</aside>
+            <aside>Conforme você rola a página, verá exemplos de código para interagir com a API em diferentes linguagens de programação na área escura à direita (ou como parte do conteúdo em dispositivos móveis).
+            Você pode alternar a linguagem usada nas abas no canto superior direito (ou no menu de navegação no canto superior esquerdo em dispositivos móveis).</aside>
         INTRO,
 
     // The base URL displayed in the docs.
@@ -58,7 +58,7 @@ return [
     'type' => 'laravel',
 
     // See https://scribe.knuckles.wtf/laravel/reference/config#theme for supported options
-    'theme' => 'default',
+    'theme' => 'elements',
 
     'static' => [
         // HTML documentation, assets and Postman collection will be generated to this folder.
@@ -123,10 +123,10 @@ return [
 
         // Placeholder your users will see for the auth parameter in the example requests.
         // Set this to null if you want Scribe to use a random value as placeholder instead.
-        'placeholder' => '{YOUR_AUTH_KEY}',
+        'placeholder' => '{SEU_TOKEN_DE_AUTH}',
 
         // Any extra authentication-related info for your users. Markdown and HTML are supported.
-        'extra_info' => 'You can retrieve your token by visiting your dashboard and clicking <b>Generate API token</b>.',
+        'extra_info' => 'Você pode obter seu token acessando seu painel e clicando em <b>Gerar token de API</b>.',
     ],
 
     // Example requests for each endpoint will be shown in each of these languages.
@@ -197,7 +197,7 @@ return [
     // The format you pass to `date` will be passed to PHP's `date()` function.
     // The format you pass to `git` can be either "short" or "long".
     // Note: does not work for `external` docs types
-    'last_updated' => 'Last updated: {date:F j, Y}',
+    'last_updated' => 'Última atualização: {date:d/m/Y}',
 
     'examples' => [
         // Set this to any number to generate the same example values for parameters on each run,
