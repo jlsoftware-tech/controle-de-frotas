@@ -13,6 +13,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use PHPOpenSourceSaver\JWTAuth\Exceptions\JWTException;
+use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
@@ -91,6 +93,8 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         Auth::guard('api')->logout();
+        JWTAuth::parseToken()->invalidate(true);
+
         return response()->json([
             'success' => true,
             'message' => 'Logout realizado com sucesso.',
@@ -100,11 +104,25 @@ class AuthController extends Controller
 
     public function refresh()
     {
-        return [
+        try {
+            $token = Auth::guard('api')->refresh();
+        } catch (JWTException) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token expirado',
+                'data' => null,
+            ], 401);
+        }
+
+        // Define o novo token do usuário
+        // Se não definir, o usuário continuaria com o token invalidado pelo refresh()
+        Auth::guard('api')->setToken($token)->authenticate();
+
+        return response()->json([
             'success' => true,
-            'token' => Auth::guard('api')->refresh(),
+            'token' => $token,
             'data' => Auth::guard('api')->user()
-        ];
+        ]);
     }
 
     public function me(Request $request)

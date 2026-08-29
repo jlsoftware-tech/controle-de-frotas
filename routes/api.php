@@ -20,7 +20,7 @@ Route::prefix('v1')->group(function () use ($notFound) {
         Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
         Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
-        Route::middleware('auth:api')->group(function() use ($notFound) {
+        Route::middleware('jwt')->group(function() use ($notFound) {
             Route::get('/logout', [AuthController::class, 'logout']);
             Route::get('/me', [AuthController::class, 'me']);
 
