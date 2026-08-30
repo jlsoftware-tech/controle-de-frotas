@@ -228,7 +228,7 @@ class AuthController extends Controller
         status: 401,
         description: 'Token não fornecido ou inválido para renovação.'
     )]
-    public function refresh(): array
+    public function refresh()
     {
         try {
             $token = Auth::guard('api')->refresh();
