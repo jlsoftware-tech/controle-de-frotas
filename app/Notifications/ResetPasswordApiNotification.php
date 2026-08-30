@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Symfony\Component\Mime\Email;
 
 class ResetPasswordApiNotification extends Notification implements ShouldQueue
 {
@@ -41,7 +42,8 @@ class ResetPasswordApiNotification extends Notification implements ShouldQueue
             ->subject('Redefinição de senha')
             ->line('Você solicitou a redefinição de senha da sua conta.')
             ->action('Redefinir senha', $url)
-            ->line('Se você não solicitou isso, ignore este e-mail.');
+            ->line('Se você não solicitou isso, ignore este e-mail.')
+            ->level('success');
     }
 
     /**
