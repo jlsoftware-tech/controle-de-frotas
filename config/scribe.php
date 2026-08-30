@@ -14,7 +14,7 @@ return [
     'title' => config('app.name').' - Documentação da API',
 
     // A short description of your API. Will be included in the docs webpage, Postman collection and OpenAPI spec.
-    'description' => '',
+    'description' => 'API RESTful para controle e gestão de frotas de veículos, secretarias, perfis de acesso e autenticação JWT.',
 
     // Text to place in the "Introduction" section, right after the `description`. Markdown and HTML are supported.
     'intro_text' => <<<'INTRO'
@@ -105,7 +105,7 @@ return [
     // How is your API authenticated? This information will be used in the displayed docs, generated examples and response calls.
     'auth' => [
         // Set this to true if ANY endpoints in your API use authentication.
-        'enabled' => false,
+        'enabled' => true,
 
         // Set this to true if your API should be authenticated by default. If so, you must also set `enabled` (above) to true.
         // You can then use @unauthenticated or @authenticated on individual endpoints to change their status from the default.
@@ -115,7 +115,7 @@ return [
         'in' => AuthIn::BEARER->value,
 
         // The name of the auth parameter (e.g. token, key, apiKey) or header (e.g. Authorization, Api-Key).
-        'name' => 'key',
+        'name' => 'Authorization',
 
         // The value of the parameter to be used by Scribe to authenticate response calls.
         // This will NOT be included in the generated documentation. If empty, Scribe will use a random value.
@@ -126,7 +126,7 @@ return [
         'placeholder' => '{SEU_TOKEN_DE_AUTH}',
 
         // Any extra authentication-related info for your users. Markdown and HTML are supported.
-        'extra_info' => 'Você pode obter seu token acessando seu painel e clicando em <b>Gerar token de API</b>.',
+        'extra_info' => 'Adicione o token retornado no login ou cadastro no cabeçalho: <code>Authorization: Bearer {SEU_TOKEN_DE_AUTH}</code>.',
     ],
 
     // Example requests for each endpoint will be shown in each of these languages.

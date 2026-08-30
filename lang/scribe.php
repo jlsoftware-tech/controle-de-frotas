@@ -74,4 +74,3 @@ return [
         'openapi' => 'Ver especificação OpenAPI',
     ],
 ];
-
