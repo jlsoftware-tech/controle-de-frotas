@@ -25,7 +25,9 @@ class UpdateUserRequest extends FormRequest
         return [
             'name' => 'string|max:255',
             'email' => 'email|max:255',
-            'password' => 'string|min:8|confirmed'
+            'password' => 'string|min:8|confirmed',
+            'profile_id' => 'integer|exists:profiles,id',
+            'secretariat_id' => 'integer|exists:secretariats,id'
         ];
     }
 }

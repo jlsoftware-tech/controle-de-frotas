@@ -1,7 +1,7 @@
 <?php
 
-use \App\Http\Controllers\Api\AuthController;
-use \App\Http\Controllers\UserController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,7 +14,6 @@ $notFound = fn(Request $request) => response()->json([
 Route::prefix('v1')->group(function () use ($notFound) {
     Route::prefix('auth')->middleware('api')->group(function() use ($notFound) {
         Route::post('/login', [AuthController::class, 'login']);
-        Route::post('/register', [AuthController::class, 'register']);
         Route::get('/refresh', [AuthController::class, 'refresh']);
 
         Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
