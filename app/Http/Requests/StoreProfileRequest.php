@@ -4,7 +4,11 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Knuckles\Scribe\Attributes\BodyParam;
 
+#[BodyParam(name: 'name', description: 'nome do perfil de acesso', example: 'admin')]
+#[BodyParam(name: 'description', description: 'descrição do perfil de acesso', example: 'acesso geral ao sistema')]
+#[BodyParam(name: 'permissions', type: 'integer[]', description: 'lista dos ids das permissões de acesso do perfil', required: false, example: '[1, 2, 3, 4]')]
 class StoreProfileRequest extends FormRequest
 {
     /**

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreProfileRequest;
+use App\Http\Requests\UpdateProfileRequest;
 use App\Http\Resources\ProfileResource;
 use App\Models\Profile;
 use Illuminate\Database\Eloquent\Builder;
@@ -13,7 +15,7 @@ use PHPUnit\Exception;
 class ProfileController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Listar todos os perfis.
      */
     public function index(Request $request): JsonResponse
     {
@@ -34,9 +36,9 @@ class ProfileController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Criar um novo perfil.
      */
-    public function store(Request $request): JsonResponse
+    public function store(StoreProfileRequest $request): JsonResponse
     {
         Gate::authorize('create', Profile::class);
 
@@ -66,7 +68,7 @@ class ProfileController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Mostrar um perfil.
      */
     public function show(Profile $profile): JsonResponse
     {
@@ -79,9 +81,9 @@ class ProfileController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Atualizar um perfil.
      */
-    public function update(Request $request, Profile $profile): JsonResponse
+    public function update(UpdateProfileRequest $request, Profile $profile): JsonResponse
     {
         Gate::authorize('update', $profile);
 
@@ -103,7 +105,7 @@ class ProfileController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remover um perfil.
      */
     public function destroy(Profile $profile): JsonResponse
     {

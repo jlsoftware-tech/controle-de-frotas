@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Gate;
 class PermissionController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Listar todas as permissões.
      */
     public function index(): JsonResponse
     {
@@ -26,7 +26,7 @@ class PermissionController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Mostrar uma permissão.
      */
     public function show(string $id): JsonResponse
     {
