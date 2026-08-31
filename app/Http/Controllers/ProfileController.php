@@ -40,11 +40,6 @@ class ProfileController extends Controller
     {
         Gate::authorize('create', Profile::class);
 
-        $request->validate([
-            'name' => ['required', 'unique:profiles', 'max:50'],
-            'description' => ['max:255']
-        ]);
-
         try {
             $newProfile = Profile::create([
                 'name' => $request->input('name'),
@@ -89,11 +84,6 @@ class ProfileController extends Controller
     public function update(Request $request, Profile $profile): JsonResponse
     {
         Gate::authorize('update', $profile);
-
-        $request->validate([
-            'name' => ['required', 'max:50'],
-            'description' => ['max:255']
-        ]);
 
         $profile->permissions()->sync($request->input('permissions'));
 
