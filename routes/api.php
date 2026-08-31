@@ -2,6 +2,7 @@
 
 use \App\Http\Controllers\Api\AuthController;
 use \App\Http\Controllers\ProfileController;
+use \App\Models\Profile;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -18,5 +19,8 @@ Route::prefix('v1')->group(function () {
             Route::post('/me', [AuthController::class, 'me']);
         });
     });
-    Route::apiResource('profiles', ProfileController::class)->middleware('auth:api');
+
+    Route::middleware('auth:api')->group(function () {
+        Route::apiResource('profiles', ProfileController::class);
+    });
 });

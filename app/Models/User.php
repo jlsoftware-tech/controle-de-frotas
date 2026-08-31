@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
@@ -54,8 +55,8 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsTo(Profile::class);
     }
 
-    public function permissions(): HasManyThrough
+    public function permissions(): BelongsToMany
     {
-        return $this->through('profile')->has('permissions');
+        return $this->profile->permissions();
     }
 }

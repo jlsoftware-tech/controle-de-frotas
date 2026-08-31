@@ -6,6 +6,7 @@ use App\Models\Profile;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use PHPUnit\Exception;
 
 class ProfileController extends Controller
@@ -15,6 +16,8 @@ class ProfileController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
+        Gate::authorize('viewAny', Profile::class);
+
         $profiles = Profile::query()
             ->when($request->filled('search'), function (Builder $q) use ($request) {
                 return $q->whereLike('name', "%{$request->input('search')}%");
@@ -34,6 +37,8 @@ class ProfileController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+        Gate::authorize('create', Profile::class);
+
         $request->validate([
             'name' => ['required', 'unique:profiles', 'max:50'],
             'description' => ['max:255']
@@ -67,6 +72,8 @@ class ProfileController extends Controller
      */
     public function show(Profile $profile): JsonResponse
     {
+        Gate::authorize('view', $profile);
+
         return response()->json([
             'success' => true,
             'message' => 'Perfil encontrado',
@@ -79,6 +86,8 @@ class ProfileController extends Controller
      */
     public function update(Request $request, Profile $profile): JsonResponse
     {
+        Gate::authorize('update', $profile);
+
         $request->validate([
             'name' => ['required', 'unique:profiles', 'max:50'],
             'description' => ['max:255']
@@ -107,6 +116,8 @@ class ProfileController extends Controller
      */
     public function destroy(Profile $profile): JsonResponse
     {
+        Gate::authorize('delete', $profile);
+
         try {
             $profile->deleteOrFail();
         }
