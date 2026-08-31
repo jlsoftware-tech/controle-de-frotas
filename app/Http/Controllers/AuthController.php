@@ -1,11 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Models\Profile;
 use App\Models\Secretariat;
@@ -85,93 +83,6 @@ class AuthController extends Controller
             'message' => 'Login realizado com sucesso.',
             'data' => Auth::guard('api')->user()->toArray(),
         ]);
-    }
-
-    #[Endpoint('Cadastro', description: 'Cadastra um novo usuário no sistema associado a um perfil e secretaria, retornando o token JWT gerado e os dados do usuário.')]
-    #[ResponseAtt(
-        content: [
-            'success' => true,
-            'token' => 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-            'message' => 'Cadastro realizado com sucesso.',
-            'data' => [
-                'id' => 1,
-                'name' => 'João Silva',
-                'email' => 'joao.silva@example.com',
-                'profile_id' => 1,
-                'secretariat_id' => 1,
-                'created_at' => '2026-08-29T19:00:00.000000Z',
-                'updated_at' => '2026-08-29T19:00:00.000000Z',
-            ],
-        ],
-        status: 201,
-        description: 'Cadastro realizado com sucesso.'
-    )]
-    #[ResponseAtt(
-        content: [
-            'success' => false,
-            'message' => 'Erro: No query results for model [App\\Models\\Profile] 1.',
-            'data' => null,
-        ],
-        status: 404,
-        description: 'Perfil ou Secretaria não encontrados.'
-    )]
-    #[ResponseAtt(
-        content: [
-            'message' => 'The email has already been taken.',
-            'errors' => [
-                'email' => ['The email has already been taken.'],
-            ],
-        ],
-        status: 422,
-        description: 'Erro de validação nos campos informados.'
-    )]
-    #[ResponseAtt(
-        content: [
-            'success' => false,
-            'message' => 'Erro ao cadastrar.',
-            'data' => null,
-        ],
-        status: 500,
-        description: 'Erro ao cadastrar o usuário no banco de dados.'
-    )]
-    public function register(RegisterRequest $request): JsonResponse
-    {
-        try {
-            $profile = Profile::findOrFail($request->profile_id);
-            $secretariat = Secretariat::findOrFail($request->secretariat_id);
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erro: '.$e->getMessage(),
-                'data' => null,
-            ], Response::HTTP_NOT_FOUND);
-        }
-
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'profile_id' => $profile->id,
-            'secretariat_id' => $secretariat->id,
-        ]);
-
-        if (! $user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erro ao cadastrar.',
-                'data' => null,
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-
-        Auth::guard('api')->login($user);
-        $token = Auth::guard('api')->tokenById($user->id);
-
-        return response()->json([
-            'success' => true,
-            'token' => $token,
-            'message' => 'Cadastro realizado com sucesso.',
-            'data' => Auth::guard('api')->user(),
-        ], Response::HTTP_CREATED);
     }
 
     #[Endpoint('Logout', description: 'Realiza o logout do usuário invalidando o token JWT atual.', authenticated: true)]
