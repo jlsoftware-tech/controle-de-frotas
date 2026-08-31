@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
+Route::get('/docs-api', function () {
     return view()->exists('scribe.index') ?
         view('scribe.index') :
         view('scribe.404');
