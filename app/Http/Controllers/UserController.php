@@ -35,7 +35,9 @@ class UserController extends Controller
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
-                'password' => Hash::make($request->password)
+                'password' => Hash::make($request->password),
+                'profile_id' => $request->profile_id,
+                'secretariat_id' => $request->secretariat_id,
             ]);
         } catch (Exception $e) {
             return response()->json([
