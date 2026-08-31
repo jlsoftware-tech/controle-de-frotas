@@ -18,11 +18,11 @@ return [
 
     // Text to place in the "Introduction" section, right after the `description`. Markdown and HTML are supported.
     'intro_text' => <<<'INTRO'
-            Esta documentação tem como objetivo fornecer todas as informações necessárias para trabalhar com nossa API.
+    Esta documentação tem como objetivo fornecer todas as informações necessárias para trabalhar com nossa API.
 
-            <aside>Conforme você rola a página, verá exemplos de código para interagir com a API em diferentes linguagens de programação na área escura à direita (ou como parte do conteúdo em dispositivos móveis).
-            Você pode alternar a linguagem usada nas abas no canto superior direito (ou no menu de navegação no canto superior esquerdo em dispositivos móveis).</aside>
-        INTRO,
+    <aside>Conforme você rola a página, verá exemplos de código para interagir com a API em diferentes linguagens de programação na área escura à direita (ou como parte do conteúdo em dispositivos móveis).
+    Você pode alternar a linguagem usada nas abas no canto superior direito (ou no menu de navegação no canto superior esquerdo em dispositivos móveis).</aside>
+    INTRO,
 
     // The base URL displayed in the docs.
     // If you're using `laravel` type, you can set this to a dynamic string, like '{{ config("app.tenant_url") }}' to get a dynamic base URL.
