@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ProfileResource;
 use App\Models\Profile;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
@@ -22,13 +23,13 @@ class ProfileController extends Controller
             ->when($request->filled('search'), function (Builder $q) use ($request) {
                 return $q->whereLike('name', "%{$request->input('search')}%");
             })
-            ->orderBy('name')
-            ->paginate(10);
+            ->orderBy($request->input('sort', 'name'), $request->input('order', 'desc'))
+            ->paginate($request->input('per_page', 10));
 
         return response()->json([
             'success' => true,
             'message' => 'Lista de todos os perfis de acesso',
-            'data' => $profiles->toResourceCollection()
+            'data' => ProfileResource::collection($profiles)
         ]);
     }
 
@@ -50,19 +51,21 @@ class ProfileController extends Controller
                 'description' => $request->input('description')
             ]);
 
+            $newProfile->permissions()->attach($request->input('permissions'));
+
             $newProfile->save();
         }
         catch (Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Erro: perfil não foi criado',
+                'message' => 'Ocorreu um erro ao cadastrar o perfil. Por favor, tente novamente.',
                 'data' => null
             ]);
         }
 
         return response()->json([
             'success' => true,
-            'message' => 'Perfil criado com sucesso',
+            'message' => 'Perfil cadastrado com sucesso!',
             'data' => [ $newProfile ]
         ]);
     }
@@ -76,8 +79,7 @@ class ProfileController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Perfil encontrado',
-            'data' => [ $profile ]
+            'data' => $profile
         ]);
     }
 
@@ -89,26 +91,25 @@ class ProfileController extends Controller
         Gate::authorize('update', $profile);
 
         $request->validate([
-            'name' => ['required', 'unique:profiles', 'max:50'],
+            'name' => ['required', 'max:50'],
             'description' => ['max:255']
         ]);
 
-        try {
-            $profile->update($request->toArray());
-        }
-        catch (Exception $e) {
-            return response()->json([
+        $profile->permissions()->sync($request->input('permissions'));
+
+        $status = $profile->update($request->only(['name', 'description']));
+
+        return $status ?
+            response()->json([
+                'success' => true,
+                'message' => 'Dados atualizados com sucesso',
+                'data' => $profile
+            ]) :
+            response()->json([
                 'success' => false,
-                'message' => 'Erro: perfil não foi atualizado',
+                'message' => 'Ocorreu um erro ao atualizar os dados.',
                 'data' => null
             ]);
-        }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Perfil atualizado',
-            'data' => [ $profile ]
-        ]);
     }
 
     /**
@@ -124,14 +125,14 @@ class ProfileController extends Controller
         catch (Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Erro ao deletar perfil',
+                'message' => 'Ocorreu um erro ao deletar perfil! Tente novamente.',
                 'data' => null
             ]);
         }
 
         return response()->json([
             'success' => true,
-            'message' => 'Perfil deletado',
+            'message' => 'Perfil removido com sucesso.',
             'data' => null
         ]);
     }

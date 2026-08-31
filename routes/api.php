@@ -1,9 +1,10 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
-use \App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 $notFound = fn(Request $request) => response()->json([
@@ -29,7 +30,10 @@ Route::prefix('v1')->group(function () use ($notFound) {
         });
     });
 
-    Route::middleware('auth:api')->group(function () {
-        Route::apiResource('profiles', ProfileController::class);
+    Route::middleware('auth:api')->group(function () use ($notFound) {
+        Route::apiResource('/profiles', ProfileController::class)
+            ->missing($notFound);
+        Route::apiResource('/permissions', PermissionController::class)
+            ->only(['index', 'show']);
     });
 });
