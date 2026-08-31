@@ -3,5 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('scribe.index');
+    return view()->exists('scribe.index') ?
+        view('scribe.index') :
+        view('scribe.404');
 });
