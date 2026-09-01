@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -14,18 +15,15 @@ $notFound = fn(Request $request) => response()->json([
 Route::prefix('v1')->group(function () use ($notFound) {
     Route::prefix('auth')->middleware('api')->group(function() use ($notFound) {
         Route::post('/login', [AuthController::class, 'login']);
+        Route::get('/logout', [AuthController::class, 'logout'])->middleware('jwt');
         Route::get('/refresh', [AuthController::class, 'refresh']);
-
         Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
         Route::post('/reset-password', [AuthController::class, 'resetPassword']);
-
-        Route::middleware('jwt')->group(function() use ($notFound) {
-            Route::get('/logout', [AuthController::class, 'logout']);
-            Route::get('/me', [AuthController::class, 'me']);
-
-            Route::apiResource('/users', UserController::class)
-                ->missing($notFound);
-        });
     });
 
+    Route::middleware('jwt')->group(function() use ($notFound) {
+        Route::get('/profile', [UserController::class, 'profile']);
+        Route::apiResource('/users', UserController::class)->missing($notFound);
+        Route::apiResource('/profiles', ProfileController::class)->missing($notFound);
+    });
 });

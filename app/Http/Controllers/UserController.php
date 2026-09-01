@@ -6,12 +6,131 @@ use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Knuckles\Scribe\Attributes\Endpoint;
+use Knuckles\Scribe\Attributes\Response as ResponseAtt;
 use Mockery\Exception;
 
 class UserController extends Controller
 {
+    #[Endpoint('Dados do Usuário Autenticado', description: 'Retorna os dados do usuário atualmente autenticado.', authenticated: true)]
+    #[ResponseAtt(
+        content: [
+            'success' => true,
+            'data' => [
+                'icon' => 'fa fa-user',
+                'nomeMenu' => 'Usuario',
+                'subMenu' => [
+                    [
+                        'icon' => 'fa fa-users',
+                        'nomeSubMenu' => 'Listar',
+                        'metodo' => 'GET',
+                        'link' => 'https://localhost/api/v1/auth/users',
+                    ],
+                    [
+                        'icon' => 'fa fa-users',
+                        'nomeSubMenu' => 'Cadastrar',
+                        'metodo' => 'POST',
+                        'link' => 'https://localhost/api/v1/auth/users',
+                    ],
+                ],
+            ],
+        ],
+        status: 200,
+        description: 'Opções do menu sidebar de acordo com as permissões do usuário.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'message' => 'Unauthenticated.',
+        ],
+        status: 403,
+        description: 'Conta não encontrada ou inexistente.'
+    )]
+    public function profile()
+    {
+        $canAccessMenu = function (Model $model, User $user, array $abilities, string $icon)
+        {
+            return array_map(
+                function ($keyAbility, $valueAbility) use ($model, $user, $icon): ?array {
+                    // TODO: verificar com a policy se o usuário tem permissão para tal ação
+                    if (
+                        $user->cannot($keyAbility, $model::class)
+                    ) return null;
+
+                    return [
+                        'icon' => $icon,
+                        'nomeSubMenu' => $valueAbility,
+                        'link' => url('api/v1/auth/'.$model->getTable()),
+                    ];
+                },
+                array_keys($abilities),
+                $abilities
+            );
+        };
+
+        $user = Auth::guard('api')->user();
+        $profile = $user->profile;
+
+        $abilities = [
+            'viewAny' => 'Listar',
+            'create' => 'Cadastrar',
+        ];
+
+        # array de todos possíveis menus do sidebar do usuário
+        $sidebar = [
+            [
+                'model' => $user,
+                'icon' => 'fa fa-users',
+                'nomeMenu' => 'Usuário',
+                'subMenu' => [],
+            ],
+            [
+                'model' => $profile,
+                'icon' => 'fa fa-profiles',
+                'nomeMenu' => 'Perfil',
+                'subMenu' => [],
+            ],
+        ];
+
+        # remove do array subMenus valores nulos
+        foreach ($sidebar as &$menu) {
+            $menu['subMenu'] = $canAccessMenu($menu['model'], $user, $abilities, $menu['icon']);
+            $menu['subMenu'] = array_filter($menu['subMenu']);
+        }
+        unset($menu);
+
+        $sidebar = array_filter($sidebar, function ($menu) {
+            return (bool) count($menu['subMenu']);
+        });
+
+        # verifica se o usuário tem alguma permissão
+        if (count($sidebar) == 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Não autorizado.',
+                'status_code' => 403,
+                'data' => null,
+            ], 403);
+        }
+
+        # retorna uma resposta com apenas os campos importantes para o frontend
+        return response()->json([
+            'success' => true,
+            'status_code' => 200,
+            'data' => array_map(
+                fn ($item) =>  [
+                    'icon' => $item['icon'],
+                    'nomeMenu' => $item['nomeMenu'],
+                    'subMenu' => $item['subMenu'],
+                ],
+                $sidebar
+            ),
+        ]);
+    }
+
     /**
      * Display a listing of the resource.
      */

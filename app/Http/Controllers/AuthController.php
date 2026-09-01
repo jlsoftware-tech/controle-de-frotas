@@ -10,6 +10,7 @@ use App\Models\Secretariat;
 use App\Models\User;
 use App\Notifications\ResetPasswordApiNotification;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -25,6 +26,12 @@ use Symfony\Component\HttpFoundation\Response;
 #[Group('Autenticação', description: 'Endpoints para gerenciamento de autenticação, cadastro e recuperação de senha de usuários.')]
 class AuthController extends Controller
 {
+    private function canAccess($abilities, $user)
+    {
+        foreach ($abilities as $ability) {
+
+        }
+    }
     #[Endpoint('Login', description: 'Autentica um usuário existente com e-mail e senha, retornando o token JWT e as informações do usuário.')]
     #[ResponseAtt(
         content: [
@@ -159,38 +166,6 @@ class AuthController extends Controller
             'success' => true,
             'token' => $token,
             'data' => Auth::guard('api')->user()
-        ]);
-    }
-
-    #[Endpoint('Dados do Usuário Autenticado', description: 'Retorna os dados do usuário atualmente autenticado.', authenticated: true)]
-    #[ResponseAtt(
-        content: [
-            'success' => true,
-            'data' => [
-                'id' => 1,
-                'name' => 'João Silva',
-                'email' => 'joao.silva@example.com',
-                'profile_id' => 1,
-                'secretariat_id' => 1,
-                'created_at' => '2026-08-29T19:00:00.000000Z',
-                'updated_at' => '2026-08-29T19:00:00.000000Z',
-            ],
-        ],
-        status: 200,
-        description: 'Dados do usuário autenticado recuperados com sucesso.'
-    )]
-    #[ResponseAtt(
-        content: [
-            'message' => 'Unauthenticated.',
-        ],
-        status: 401,
-        description: 'Token não fornecido ou inválido.'
-    )]
-    public function me(): JsonResponse
-    {
-        return response()->json([
-            'success' => true,
-            'data' => Auth::guard('api')->user(),
         ]);
     }
 
