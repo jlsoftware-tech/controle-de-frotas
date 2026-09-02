@@ -13,7 +13,7 @@ class UserPolicy
     public function viewAny(User $user): bool
     {
         return $user->permissions->contains(function ($permission, $key) {
-            return $permission->name === 'view' && $permission->module === 'user';
+            return $permission->name === 'view' && $permission->module === 'users';
         });
     }
 
@@ -23,7 +23,7 @@ class UserPolicy
     public function view(User $user, User $model): bool
     {
         return $user->permissions->contains(function ($permission, $key) {
-            return $permission->name === 'view' && $permission->module === 'user';
+            return $permission->name === 'view' && $permission->module === 'users';
         });
     }
 
@@ -33,7 +33,7 @@ class UserPolicy
     public function create(User $user): bool
     {
         return $user->permissions->contains(function ($permission, $key) {
-            return $permission->name === 'create' && $permission->module === 'user';
+            return $permission->name === 'create' && $permission->module === 'users';
         });
     }
 
@@ -43,7 +43,7 @@ class UserPolicy
     public function update(User $user, User $model): bool
     {
         return $user->permissions->contains(function ($permission, $key) {
-            return $permission->name === 'update' && $permission->module === 'user';
+            return $permission->name === 'update' && $permission->module === 'users';
         });
     }
 
