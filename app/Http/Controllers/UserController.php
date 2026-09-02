@@ -51,15 +51,20 @@ class UserController extends Controller
     )]
     public function profile()
     {
+        // verifica quais ações que usuário autenticado tem permissão de usar,
+        // e monta a estrutura da resposta, do contrário retorna null
         $canAccessMenu = function (Model $model, User $user, array $abilities, string $icon)
         {
             return array_map(
-                function ($keyAbility, $valueAbility) use ($model, $user, $icon): ?array {
-                    // TODO: verificar com a policy se o usuário tem permissão para tal ação
-                    if (
-                        $user->cannot($keyAbility, $model::class)
-                    ) return null;
+                function ($keyAbility, $valueAbility) use ($model, $user, $icon): ?array
+                {
+                    // caso o usuário não tem permissão,
+                    // será retornado null como valor do subMenu
+                    if ($user->cannot($keyAbility, $model::class))
+                        return null;
 
+                    // retorna a estrutura da resposta do subMenu,
+                    // indicando que o usuário tem permissão para tal ação
                     return [
                         'icon' => $icon,
                         'nomeSubMenu' => $valueAbility,
@@ -74,12 +79,13 @@ class UserController extends Controller
         $user = Auth::guard('api')->user();
         $profile = $user->profile;
 
+        // array de ações usadas pelo usuário caso tenha permissão
         $abilities = [
             'viewAny' => 'Listar',
             'create' => 'Cadastrar',
         ];
 
-        # array de todos possíveis menus do sidebar do usuário
+        // array de todos possíveis menus do sidebar do usuário
         $sidebar = [
             [
                 'model' => $user,
@@ -95,7 +101,7 @@ class UserController extends Controller
             ],
         ];
 
-        # remove do array subMenus valores nulos
+        // remove do array subMenus valores nulos
         foreach ($sidebar as &$menu) {
             $menu['subMenu'] = $canAccessMenu($menu['model'], $user, $abilities, $menu['icon']);
             $menu['subMenu'] = array_filter($menu['subMenu']);
@@ -106,7 +112,7 @@ class UserController extends Controller
             return (bool) count($menu['subMenu']);
         });
 
-        # verifica se o usuário tem alguma permissão
+        // verifica se o usuário tem alguma permissão
         if (count($sidebar) == 0) {
             return response()->json([
                 'success' => false,
