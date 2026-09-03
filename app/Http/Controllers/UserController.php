@@ -16,24 +16,25 @@ use Mockery\Exception;
 
 class UserController extends Controller
 {
-    #[Endpoint('Dados do Usuário Autenticado', description: 'Retorna os dados do usuário atualmente autenticado.', authenticated: true)]
+    #[Endpoint('Lista de recursos permitidos (sidebar)',
+        description: 'Lista dos recursos permitidos de acordo com o perfil do usuario.',
+        authenticated: true)]
     #[ResponseAtt(
         content: [
             'success' => true,
+            'status_code' => 200,
             'data' => [
                 'icon' => 'fa fa-user',
-                'nomeMenu' => 'Usuario',
+                'nameMenu' => 'Usuário',
                 'subMenu' => [
                     [
                         'icon' => 'fa fa-users',
-                        'nomeSubMenu' => 'Listar',
-                        'metodo' => 'GET',
+                        'nameSubMenu' => 'Listar',
                         'link' => 'https://localhost/api/v1/auth/users',
                     ],
                     [
                         'icon' => 'fa fa-users',
-                        'nomeSubMenu' => 'Cadastrar',
-                        'metodo' => 'POST',
+                        'nameSubMenu' => 'Cadastrar',
                         'link' => 'https://localhost/api/v1/auth/users',
                     ],
                 ],
@@ -44,11 +45,17 @@ class UserController extends Controller
     )]
     #[ResponseAtt(
         content: [
-            'message' => 'Unauthenticated.',
+            'success' => false,
+            'status_code' => 403,
+            'message' => 'Não autorizado.',
+            'data' => null,
         ],
         status: 403,
         description: 'Conta não encontrada ou inexistente.'
     )]
+    /**
+     * Lista todas as ações de acordo com o perfil do usuário
+     */
     public function profile()
     {
         // verifica quais ações que usuário autenticado tem permissão de usar,
@@ -67,7 +74,7 @@ class UserController extends Controller
                     // indicando que o usuário tem permissão para tal ação
                     return [
                         'icon' => $icon,
-                        'nomeSubMenu' => $valueAbility,
+                        'nameSubMenu' => $valueAbility,
                         'link' => url('api/v1/auth/'.$model->getTable()),
                     ];
                 },
@@ -90,13 +97,13 @@ class UserController extends Controller
             [
                 'model' => $user,
                 'icon' => 'fa fa-users',
-                'nomeMenu' => 'Usuário',
+                'nameMenu' => 'Usuário',
                 'subMenu' => [],
             ],
             [
                 'model' => $profile,
                 'icon' => 'fa fa-profiles',
-                'nomeMenu' => 'Perfil',
+                'nameMenu' => 'Perfil',
                 'subMenu' => [],
             ],
         ];
@@ -129,7 +136,7 @@ class UserController extends Controller
             'data' => array_map(
                 fn ($item) =>  [
                     'icon' => $item['icon'],
-                    'nomeMenu' => $item['nomeMenu'],
+                    'nameMenu' => $item['nameMenu'],
                     'subMenu' => $item['subMenu'],
                 ],
                 $sidebar
