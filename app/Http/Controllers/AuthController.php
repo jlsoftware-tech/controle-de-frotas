@@ -26,12 +26,6 @@ use Symfony\Component\HttpFoundation\Response;
 #[Group('Autenticação', description: 'Endpoints para gerenciamento de autenticação, cadastro e recuperação de senha de usuários.')]
 class AuthController extends Controller
 {
-    private function canAccess($abilities, $user)
-    {
-        foreach ($abilities as $ability) {
-
-        }
-    }
     #[Endpoint('Login', description: 'Autentica um usuário existente com e-mail e senha, retornando o token JWT e as informações do usuário.')]
     #[ResponseAtt(
         content: [

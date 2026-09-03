@@ -122,7 +122,7 @@ class UserController extends Controller
             ], 403);
         }
 
-        # retorna uma resposta com apenas os campos importantes para o frontend
+        // retorna uma resposta com apenas os campos importantes para o frontend
         return response()->json([
             'success' => true,
             'status_code' => 200,

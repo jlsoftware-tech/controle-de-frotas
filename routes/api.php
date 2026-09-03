@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -25,5 +26,6 @@ Route::prefix('v1')->group(function () use ($notFound) {
         Route::get('/profile', [UserController::class, 'profile']);
         Route::apiResource('/users', UserController::class)->missing($notFound);
         Route::apiResource('/profiles', ProfileController::class)->missing($notFound);
+        Route::apiResource('/permissions', PermissionController::class)->only(['index', 'show']);
     });
 });

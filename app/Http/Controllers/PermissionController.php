@@ -3,63 +3,49 @@
 namespace App\Http\Controllers;
 
 use App\Models\Permission;
+use App\Models\Profile;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class PermissionController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Listar todas as permissões.
      */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
+        Gate::authorize('viewAny', Profile::class);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Listando todas as permissões',
+            'data' => Permission::all()
+        ]);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Mostrar uma permissão.
      */
-    public function create()
+    public function show(string $id): JsonResponse
     {
-        //
-    }
+        Gate::authorize('viewAny', Profile::class);
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        try {
+            $permission = Permission::findOrFail($id);
+        }
+        catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Recurso não encontrado.',
+                'data' => null
+            ]);
+        }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Permission $permission)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Permission $permission)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Permission $permission)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Permission $permission)
-    {
-        //
+        return response()->json([
+            'status' => true,
+            'data' => $permission
+        ]);
     }
 }

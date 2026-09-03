@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['name', 'description'])]
+#[Fillable(['name', 'description', 'permissions'])]
 class Profile extends Model
 {
     public function users(): HasMany
@@ -17,6 +17,6 @@ class Profile extends Model
 
     public function permissions(): BelongsToMany
     {
-        return $this->belongsToMany(Permission::class);
+        return $this->belongsToMany(Permission::class, 'profile_permission');
     }
 }
