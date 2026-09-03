@@ -35,7 +35,7 @@ class ResetPasswordApiNotification extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $url = config('app.frontend_url') . '/reset-password'
+        $url = config('app.frontend_url') . '/redefinir-senha'
             . '?token=' . $this->token
             . '&email=' . urlencode($notifiable->getEmailForPasswordReset());
         return (new MailMessage)
