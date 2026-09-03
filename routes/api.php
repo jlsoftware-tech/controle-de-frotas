@@ -17,23 +17,15 @@ Route::prefix('v1')->group(function () use ($notFound) {
     Route::prefix('auth')->middleware('api')->group(function() use ($notFound) {
         Route::post('/login', [AuthController::class, 'login']);
         Route::get('/refresh', [AuthController::class, 'refresh']);
-
         Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
         Route::post('/reset-password', [AuthController::class, 'resetPassword']);
-
-        Route::middleware('jwt')->group(function() use ($notFound) {
-            Route::get('/logout', [AuthController::class, 'logout']);
-            Route::get('/me', [AuthController::class, 'me']);
-
-            Route::apiResource('/users', UserController::class)
-                ->missing($notFound);
-        });
+        Route::get('/logout', [AuthController::class, 'logout'])->middleware('jwt');
     });
 
-    Route::middleware('auth:api')->group(function () use ($notFound) {
-        Route::apiResource('/profiles', ProfileController::class)
-            ->missing($notFound);
-        Route::apiResource('/permissions', PermissionController::class)
-            ->only(['index', 'show']);
+    Route::middleware('jwt')->group(function() use ($notFound) {
+        Route::get('/me', [AuthController::class, 'me']);
+        Route::apiResource('/users', UserController::class)->missing($notFound);
+        Route::apiResource('/profiles', ProfileController::class)->missing($notFound);
+        Route::apiResource('/permissions', PermissionController::class)->only(['index', 'show']);
     });
 });
