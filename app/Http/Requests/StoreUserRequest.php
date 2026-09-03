@@ -4,7 +4,13 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Knuckles\Scribe\Attributes\BodyParam;
 
+#[BodyParam(name: 'name', description: 'Nome do novo usuário.', required: true)]
+#[BodyParam(name: 'email', description: 'E-mail do usuário.', required: true)]
+#[BodyParam(name: 'password', description: 'Senha de acesso á aplicação.', required: true)]
+#[BodyParam(name: 'profile_id', description: 'Permissões do usuário.', required: true)]
+#[BodyParam(name: 'secretariat_id', description: 'Secretaria a qual o usuário pertence.', required: true)]
 class StoreUserRequest extends FormRequest
 {
     /**

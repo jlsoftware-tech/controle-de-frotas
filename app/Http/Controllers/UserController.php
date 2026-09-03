@@ -12,12 +12,16 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Knuckles\Scribe\Attributes\Endpoint;
 use Knuckles\Scribe\Attributes\Response as ResponseAtt;
+use Knuckles\Scribe\Attributes\Group;
+use Knuckles\Scribe\Attributes\QueryParam;
+use Knuckles\Scribe\Attributes\Response;
 use Mockery\Exception;
 
+#[Group('Endpoints de usuário', 'Gerenciamento de recursos.', true)]
 class UserController extends Controller
 {
-    #[Endpoint('Lista de recursos permitidos (sidebar)',
-        description: 'Lista dos recursos permitidos de acordo com o perfil do usuario.',
+    #[Endpoint('Listar recursos da barra lateral (sidebar)',
+        description: 'Lista dos recursos permitidos de acordo com o perfil do usuário.',
         authenticated: true)]
     #[ResponseAtt(
         content: [
@@ -144,6 +148,16 @@ class UserController extends Controller
         ]);
     }
 
+    #[Endpoint('Listar todos os usuários', 'Retorna todos os usuários com paginação.')]
+    #[QueryParam('search', description: 'Filtra a busca por nome.', required: false, nullable: true)]
+    #[QueryParam('profile', type: 'int', description: 'Filtra a busca por nível de permissões.', required: false, nullable: true)]
+    #[QueryParam('per_page', type: 'int', description: 'Define o número de registros a mostrar. Valor padrão: padrão 10', required: false, nullable: true)]
+    #[QueryParam('page', type: 'int', description: 'Número da página atual, com valor padrão 1')]
+    #[QueryParam('sort', description: 'Campo de dado do usuário filtrado. Valor padrão: name', required: false, enum: ['name', 'email', 'profile_id', 'created_at'], nullable: true)]
+    #[QueryParam('order', description: 'Critério de ordenação dos registros. Valor padrão: desc', required: false, enum: ['asc', 'desc'], nullable: true)]
+//    #[Response([
+//
+//    ])]
     /**
      * Display a listing of the resource.
      */
@@ -158,6 +172,7 @@ class UserController extends Controller
         return UserResource::collection($users);
     }
 
+    #[Endpoint('Criar um novo usuário', 'Cria um novo usuário.')]
     /**
      * Store a newly created resource in storage.
      */
@@ -186,6 +201,23 @@ class UserController extends Controller
         ]);
     }
 
+    #[Endpoint('Mostrar um usuário', 'Retorna os dados de um usuário especificado.')]
+    #[Response([
+        'success' => true,
+        'data' => [
+            'name' => 'Nome',
+            'email' => 'E-mail',
+            'profile_id' => 'Perfil',
+            'secretariat_id' => 'Secretaria',
+            'created_at' => 'Data de cadastro',
+            'updated_at' => 'Data de modificação',
+            'deleted_at' => 'Data de exclusão'
+        ]
+    ], 200, 'Usuário encontrado')]
+    #[Response([
+        'success' => false,
+        'data' => null
+    ], 404, 'Usuário não encontrado')]
     /**
      * Display the specified resource.
      */
@@ -197,6 +229,7 @@ class UserController extends Controller
         ]);
     }
 
+    #[Endpoint('Atualizar um usuário', 'Atualiza os dados do usuário.')]
     /**
      * Update the specified resource in storage.
      */
@@ -217,6 +250,19 @@ class UserController extends Controller
             ]);
     }
 
+    #[Endpoint('Excluir um usuário', 'Exclui o usuário.')]
+    #[Response([
+        'success' => true,
+        'data' => [
+            'name' => 'Nome',
+            'email' => 'E-mail',
+            'profile_id' => 'Perfil',
+            'secretariat_id' => 'Secretaria',
+            'created_at' => 'Data de cadastro',
+            'updated_at' => 'Data de modificação',
+            'deleted_at' => 'Data de exclusão'
+        ],
+    ])]
     /**
      * Remove the specified resource from storage.
      */

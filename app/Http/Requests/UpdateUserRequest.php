@@ -4,7 +4,13 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Knuckles\Scribe\Attributes\BodyParam;
 
+#[BodyParam('name', 'Atualiza o nome', required: false, nullable: true)]
+#[BodyParam('email', 'Atualiza o email', required: false, nullable: true)]
+#[BodyParam('password', 'Define uma nova senha', required: false, nullable: true)]
+#[BodyParam('profile_id', 'Altera o perfil', required: false, nullable: true)]
+#[BodyParam('secretariat_id', 'Altera a secretaria', required: false, nullable: true)]
 class UpdateUserRequest extends FormRequest
 {
     /**
