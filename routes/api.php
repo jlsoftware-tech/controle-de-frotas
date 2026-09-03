@@ -25,6 +25,7 @@ Route::prefix('v1')->group(function () use ($notFound) {
     Route::middleware('jwt')->group(function() use ($notFound) {
         Route::get('/me', [AuthController::class, 'me']);
         Route::apiResource('/users', UserController::class)->missing($notFound);
+        Route::apiResource('/profiles', ProfileController::class)->missing($notFound);
         Route::apiResource('/permissions', PermissionController::class)->only(['index', 'show']);
     });
 });
