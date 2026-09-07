@@ -274,7 +274,7 @@ class AuthController extends Controller
                 'status_code' => Response::HTTP_INTERNAL_SERVER_ERROR,
                 'message' => 'Erro ao enviar o link via E-mail. Tente novamente mais tarde ou contate o administrador.',
                 'data' => null,
-            ]);
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     #[Endpoint('Redefinir Senha', description: 'Redefine a senha do usuário utilizando o token recebido por e-mail.', authenticated: false)]
@@ -331,6 +331,6 @@ class AuthController extends Controller
                 'status_code' => Response::HTTP_UNAUTHORIZED,
                 'message' => 'Tempo limite atingido para redefinir sua senha. Tente novamente ou contate o administrador.',
                 'data' => null,
-            ]);
+            ], Response::HTTP_UNAUTHORIZED);
     }
 }

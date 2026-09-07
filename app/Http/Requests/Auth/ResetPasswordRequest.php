@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Http\Requests\FormRequest;
 use Illuminate\Contracts\Validation\ValidationRule;
-use Illuminate\Foundation\Http\FormRequest;
 use Knuckles\Scribe\Attributes\BodyParam;
 
 #[BodyParam('token', description: 'Token de validação recebido por email para redefinição de senha.', example: 'e7b0a726618c89ffb5c6d328b0f443b73e5f7e6f8812c70da1')]

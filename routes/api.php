@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 
 $notFound = fn(Request $request) => response()->json([
     'success' => false,
+    'status_code' => 404,
     'message' => 'Recurso não encontrado.',
     'data' => null,
 ], 404);

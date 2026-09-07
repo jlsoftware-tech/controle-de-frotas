@@ -23,14 +23,6 @@ class JwtMiddleware
         try {
             $user = JWTAuth::parseToken()->authenticate();
 
-            if (!$user) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Usuário não encontrado',
-                    'data' => null,
-                ], Response::HTTP_UNAUTHORIZED);
-            }
-
             // Registra o usuário no guard 'api' e no resolver da requisição
             //Auth::guard('api')->setUser($user);
             //$request->setUserResolver(fn () => $user);
@@ -38,19 +30,22 @@ class JwtMiddleware
         } catch (TokenExpiredException) {
             return response()->json([
                 'success' => false,
+                'status_code' => Response::HTTP_UNAUTHORIZED,
                 'message' => 'Token expirado.',
                 'data' => null,
             ], Response::HTTP_UNAUTHORIZED);
         } catch (TokenInvalidException) {
             return response()->json([
                 'success' => false,
+                'status_code' => Response::HTTP_UNAUTHORIZED,
                 'message' => 'Token inválido.',
                 'data' => null,
             ], Response::HTTP_UNAUTHORIZED);
-        } catch (JWTException $e) {
+        } catch (JWTException) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage(),
+                'status_code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => 'Não autenticado.',
                 'data' => null,
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }

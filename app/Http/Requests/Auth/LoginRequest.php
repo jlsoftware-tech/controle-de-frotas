@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Http\Requests\FormRequest;
 use Illuminate\Contracts\Validation\ValidationRule;
-use Illuminate\Foundation\Http\FormRequest;
 use Knuckles\Scribe\Attributes\BodyParam;
 
 #[BodyParam('email', description: 'Email cadastrado do usuário.', example: 'admin@example.com')]
