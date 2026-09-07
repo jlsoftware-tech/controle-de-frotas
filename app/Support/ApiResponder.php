@@ -1,28 +1,28 @@
 <?php
 
-namespace App\Traits;
+namespace App\Support;
 
 use Illuminate\Http\JsonResponse;
 
-trait ApiResponse
+class ApiResponder
 {
-    protected function success(mixed $data = null, string $message = 'Sucesso.', int $statusCode = 200): JsonResponse
+    public static function success(mixed $data = null, string $message = 'Sucesso.', int $statusCode = 200): JsonResponse
     {
         return response()->json([
             'success'     => true,
             'status_code' => $statusCode,
             'message'     => $message,
             'data'        => $data,
-        ], $statusCode);
+        ], $statusCode, [], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
 
-    protected function error(string $message = 'Erro.', int $statusCode = 400, mixed $data = null): JsonResponse
+    public static function error(string $message = 'Erro.', int $statusCode = 400, mixed $data = null): JsonResponse
     {
         return response()->json([
             'success'     => false,
             'status_code' => $statusCode,
             'message'     => $message,
             'data'        => $data,
-        ], $statusCode);
+        ], $statusCode, [], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
 }

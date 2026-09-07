@@ -2,9 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\ApiResponder;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\JWTException;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenExpiredException;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenInvalidException;
@@ -28,26 +28,11 @@ class JwtMiddleware
             //$request->setUserResolver(fn () => $user);
 
         } catch (TokenExpiredException) {
-            return response()->json([
-                'success' => false,
-                'status_code' => Response::HTTP_UNAUTHORIZED,
-                'message' => 'Token expirado.',
-                'data' => null,
-            ], Response::HTTP_UNAUTHORIZED);
+            return ApiResponder::error('Token expirado', Response::HTTP_UNAUTHORIZED);
         } catch (TokenInvalidException) {
-            return response()->json([
-                'success' => false,
-                'status_code' => Response::HTTP_UNAUTHORIZED,
-                'message' => 'Token inválido.',
-                'data' => null,
-            ], Response::HTTP_UNAUTHORIZED);
+            return ApiResponder::error('Token inválido', Response::HTTP_UNAUTHORIZED);
         } catch (JWTException) {
-            return response()->json([
-                'success' => false,
-                'status_code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                'message' => 'Não autenticado.',
-                'data' => null,
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return ApiResponder::error('Não autenticado', Response::HTTP_UNAUTHORIZED);
         }
 
         return $next($request);

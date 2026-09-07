@@ -5,12 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
-use App\Models\Profile;
-use App\Models\Secretariat;
 use App\Models\User;
 use App\Notifications\ResetPasswordApiNotification;
+use App\Support\ApiResponder;
 use Illuminate\Auth\Events\PasswordReset;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -74,23 +72,15 @@ class AuthController extends Controller
 
         $token = Auth::guard('api')->attempt($credentials);
         if (! $token) {
-            return response()->json([
-                'success' => false,
-                'status_code' => Response::HTTP_UNAUTHORIZED,
-                'message' => 'Usuário ou senha incorretos.',
-                'data' => null,
-            ], Response::HTTP_UNAUTHORIZED);
+            return ApiResponder::error('Usuário ou senha incorretos.', Response::HTTP_UNAUTHORIZED);
         }
 
-        return response()->json([
-            'success' => true,
-            'status_code' => Response::HTTP_OK,
-            'message' => 'Login realizado com sucesso.',
-            'data' => [
-                'token' => $token,
-                'user' => Auth::guard('api')->user()->toResource()
+        return ApiResponder::success([
+            'token' => $token,
+            'user' => Auth::guard('api')->user()->toResource(),
             ],
-        ]);
+            'Login realizado com sucesso.',
+        );
     }
 
     #[Endpoint('Logout', description: 'Realiza o logout do usuário invalidando o token JWT atual.', authenticated: true)]
@@ -116,21 +106,14 @@ class AuthController extends Controller
         Auth::guard('api')->logout();
         try {
             JWTAuth::parseToken()->invalidate(true);
-        } catch (JWTException $e) {
-            response()->json([
-                'success' => false,
-                'status_code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                'message' => 'Ocorreu algum erro ao encerrar sua sessão. Tente novamente ou contate o administrador.',
-                'data' => null,
-            ]);
+        } catch (JWTException) {
+            return ApiResponder::error(
+                'Ocorreu algum erro ao encerrar sua sessão. Tente novamente ou contate o administrador.',
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
         }
 
-        return response()->json([
-            'success' => true,
-            'status_code' => Response::HTTP_OK,
-            'message' => 'Logout realizado com sucesso.',
-            'data' => null,
-        ]);
+        return ApiResponder::success(null, 'Logout realizado com sucesso.');
     }
 
     #[Endpoint('Renovar Token', description: 'Renova o token JWT de autenticação atual e retorna um novo token.', authenticated: true)]
@@ -167,26 +150,16 @@ class AuthController extends Controller
         try {
             $token = Auth::guard('api')->refresh();
         } catch (JWTException) {
-            return response()->json([
-                'success' => false,
-                'status_code' => Response::HTTP_UNAUTHORIZED,
-                'message' => 'Sua sessão expirou.',
-                'data' => null,
-            ], Response::HTTP_UNAUTHORIZED);
+            return ApiResponder::error('Sua sessão expirou.', Response::HTTP_UNAUTHORIZED);
         }
 
         // Define o novo token do usuário
         // Se não definir, o usuário continuaria com o token invalidado pelo refresh()
         Auth::guard('api')->setToken($token)->authenticate();
 
-        return response()->json([
-            'success' => true,
-            'status_code' => Response::HTTP_OK,
-            'message' => '',
-            'data' => [
-                'token' => $token,
-                'user' => Auth::guard('api')->user(),
-            ],
+        return ApiResponder::success([
+            'token' => $token,
+            'user' => Auth::guard('api')->user()->toResource(),
         ]);
     }
 
@@ -262,19 +235,14 @@ class AuthController extends Controller
             }
         );
 
-        return $status === Password::RESET_LINK_SENT ?
-            response()->json([
-                'success' => true,
-                'status_code' => Response::HTTP_OK,
-                'message' => 'Link de recuperação de senha enviado para seu E-mail.',
-                'data' => null,
-            ]) :
-            response()->json([
-                'success' => false,
-                'status_code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                'message' => 'Erro ao enviar o link via E-mail. Tente novamente mais tarde ou contate o administrador.',
-                'data' => null,
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        return $status === Password::RESET_LINK_SENT
+            ? ApiResponder::success(
+                null,
+                'Link de recuperação de senha enviado para seu E-mail.')
+            : ApiResponder::error(
+                'Erro ao enviar o link via E-mail. Tente novamente mais tarde ou contate o administrador.',
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+            );
     }
 
     #[Endpoint('Redefinir Senha', description: 'Redefine a senha do usuário utilizando o token recebido por e-mail.', authenticated: false)]
@@ -319,18 +287,13 @@ class AuthController extends Controller
             }
         );
 
-        return $status === Password::PASSWORD_RESET ?
-            response()->json([
-                'success' => true,
-                'status_code' => Response::HTTP_OK,
-                'message' => 'Sua senha foi redefinida com sucesso.',
-                'data' => null,
-            ]) :
-            response()->json([
-                'success' => false,
-                'status_code' => Response::HTTP_UNAUTHORIZED,
-                'message' => 'Tempo limite atingido para redefinir sua senha. Tente novamente ou contate o administrador.',
-                'data' => null,
-            ], Response::HTTP_UNAUTHORIZED);
+        return $status === Password::PASSWORD_RESET
+            ? ApiResponder::success(
+                null,
+                'Sua senha foi redefinida com sucesso.')
+            : ApiResponder::error(
+                'Tempo limite atingido para redefinir sua senha. Tente novamente ou contate o administrador.',
+                Response::HTTP_UNAUTHORIZED
+            );
     }
 }
