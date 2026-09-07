@@ -90,7 +90,7 @@ test('não atualiza usuário com email em formato inválido', function () {
         'success',
         'status_code',
         'message',
-        'data',
+        'data' => [ 'email' ],
     ]);
 });
 
