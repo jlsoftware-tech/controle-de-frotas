@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\User;
 
+use App\Http\Requests\FormRequest;
 use Illuminate\Contracts\Validation\ValidationRule;
-use Illuminate\Foundation\Http\FormRequest;
 use Knuckles\Scribe\Attributes\BodyParam;
 
 #[BodyParam('name', description: 'Nome completo do usuário.', example: 'Maria Santos')]

@@ -29,28 +29,32 @@ class AuthController extends Controller
     #[ResponseAtt(
         content: [
             'success' => true,
-            'token' => 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+            'status_code' => Response::HTTP_OK,
             'message' => 'Login realizado com sucesso.',
             'data' => [
-                'id' => 1,
-                'name' => 'João Silva',
-                'email' => 'joao.silva@example.com',
-                'profile_id' => 1,
-                'secretariat_id' => 1,
-                'created_at' => '2026-08-29T19:00:00.000000Z',
-                'updated_at' => '2026-08-29T19:00:00.000000Z',
+                'token' => 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+                'user' => [
+                    'id' => 1,
+                    'name' => 'João Silva',
+                    'email' => 'joao.silva@example.com',
+                    'profile_id' => 1,
+                    'secretariat_id' => 1,
+                    'created_at' => '03/09/2026 19:13:32',
+                    'updated_at' => '03/09/2026 19:13:32',
+                ]
             ],
         ],
-        status: 200,
+        status: Response::HTTP_OK,
         description: 'Login realizado com sucesso.'
     )]
     #[ResponseAtt(
         content: [
             'success' => false,
+            'status_code' => Response::HTTP_UNAUTHORIZED,
             'message' => 'Usuário ou senha incorretos.',
             'data' => null,
         ],
-        status: 401,
+        status: Response::HTTP_UNAUTHORIZED,
         description: 'Credenciais inválidas.'
     )]
     #[ResponseAtt(
@@ -72,6 +76,7 @@ class AuthController extends Controller
         if (! $token) {
             return response()->json([
                 'success' => false,
+                'status_code' => Response::HTTP_UNAUTHORIZED,
                 'message' => 'Usuário ou senha incorretos.',
                 'data' => null,
             ], Response::HTTP_UNAUTHORIZED);
@@ -79,9 +84,12 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'token' => $token,
+            'status_code' => Response::HTTP_OK,
             'message' => 'Login realizado com sucesso.',
-            'data' => Auth::guard('api')->user()->toArray(),
+            'data' => [
+                'token' => $token,
+                'user' => Auth::guard('api')->user()->toResource()
+            ],
         ]);
     }
 
@@ -89,26 +97,37 @@ class AuthController extends Controller
     #[ResponseAtt(
         content: [
             'success' => true,
+            'status_code' => Response::HTTP_OK,
             'message' => 'Logout realizado com sucesso.',
             'data' => null,
         ],
-        status: 200,
+        status: Response::HTTP_OK,
         description: 'Logout realizado com sucesso.'
     )]
     #[ResponseAtt(
         content: [
             'message' => 'Unauthenticated.',
         ],
-        status: 401,
+        status: Response::HTTP_UNAUTHORIZED,
         description: 'Token de autenticação não fornecido ou inválido.'
     )]
     public function logout(): JsonResponse
     {
         Auth::guard('api')->logout();
-        JWTAuth::parseToken()->invalidate(true);
+        try {
+            JWTAuth::parseToken()->invalidate(true);
+        } catch (JWTException $e) {
+            response()->json([
+                'success' => false,
+                'status_code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => 'Ocorreu algum erro ao encerrar sua sessão. Tente novamente ou contate o administrador.',
+                'data' => null,
+            ]);
+        }
 
         return response()->json([
             'success' => true,
+            'status_code' => Response::HTTP_OK,
             'message' => 'Logout realizado com sucesso.',
             'data' => null,
         ]);
@@ -118,25 +137,29 @@ class AuthController extends Controller
     #[ResponseAtt(
         content: [
             'success' => true,
-            'token' => 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+            'status_code' => Response::HTTP_OK,
+            'message' => '',
             'data' => [
-                'id' => 1,
-                'name' => 'João Silva',
-                'email' => 'joao.silva@example.com',
-                'profile_id' => 1,
-                'secretariat_id' => 1,
-                'created_at' => '2026-08-29T19:00:00.000000Z',
-                'updated_at' => '2026-08-29T19:00:00.000000Z',
+                'token' => 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+                'user' => [
+                    'id' => 1,
+                    'name' => 'João Silva',
+                    'email' => 'joao.silva@example.com',
+                    'profile_id' => 1,
+                    'secretariat_id' => 1,
+                    'created_at' => '03/09/2026 19:13:32',
+                    'updated_at' => '03/09/2026 19:13:32',
+                ],
             ],
         ],
-        status: 200,
+        status: Response::HTTP_OK,
         description: 'Token renovado com sucesso.'
     )]
     #[ResponseAtt(
         content: [
             'message' => 'Unauthenticated.',
         ],
-        status: 401,
+        status: Response::HTTP_UNAUTHORIZED,
         description: 'Token não fornecido ou inválido para renovação.'
     )]
     public function refresh()
@@ -146,9 +169,10 @@ class AuthController extends Controller
         } catch (JWTException) {
             return response()->json([
                 'success' => false,
-                'message' => 'Token expirado',
+                'status_code' => Response::HTTP_UNAUTHORIZED,
+                'message' => 'Sua sessão expirou.',
                 'data' => null,
-            ], 401);
+            ], Response::HTTP_UNAUTHORIZED);
         }
 
         // Define o novo token do usuário
@@ -157,8 +181,12 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'token' => $token,
-            'data' => Auth::guard('api')->user()
+            'status_code' => Response::HTTP_OK,
+            'message' => '',
+            'data' => [
+                'token' => $token,
+                'user' => Auth::guard('api')->user(),
+            ],
         ]);
     }
 
@@ -172,18 +200,18 @@ class AuthController extends Controller
                 'email' => 'joao.silva@example.com',
                 'profile_id' => 1,
                 'secretariat_id' => 1,
-                'created_at' => '2026-08-29T19:00:00.000000Z',
-                'updated_at' => '2026-08-29T19:00:00.000000Z',
+                'created_at' => '05/09/2026 10:22',
+                'updated_at' => '05/09/2026 10:22',
             ],
         ],
-        status: 200,
+        status: Response::HTTP_OK,
         description: 'Dados do usuário autenticado recuperados com sucesso.'
     )]
     #[ResponseAtt(
         content: [
             'message' => 'Unauthenticated.',
         ],
-        status: 401,
+        status: Response::HTTP_UNAUTHORIZED,
         description: 'Token não fornecido ou inválido.'
     )]
     public function me(): JsonResponse
@@ -198,17 +226,21 @@ class AuthController extends Controller
     #[ResponseAtt(
         content: [
             'success' => true,
-            'message' => 'Link enviado com sucesso.',
+            'status_code' => Response::HTTP_OK,
+            'message' => 'Link de recuperação de senha enviado para seu E-mail.',
+            'data' => null,
         ],
-        status: 200,
+        status: Response::HTTP_OK,
         description: 'E-mail de recuperação enviado com sucesso.'
     )]
     #[ResponseAtt(
         content: [
             'success' => false,
-            'message' => 'Não foi possível enviar o link.',
+            'status_code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+            'message' => 'Erro ao enviar o link via E-mail. Tente novamente mais tarde ou contate o administrador.',
+            'data' => null,
         ],
-        status: 200,
+        status: Response::HTTP_INTERNAL_SERVER_ERROR,
         description: 'Falha ao processar o envio do link de recuperação.'
     )]
     #[ResponseAtt(
@@ -218,7 +250,7 @@ class AuthController extends Controller
                 'email' => ['The email field is required.'],
             ],
         ],
-        status: 422,
+        status: Response::HTTP_UNPROCESSABLE_ENTITY,
         description: 'Erro de validação no e-mail informado.'
     )]
     public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
@@ -233,29 +265,37 @@ class AuthController extends Controller
         return $status === Password::RESET_LINK_SENT ?
             response()->json([
                 'success' => true,
-                'message' => 'Link enviado com sucesso.',
+                'status_code' => Response::HTTP_OK,
+                'message' => 'Link de recuperação de senha enviado para seu E-mail.',
+                'data' => null,
             ]) :
             response()->json([
                 'success' => false,
-                'message' => 'Não foi possível enviar o link.',
-            ]);
+                'status_code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => 'Erro ao enviar o link via E-mail. Tente novamente mais tarde ou contate o administrador.',
+                'data' => null,
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     #[Endpoint('Redefinir Senha', description: 'Redefine a senha do usuário utilizando o token recebido por e-mail.', authenticated: false)]
     #[ResponseAtt(
         content: [
             'success' => true,
+            'status_code' => Response::HTTP_OK,
             'message' => 'Sua senha foi redefinida com sucesso.',
+            'data' => null,
         ],
-        status: 200,
+        status: Response::HTTP_OK,
         description: 'Senha redefinida com sucesso.'
     )]
     #[ResponseAtt(
         content: [
             'success' => false,
-            'message' => 'Token inválido ou expirado.',
+            'status_code' => Response::HTTP_UNAUTHORIZED,
+            'message' => 'Tempo limite atingido para redefinir sua senha. Tente novamente ou contate o administrador.',
+            'data' => null,
         ],
-        status: 200,
+        status: Response::HTTP_UNAUTHORIZED,
         description: 'Token inválido ou expirado.'
     )]
     #[ResponseAtt(
@@ -265,7 +305,7 @@ class AuthController extends Controller
                 'password' => ['The password field confirmation does not match.'],
             ],
         ],
-        status: 422,
+        status: Response::HTTP_UNPROCESSABLE_ENTITY,
         description: 'Erro de validação nos campos informados.'
     )]
     public function resetPassword(ResetPasswordRequest $request): JsonResponse
@@ -282,11 +322,15 @@ class AuthController extends Controller
         return $status === Password::PASSWORD_RESET ?
             response()->json([
                 'success' => true,
+                'status_code' => Response::HTTP_OK,
                 'message' => 'Sua senha foi redefinida com sucesso.',
+                'data' => null,
             ]) :
             response()->json([
                 'success' => false,
-                'message' => 'Token inválido ou expirado.',
-            ]);
+                'status_code' => Response::HTTP_UNAUTHORIZED,
+                'message' => 'Tempo limite atingido para redefinir sua senha. Tente novamente ou contate o administrador.',
+                'data' => null,
+            ], Response::HTTP_UNAUTHORIZED);
     }
 }

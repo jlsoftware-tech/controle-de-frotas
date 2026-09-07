@@ -7,9 +7,11 @@ use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Http\Resources\UserCollection;
 use App\Models\User;
+use App\Traits\ApiResponse;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
+use Symfony\Component\HttpFoundation\Response;
 use Knuckles\Scribe\Attributes\Endpoint;
 use Knuckles\Scribe\Attributes\Group;
 use Knuckles\Scribe\Attributes\Response as ResponseAtt;
@@ -18,6 +20,10 @@ use Knuckles\Scribe\Attributes\UrlParam;
 #[Group('Usuários', description: 'Endpoints para gerenciamento de usuários do sistema.')]
 class UserController extends Controller
 {
+    // trait para tratamento dos erros de validação
+    use ApiResponse;
+
+
     /**
      * Display a listing of the resource.
      */
@@ -157,19 +163,18 @@ class UserController extends Controller
                 'profile_id' => $request->profile_id,
                 'secretariat_id' => $request->secretariat_id,
             ]);
-        } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Ocorreu um erro ao cadastrar o usuário. Por favor, tente novamente.',
-                'data' => null,
-            ]);
+        } catch (Exception) {
+            return $this->error(
+                'Ocorreu um erro ao cadastrar o usuário. Por favor, tente novamente.',
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+            );
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Usuário cadastrado com sucesso!',
-            'data' => $user->toResource(),
-        ]);
+        return $this->success(
+            $user->toResource(),
+            'Usuário cadastrado com sucesso!',
+            Response::HTTP_CREATED,
+        );
     }
 
     /**
@@ -214,10 +219,11 @@ class UserController extends Controller
     )]
     public function show(User $user): JsonResponse
     {
-        return response()->json([
-            'success' => true,
-            'data' => $user->toResource(),
-        ]);
+        return $this->success(
+            $user->toResource(),
+            '',
+            Response::HTTP_OK,
+        );
     }
 
     /**
@@ -276,16 +282,15 @@ class UserController extends Controller
         $status = $user->update($request->all());
 
         return $status ?
-            response()->json([
-                'success' => true,
-                'message' => 'Dados atualizados com sucesso',
-                'data' => $user->toResource(),
-            ]) :
-            response()->json([
-                'success' => false,
-                'message' => 'Ocorreu um erro ao atualizar os dados.',
-                'data' => null,
-            ]);
+            $this->success(
+                $user->toResource(),
+                'Dados atualizados com sucesso.',
+                Response::HTTP_OK,
+            ):
+            $this->error(
+                'Ocorreu um erro ao atualizar os dados.',
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+            );
     }
 
     /**
@@ -332,11 +337,9 @@ class UserController extends Controller
     public function destroy(User $user): JsonResponse
     {
         $user->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Usuário removido com sucesso!',
-            'data' => $user->toResource(),
-        ]);
+        return $this->success(
+            message: 'Usuário removido com sucesso.',
+            statusCode: Response::HTTP_OK,
+        );
     }
 }
