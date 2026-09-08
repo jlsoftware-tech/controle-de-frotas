@@ -24,8 +24,8 @@ class JwtMiddleware
             $user = JWTAuth::parseToken()->authenticate();
 
             // Registra o usuário no guard 'api' e no resolver da requisição
-            //Auth::guard('api')->setUser($user);
-            //$request->setUserResolver(fn () => $user);
+            // Auth::guard('api')->setUser($user);
+            // $request->setUserResolver(fn () => $user);
 
         } catch (TokenExpiredException) {
             return ApiResponder::error('Token expirado', Response::HTTP_UNAUTHORIZED);

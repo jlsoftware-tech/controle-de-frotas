@@ -15,8 +15,8 @@ test('atualiza usuário com dados válidos', function () {
         'password_confirmation' => 'senhaforte',
     ];
 
-    $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-        ->putJson('/api/v1/users/' . $user->id, $payload);
+    $response = $this->withHeader('Authorization', 'Bearer '.$token)
+        ->putJson('/api/v1/users/'.$user->id, $payload);
 
     $response->assertJsonStructure([
         'success',
@@ -40,7 +40,7 @@ test('não atualiza usuário inexistente', function () {
     $user = createUser();
     $token = JWTAuth::fromUser($user);
 
-    $response = $this->withHeaders(['Authorization' => 'Bearer ' . $token])
+    $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
         ->putJson('/api/v1/users/99999', [
             'name' => fake()->name,
         ]);
@@ -58,7 +58,7 @@ test('não atualiza usuário inexistente', function () {
 test('não atualiza usuário sem autenticação', function () {
     $user = createUser();
 
-    $response = $this->putJson('/api/v1/users/' . $user->id, [
+    $response = $this->putJson('/api/v1/users/'.$user->id, [
         'name' => fake()->name,
     ]);
 
@@ -77,8 +77,8 @@ test('não atualiza usuário com email em formato inválido', function () {
     $token = JWTAuth::fromUser($user);
     Auth::guard('api')->setUser($user);
 
-    $response = $this->withHeaders(['Authorization' => 'Bearer ' . $token])
-        ->putJson('/api/v1/users/' . $user->id, [
+    $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
+        ->putJson('/api/v1/users/'.$user->id, [
             'email' => 'email-invalido',
         ]);
 
@@ -90,7 +90,7 @@ test('não atualiza usuário com email em formato inválido', function () {
         'success',
         'status_code',
         'message',
-        'data' => [ 'email' ],
+        'data' => ['email'],
     ]);
 });
 
@@ -100,8 +100,8 @@ test('não atualiza usuário com email já usado por outro usuário', function (
 
     createUser(['email' => 'ocupado@example.com']);
 
-    $response = $this->withHeaders(['Authorization' => 'Bearer ' . $token])
-        ->putJson('/api/v1/users/' . $user->id, [
+    $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
+        ->putJson('/api/v1/users/'.$user->id, [
             'email' => 'ocupado@example.com',
         ]);
 
@@ -122,8 +122,8 @@ test('permite atualizar usuário mantendo o próprio email', function () {
     $token = JWTAuth::fromUser($user);
     Auth::guard('api')->setUser($user);
 
-    $response = $this->withHeaders(['Authorization' => 'Bearer ' . $token])
-        ->putJson('/api/v1/users/' . $user->id, [
+    $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
+        ->putJson('/api/v1/users/'.$user->id, [
             'name' => fake()->name,
             'email' => 'mesmo@example.com',
         ]);

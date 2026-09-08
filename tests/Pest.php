@@ -63,11 +63,8 @@ function something()
  * email: test@example.com
  *
  * password: senha123
- *
- * @param array|null $attributes
- * @return User
  */
-function createUser(array $attributes = null): User
+function createUser(?array $attributes = null): User
 {
     $_attributes = [
         'email' => fake()->unique()->email,
@@ -75,7 +72,7 @@ function createUser(array $attributes = null): User
         'profile_id' => Profile::create(['name' => 'test', 'description' => 'test'])->id,
         'secretariat_id' => Secretariat::create(['name' => 'test', 'acronym' => 'test'])->id,
     ];
-    if (!is_null($attributes)) {
+    if (! is_null($attributes)) {
         foreach ($attributes as $key => $value) {
             $_attributes[$key] = $value;
         }

@@ -11,11 +11,11 @@ use App\Support\ApiResponder;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
-use Symfony\Component\HttpFoundation\Response;
 use Knuckles\Scribe\Attributes\Endpoint;
 use Knuckles\Scribe\Attributes\Group;
 use Knuckles\Scribe\Attributes\Response as ResponseAtt;
 use Knuckles\Scribe\Attributes\UrlParam;
+use Symfony\Component\HttpFoundation\Response;
 
 #[Group('Usuários', description: 'Endpoints para gerenciamento de usuários do sistema.')]
 class UserController extends Controller
@@ -330,6 +330,7 @@ class UserController extends Controller
     public function destroy(User $user): JsonResponse
     {
         $user->delete();
+
         return ApiResponder::success(message: 'Usuário removido com sucesso.');
     }
 }

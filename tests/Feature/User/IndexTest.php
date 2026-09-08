@@ -8,7 +8,7 @@ test('listar usuários autenticado', function () {
     createUser();
     createUser();
 
-    $response = $this->withHeaders(['Authorization' => 'Bearer ' . $token])
+    $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
         ->getJson('/api/v1/users');
 
     $response->assertStatus(200);

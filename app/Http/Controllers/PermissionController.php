@@ -7,7 +7,6 @@ use App\Models\Profile;
 use App\Support\ApiResponder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
 class PermissionController extends Controller
@@ -20,10 +19,11 @@ class PermissionController extends Controller
         Gate::authorize('viewAny', Profile::class);
 
         return ApiResponder::success(Permission::all());
+
         return response()->json([
             'status' => true,
             'message' => 'Listando todas as permissões',
-            'data' => Permission::all()
+            'data' => Permission::all(),
         ]);
     }
 
@@ -36,18 +36,17 @@ class PermissionController extends Controller
 
         try {
             $permission = Permission::findOrFail($id);
-        }
-        catch (ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
             return response()->json([
                 'status' => true,
                 'message' => 'Recurso não encontrado.',
-                'data' => null
+                'data' => null,
             ]);
         }
 
         return response()->json([
             'status' => true,
-            'data' => $permission
+            'data' => $permission,
         ]);
     }
 }

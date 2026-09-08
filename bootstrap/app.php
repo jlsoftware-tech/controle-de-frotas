@@ -31,6 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($request->is('api/*')) {
                 return ApiResponder::error('Não autenticado', 401);
             }
+
             return null;
         });
 
@@ -38,6 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($request->is('api/*')) {
                 return ApiResponder::error('Recurso não encontrado.', 404);
             }
+
             return null;
         });
 
@@ -45,6 +47,7 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($request->is('api/*')) {
                 return ApiResponder::error("Rota {$request->url()} não existe.", 404);
             }
+
             return null;
         });
     })->create();

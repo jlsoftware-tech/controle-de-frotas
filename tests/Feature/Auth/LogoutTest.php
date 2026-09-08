@@ -15,7 +15,7 @@ test('logout', function () {
     $token = JWTAuth::fromUser($user);
     Auth::guard('api')->setUser($user);
 
-    $response = $this->withHeaders(['Authorization' => 'Bearer ' . $token])
+    $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
         ->getJson('/api/v1/auth/logout');
 
     $response->assertStatus(200);
