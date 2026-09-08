@@ -28,5 +28,5 @@ test('listar usuários autenticado', function () {
 test('não permite listar usuários sem autenticação', function () {
     $response = $this->getJson('/api/v1/users');
 
-    $response->assertStatus(500);
+    $response->assertStatus(401);
 });

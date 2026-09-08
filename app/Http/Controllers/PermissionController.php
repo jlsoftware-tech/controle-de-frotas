@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Permission;
 use App\Models\Profile;
+use App\Support\ApiResponder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -18,6 +19,7 @@ class PermissionController extends Controller
     {
         Gate::authorize('viewAny', Profile::class);
 
+        return ApiResponder::success(Permission::all());
         return response()->json([
             'status' => true,
             'message' => 'Listando todas as permissões',
