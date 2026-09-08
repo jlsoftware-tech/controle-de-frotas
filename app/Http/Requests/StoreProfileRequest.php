@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
-use Illuminate\Foundation\Http\FormRequest;
 use Knuckles\Scribe\Attributes\BodyParam;
 
 #[BodyParam(name: 'name', description: 'nome do perfil de acesso', example: 'admin')]
@@ -30,7 +29,7 @@ class StoreProfileRequest extends FormRequest
             'name' => 'required|unique:profiles|max:255',
             'description' => 'max:255',
             'permissions' => 'array',
-            'permissions.*' => 'distinct|integer|exists:permissions,id'
+            'permissions.*' => 'distinct|integer|exists:permissions,id',
         ];
     }
 }

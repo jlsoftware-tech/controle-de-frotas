@@ -28,7 +28,7 @@ class DatabaseSeeder extends Seeder
             foreach ($names as $name) {
                 Permission::create([
                     'name' => $name,
-                    'module' => $module
+                    'module' => $module,
                 ])->save();
             }
         }
@@ -36,7 +36,7 @@ class DatabaseSeeder extends Seeder
         $testUser = User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
-            'password' => Hash::make('senha'),
+            'password' => Hash::make('senha123'),
             'profile_id' => Profile::create([
                 'name' => 'Test Profile',
                 'description' => 'Test Profile',

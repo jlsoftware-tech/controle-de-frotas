@@ -6,7 +6,6 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use Symfony\Component\Mime\Email;
 
 class ResetPasswordApiNotification extends Notification implements ShouldQueue
 {
@@ -35,9 +34,10 @@ class ResetPasswordApiNotification extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $url = config('app.frontend_url') . '/reset-password'
-            . '?token=' . $this->token
-            . '&email=' . urlencode($notifiable->getEmailForPasswordReset());
+        $url = config('app.frontend_url').'/redefinir-senha'
+            .'?token='.$this->token
+            .'&email='.urlencode($notifiable->getEmailForPasswordReset());
+
         return (new MailMessage)
             ->subject('Redefinição de senha')
             ->line('Você solicitou a redefinição de senha da sua conta.')

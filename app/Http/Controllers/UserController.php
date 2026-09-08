@@ -2,21 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreUserRequest;
-use App\Http\Requests\UpdateUserRequest;
-use App\Http\Resources\UserResource;
+use App\Http\Requests\User\ListUsersRequest;
+use App\Http\Requests\User\StoreUserRequest;
+use App\Http\Requests\User\UpdateUserRequest;
+use App\Http\Resources\UserCollection;
 use App\Models\User;
-use Illuminate\Http\Request;
+use App\Support\ApiResponder;
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Knuckles\Scribe\Attributes\Endpoint;
-use Knuckles\Scribe\Attributes\Response as ResponseAtt;
 use Knuckles\Scribe\Attributes\Group;
-use Knuckles\Scribe\Attributes\QueryParam;
-use Knuckles\Scribe\Attributes\Response;
-use Mockery\Exception;
+use Knuckles\Scribe\Attributes\Response as ResponseAtt;
+use Knuckles\Scribe\Attributes\UrlParam;
+use Symfony\Component\HttpFoundation\Response;
 
-#[Group('Endpoints de usuário', 'Gerenciamento de recursos.', true)]
+#[Group('Usuários', description: 'Endpoints para gerenciamento de usuários do sistema.', authenticated: true)]
 class UserController extends Controller
 {
     #[Endpoint('Listar recursos da barra lateral (sidebar)',
@@ -65,8 +67,10 @@ class UserController extends Controller
         // e monta a estrutura da resposta, do contrário retorna null
         $canAccessMenu = function (array $menu, User $user, array $modules) {
             return array_map(
-                function ($item) use ($user, $modules) {
-                    if (!in_array($item[3], $modules)) return null;
+                function ($item) use ($modules) {
+                    if (! in_array($item[3], $modules)) {
+                        return null;
+                    }
 
                     return [
                         'icon' => $item[0],
@@ -89,7 +93,7 @@ class UserController extends Controller
             ],
             'secretariat' => [
                 ['FaLandmark', 'Gerenciar secretarias', '/secretarias', 'secretariats'],
-            ]
+            ],
         ];
 
         // array de todos possíveis menus do sidebar do usuário
@@ -136,35 +140,133 @@ class UserController extends Controller
         ]);
     }
 
-    #[Endpoint('Listar todos os usuários', 'Retorna todos os usuários com paginação.')]
-    #[QueryParam('search', description: 'Filtra a busca por nome.', required: false, nullable: true)]
-    #[QueryParam('profile', type: 'int', description: 'Filtra a busca por nível de permissões.', required: false, nullable: true)]
-    #[QueryParam('per_page', type: 'int', description: 'Define o número de registros a mostrar. Valor padrão: padrão 10', required: false, nullable: true)]
-    #[QueryParam('page', type: 'int', description: 'Número da página atual, com valor padrão 1')]
-    #[QueryParam('sort', description: 'Campo de dado do usuário filtrado. Valor padrão: name', required: false, enum: ['name', 'email', 'profile_id', 'created_at'], nullable: true)]
-    #[QueryParam('order', description: 'Critério de ordenação dos registros. Valor padrão: desc', required: false, enum: ['asc', 'desc'], nullable: true)]
-//    #[Response([
-//
-//    ])]
+    #[Endpoint('Listar Usuários', description: 'Retorna uma lista paginada de usuários cadastrados no sistema com opções de busca, ordenação e paginação.', authenticated: true)]
+    #[ResponseAtt(
+        content: [
+            'success' => true,
+            'statusCode' => 200,
+            'data' => [
+                'items' => [
+                    [
+                        'id' => 1,
+                        'name' => 'Maria Santos',
+                        'email' => 'maria.santos@example.com',
+                        'profile_id' => 1,
+                        'secretariat_id' => 1,
+                        'created_at' => '01/09/2026 10:00:00',
+                        'updated_at' => '01/09/2026 10:00:00',
+                        'deleted_at' => null,
+                    ],
+                ],
+                'pagination' => [
+                    'numPerPage' => 10,
+                    'currPage' => 1,
+                    'totalEntries' => 1,
+                    'totalPages' => 1,
+                ],
+            ],
+        ],
+        status: 200,
+        description: 'Lista paginada de usuários recuperada com sucesso.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
+            'statusCode' => 400,
+            'data' => null,
+            'pagination' => null,
+        ],
+        status: 400,
+        description: 'Nenhum usuário encontrado para os critérios informados.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
+            'message' => 'Token não fornecido.',
+            'data' => null,
+        ],
+        status: 401,
+        description: 'Token de autenticação não fornecido ou inválido.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'message' => 'O campo ordenação selecionado é inválido.',
+            'errors' => [
+                'order' => ['O campo ordenação selecionado é inválido.'],
+            ],
+        ],
+        status: 422,
+        description: 'Erro de validação nos parâmetros de consulta.'
+    )]
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(ListUsersRequest $request): UserCollection|JsonResponse
     {
-        $users = User::query()
-            ->when($request->filled('search'), fn ($q) =>
-                $q->where('name', 'like' , "%{$request->search}%"))
-            ->orderBy($request->input('sort', 'name'), $request->input('order', 'desc'))
-            ->paginate($request->input('per_page', 10));
+        $page = $request->validated('page');
+        $per_page = $request->validated('per_page');
+        $search = $request->validated('search');
+        $sort = $request->validated('sort');
+        $order = $request->validated('order');
 
-        return UserResource::collection($users);
+        $users = User::query()
+            ->when($request->filled('search'), fn ($q) => $q->where('name', 'like', "%{$search}%"))
+            ->orderBy($sort, $order)
+            ->paginate($per_page, ['*'], 'page', $page);
+
+        if (count($users) === 0) {
+            return ApiResponder::error('Nenhum usuário encontrado para essa pesquisa.');
+        }
+
+        return new UserCollection($users);
     }
 
-    #[Endpoint('Criar um novo usuário', 'Cria um novo usuário.')]
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreUserRequest $request)
+    #[Endpoint('Cadastrar Usuário', description: 'Cadastra um novo usuário no sistema com perfil e secretaria vinculados.', authenticated: true)]
+    #[ResponseAtt(
+        content: [
+            'success' => true,
+            'message' => 'Usuário cadastrado com sucesso!',
+            'data' => [
+                'id' => 1,
+                'name' => 'Maria Santos',
+                'email' => 'maria.santos@example.com',
+                'profile_id' => 1,
+                'secretariat_id' => 1,
+                'created_at' => '01/09/2026 10:00:00',
+                'updated_at' => '01/09/2026 10:00:00',
+                'deleted_at' => null,
+            ],
+        ],
+        status: 200,
+        description: 'Usuário cadastrado com sucesso.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
+            'message' => 'Token não fornecido.',
+            'data' => null,
+        ],
+        status: 401,
+        description: 'Token de autenticação não fornecido ou inválido.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'message' => 'O campo nome é obrigatório.',
+            'errors' => [
+                'name' => ['O campo nome é obrigatório.'],
+                'email' => ['O campo e-mail é obrigatório.'],
+                'password' => ['O campo senha é obrigatório.'],
+                'profile_id' => ['O campo perfil é obrigatório.'],
+                'secretariat_id' => ['O campo secretaria é obrigatório.'],
+            ],
+        ],
+        status: 422,
+        description: 'Erro de validação nos campos informados.'
+    )]
+    public function store(StoreUserRequest $request): JsonResponse
     {
         try {
             $user = User::create([
@@ -174,93 +276,181 @@ class UserController extends Controller
                 'profile_id' => $request->profile_id,
                 'secretariat_id' => $request->secretariat_id,
             ]);
-        } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Ocorreu um erro ao cadastrar o usuário. Por favor, tente novamente.',
-                'data' => null
-            ]);
+        } catch (Exception) {
+            return ApiResponder::error(
+                'Ocorreu um erro ao cadastrar o usuário. Por favor, tente novamente.',
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+            );
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Usuário cadastrado com sucesso!',
-            'data' => $user->toResource()
-        ]);
+        return ApiResponder::success(
+            $user->toResource(),
+            'Usuário cadastrado com sucesso!',
+            Response::HTTP_CREATED,
+        );
     }
 
-    #[Endpoint('Mostrar um usuário', 'Retorna os dados de um usuário especificado.')]
-    #[Response([
-        'success' => true,
-        'data' => [
-            'name' => 'Nome',
-            'email' => 'E-mail',
-            'profile_id' => 'Perfil',
-            'secretariat_id' => 'Secretaria',
-            'created_at' => 'Data de cadastro',
-            'updated_at' => 'Data de modificação',
-            'deleted_at' => 'Data de exclusão'
-        ]
-    ], 200, 'Usuário encontrado')]
-    #[Response([
-        'success' => false,
-        'data' => null
-    ], 404, 'Usuário não encontrado')]
     /**
      * Display the specified resource.
      */
-    public function show(User $user)
-    {
-        return response()->json([
+    #[Endpoint('Visualizar Usuário', description: 'Retorna os dados detalhados de um usuário específico a partir do seu ID.', authenticated: true)]
+    #[UrlParam('id', type: 'integer', description: 'ID do usuário a ser visualizado.', example: 1)]
+    #[ResponseAtt(
+        content: [
             'success' => true,
-            'data' => $user->toResource(),
-        ]);
+            'data' => [
+                'id' => 1,
+                'name' => 'Maria Santos',
+                'email' => 'maria.santos@example.com',
+                'profile_id' => 1,
+                'secretariat_id' => 1,
+                'created_at' => '01/09/2026 10:00:00',
+                'updated_at' => '01/09/2026 10:00:00',
+                'deleted_at' => null,
+            ],
+        ],
+        status: 200,
+        description: 'Detalhes do usuário recuperados com sucesso.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
+            'message' => 'Token não fornecido.',
+            'data' => null,
+        ],
+        status: 401,
+        description: 'Token de autenticação não fornecido ou inválido.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
+            'message' => 'Recurso não encontrado.',
+            'data' => null,
+        ],
+        status: 404,
+        description: 'Usuário não encontrado.'
+    )]
+    public function show(User $user): JsonResponse
+    {
+        return ApiResponder::success(
+            $user->toResource(),
+            '',
+            Response::HTTP_OK,
+        );
     }
 
-    #[Endpoint('Atualizar um usuário', 'Atualiza os dados do usuário.')]
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateUserRequest $request, User $user)
+    #[Endpoint('Atualizar Usuário', description: 'Atualiza os dados cadastrais de um usuário existente a partir do seu ID.', authenticated: true)]
+    #[UrlParam('id', type: 'integer', description: 'ID do usuário a ser atualizado.', example: 1)]
+    #[ResponseAtt(
+        content: [
+            'success' => true,
+            'message' => 'Dados atualizados com sucesso',
+            'data' => [
+                'id' => 1,
+                'name' => 'Maria Santos Silva',
+                'email' => 'maria.silva@example.com',
+                'profile_id' => 1,
+                'secretariat_id' => 1,
+                'created_at' => '01/09/2026 10:00:00',
+                'updated_at' => '01/09/2026 10:05:00',
+                'deleted_at' => null,
+            ],
+        ],
+        status: 200,
+        description: 'Dados atualizados com sucesso.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
+            'message' => 'Token não fornecido.',
+            'data' => null,
+        ],
+        status: 401,
+        description: 'Token de autenticação não fornecido ou inválido.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'message' => 'O campo e-mail deve ser um endereço de e-mail válido.',
+            'errors' => [
+                'email' => ['O campo e-mail deve ser um endereço de e-mail válido.'],
+            ],
+        ],
+        status: 422,
+        description: 'Erro de validação nos campos informados.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
+            'message' => 'Recurso não encontrado.',
+            'data' => null,
+        ],
+        status: 404,
+        description: 'Usuário não encontrado.'
+    )]
+    public function update(UpdateUserRequest $request, User $user): JsonResponse
     {
         $status = $user->update($request->all());
 
-        return $status ?
-            response()->json([
-                'success' => true,
-                'message' => 'Dados atualizados com sucesso',
-                'data' => $user->toResource()
-            ]) :
-            response()->json([
-                'success' => false,
-                'message' => 'Ocorreu um erro ao atualizar os dados.',
-                'data' => null
-            ]);
+        return $status
+            ? ApiResponder::success(
+                $user->toResource(),
+                'Dados atualizados com sucesso.',
+                Response::HTTP_OK,
+            )
+            : ApiResponder::error(
+                'Ocorreu um erro ao atualizar os dados.',
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+            );
     }
 
-    #[Endpoint('Excluir um usuário', 'Exclui o usuário.')]
-    #[Response([
-        'success' => true,
-        'data' => [
-            'name' => 'Nome',
-            'email' => 'E-mail',
-            'profile_id' => 'Perfil',
-            'secretariat_id' => 'Secretaria',
-            'created_at' => 'Data de cadastro',
-            'updated_at' => 'Data de modificação',
-            'deleted_at' => 'Data de exclusão'
-        ],
-    ])]
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(User $user)
-    {
-        $user->delete();
-        return response()->json([
+    #[Endpoint('Excluir Usuário', description: 'Remove um usuário do sistema a partir do seu ID.', authenticated: true)]
+    #[UrlParam('id', type: 'integer', description: 'ID do usuário a ser excluído.', example: 1)]
+    #[ResponseAtt(
+        content: [
             'success' => true,
             'message' => 'Usuário removido com sucesso!',
-            'data' => $user->toResource(),
-        ]);
+            'data' => [
+                'id' => 1,
+                'name' => 'Maria Santos',
+                'email' => 'maria.santos@example.com',
+                'profile_id' => 1,
+                'secretariat_id' => 1,
+                'created_at' => '01/09/2026 10:00:00',
+                'updated_at' => '01/09/2026 10:10:00',
+                'deleted_at' => '01/09/2026 10:15:00',
+            ],
+        ],
+        status: 200,
+        description: 'Usuário removido com sucesso.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
+            'message' => 'Token não fornecido.',
+            'data' => null,
+        ],
+        status: 401,
+        description: 'Token de autenticação não fornecido ou inválido.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
+            'message' => 'Recurso não encontrado.',
+            'data' => null,
+        ],
+        status: 404,
+        description: 'Usuário não encontrado.'
+    )]
+    public function destroy(User $user): JsonResponse
+    {
+        $user->delete();
+
+        return ApiResponder::success(message: 'Usuário removido com sucesso.');
     }
 }

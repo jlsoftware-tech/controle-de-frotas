@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\Profile;
+use App\Models\Secretariat;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -15,7 +18,7 @@ use Tests\TestCase;
 */
 
 pest()->extend(TestCase::class)
- // ->use(RefreshDatabase::class)
+    ->use(RefreshDatabase::class)
     ->in('Feature');
 
 /*
@@ -47,4 +50,33 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+/*
+ * Helpers para os testes
+ * */
+
+/**
+ * Cria um novo usuário com valores padrão, se não for passado nenhum argumento para a função.
+ * Não é obrigatório informar todos os campos do usuário, os campos não informados serão preenchidos automaticamente.
+ *
+ * email: test@example.com
+ *
+ * password: senha123
+ */
+function createUser(?array $attributes = null): User
+{
+    $_attributes = [
+        'email' => fake()->unique()->email,
+        'password' => 'senha123',
+        'profile_id' => Profile::create(['name' => 'test', 'description' => 'test'])->id,
+        'secretariat_id' => Secretariat::create(['name' => 'test', 'acronym' => 'test'])->id,
+    ];
+    if (! is_null($attributes)) {
+        foreach ($attributes as $key => $value) {
+            $_attributes[$key] = $value;
+        }
+    }
+
+    return User::factory()->create($_attributes);
 }

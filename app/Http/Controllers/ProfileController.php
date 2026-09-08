@@ -31,7 +31,7 @@ class ProfileController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Lista de todos os perfis de acesso',
-            'data' => ProfileResource::collection($profiles)
+            'data' => ProfileResource::collection($profiles),
         ]);
     }
 
@@ -45,25 +45,24 @@ class ProfileController extends Controller
         try {
             $newProfile = Profile::create([
                 'name' => $request->input('name'),
-                'description' => $request->input('description')
+                'description' => $request->input('description'),
             ]);
 
             $newProfile->permissions()->attach($request->input('permissions'));
 
             $newProfile->save();
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Ocorreu um erro ao cadastrar o perfil. Por favor, tente novamente.',
-                'data' => null
+                'data' => null,
             ]);
         }
 
         return response()->json([
             'success' => true,
             'message' => 'Perfil cadastrado com sucesso!',
-            'data' => [ $newProfile ]
+            'data' => [$newProfile],
         ]);
     }
 
@@ -76,7 +75,7 @@ class ProfileController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $profile
+            'data' => $profile,
         ]);
     }
 
@@ -95,12 +94,12 @@ class ProfileController extends Controller
             response()->json([
                 'success' => true,
                 'message' => 'Dados atualizados com sucesso',
-                'data' => $profile
+                'data' => $profile,
             ]) :
             response()->json([
                 'success' => false,
                 'message' => 'Ocorreu um erro ao atualizar os dados.',
-                'data' => null
+                'data' => null,
             ]);
     }
 
@@ -113,19 +112,18 @@ class ProfileController extends Controller
 
         try {
             $profile->deleteOrFail();
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Ocorreu um erro ao deletar perfil! Tente novamente.',
-                'data' => null
+                'data' => null,
             ]);
         }
 
         return response()->json([
             'success' => true,
             'message' => 'Perfil removido com sucesso.',
-            'data' => null
+            'data' => null,
         ]);
     }
 }
