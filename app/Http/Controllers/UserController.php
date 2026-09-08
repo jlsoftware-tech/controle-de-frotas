@@ -6,7 +6,6 @@ use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -64,64 +63,60 @@ class UserController extends Controller
     {
         // verifica quais ações que usuário autenticado tem permissão de usar,
         // e monta a estrutura da resposta, do contrário retorna null
-        $canAccessMenu = function (Model $model, User $user, array $abilities, string $icon)
-        {
+        $canAccessMenu = function (array $menu, User $user, array $modules) {
             return array_map(
-                function ($keyAbility, $valueAbility) use ($model, $user, $icon): ?array
-                {
-                    // caso o usuário não tem permissão,
-                    // será retornado null como valor do subMenu
-                    if ($user->cannot($keyAbility, $model::class))
-                        return null;
+                function ($item) use ($user, $modules) {
+                    if (!in_array($item[3], $modules)) return null;
 
-                    // retorna a estrutura da resposta do subMenu,
-                    // indicando que o usuário tem permissão para tal ação
                     return [
-                        'icon' => $icon,
-                        'nameSubMenu' => $valueAbility,
-                        'link' => url('api/v1/auth/'.$model->getTable()),
+                        'icon' => $item[0],
+                        'nameSubMenu' => $item[1],
+                        'url' => $item[2],
                     ];
                 },
-                array_keys($abilities),
-                $abilities
+                $menu
             );
         };
 
         $user = Auth::guard('api')->user();
-        $profile = $user->profile;
+        $modules = $user->permissions->select(['module'])->toArray();
+        $modules = array_unique(array_column($modules, 'module'));
 
-        // array de ações usadas pelo usuário caso tenha permissão
-        $abilities = [
-            'viewAny' => 'Listar',
-            'create' => 'Cadastrar',
+        $menu = [
+            'user' => [
+                ['FaUsers', 'Gerenciar usuários', '/usuarios', 'users'],
+                ['FaUserShield', 'Perfis de acesso', '/perfis', 'profiles'],
+            ],
+            'secretariat' => [
+                ['FaLandmark', 'Gerenciar secretarias', '/secretarias', 'secretariats'],
+            ]
         ];
 
         // array de todos possíveis menus do sidebar do usuário
         $sidebar = [
             [
-                'model' => $user,
-                'icon' => 'fa fa-users',
-                'nameMenu' => 'Usuário',
-                'subMenu' => [],
+                'icon' => 'FaUser',
+                'nameMenu' => 'Usuários',
+                'subMenu' => $canAccessMenu($menu['user'], $user, $modules),
             ],
             [
-                'model' => $profile,
-                'icon' => 'fa fa-profiles',
-                'nameMenu' => 'Perfil',
-                'subMenu' => [],
+                'icon' => 'FaLandmark',
+                'nameMenu' => 'Secretarias',
+                'subMenu' => $canAccessMenu($menu['secretariat'], $user, $modules),
             ],
         ];
 
         // remove do array subMenus valores nulos
         foreach ($sidebar as &$menu) {
-            $menu['subMenu'] = $canAccessMenu($menu['model'], $user, $abilities, $menu['icon']);
-            $menu['subMenu'] = array_filter($menu['subMenu']);
+            $menu['subMenu'] = array_values(array_filter($menu['subMenu']));
         }
         unset($menu);
 
         $sidebar = array_filter($sidebar, function ($menu) {
             return (bool) count($menu['subMenu']);
         });
+
+        $sidebar = array_values($sidebar);
 
         // verifica se o usuário tem alguma permissão
         if (count($sidebar) == 0) {
@@ -137,14 +132,7 @@ class UserController extends Controller
         return response()->json([
             'success' => true,
             'status_code' => 200,
-            'data' => array_map(
-                fn ($item) =>  [
-                    'icon' => $item['icon'],
-                    'nameMenu' => $item['nameMenu'],
-                    'subMenu' => $item['subMenu'],
-                ],
-                $sidebar
-            ),
+            'data' => $sidebar,
         ]);
     }
 
