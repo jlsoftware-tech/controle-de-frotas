@@ -41,7 +41,7 @@ test('não permite excluir usuário sem autenticação', function () {
 
     $response = $this->deleteJson('/api/v1/users/' . $user->id);
 
-    $response->assertStatus(500);
+    $response->assertStatus(401);
 
     $response->assertJsonStructure([
         'success',
