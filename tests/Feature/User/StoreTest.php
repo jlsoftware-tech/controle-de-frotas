@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\Profile;
+use App\Models\Secretariat;
+
 test('cria usuário com dados válidos', function () {
     $user = createUser();
     $token = JWTAuth::fromUser($user);
@@ -7,11 +10,11 @@ test('cria usuário com dados válidos', function () {
 
     $username = fake()->name;
     $email = fake()->email;
-    $profile = \App\Models\Profile::create([
+    $profile = Profile::create([
         'name' => 'test',
         'description' => 'test',
     ]);
-    $secretariat = \App\Models\Secretariat::create([
+    $secretariat = Secretariat::create([
         'name' => 'test',
         'acronym' => 'test',
     ]);
@@ -25,8 +28,8 @@ test('cria usuário com dados válidos', function () {
         'password_confirmation' => '12345678',
     ];
 
-    $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-        ->putJson('/api/v1/users/' . $user->id, $payload);
+    $response = $this->withHeader('Authorization', 'Bearer '.$token)
+        ->putJson('/api/v1/users/'.$user->id, $payload);
 
     $response->assertJsonStructure([
         'success',
@@ -40,7 +43,7 @@ test('cria usuário com dados válidos', function () {
             'secretariat_id',
             'created_at',
             'updated_at',
-            'deleted_at'
+            'deleted_at',
         ],
     ]);
 
@@ -54,7 +57,7 @@ test('não cria usuário sem campos obrigatórios', function () {
     $user = createUser();
     $token = JWTAuth::fromUser($user);
 
-    $response = $this->withHeaders(['Authorization' => 'Bearer ' . $token])
+    $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
         ->postJson('/api/v1/users', []);
 
     $response->assertStatus(422);
@@ -85,7 +88,7 @@ test('não cria usuário com email já existente', function () {
         'password_confirmation' => '12345678',
     ];
 
-    $response = $this->withHeaders(['Authorization' => 'Bearer ' . $token])
+    $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
         ->postJson('/api/v1/users', $payload);
 
     $response->assertStatus(422);
@@ -111,7 +114,7 @@ test('não cria usuário com email em formato inválido', function () {
         'password_confirmation' => 'senha123',
     ];
 
-    $response = $this->withHeaders(['Authorization' => 'Bearer ' . $token])
+    $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
         ->postJson('/api/v1/users', $payload);
 
     $response->assertStatus(422);
@@ -137,7 +140,7 @@ test('não cria usuário com senha menor que o mínimo permitido', function () {
         'password_confirmation' => '123',
     ];
 
-    $response = $this->withHeaders(['Authorization' => 'Bearer ' . $token])
+    $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
         ->postJson('/api/v1/users', $payload);
 
     $response->assertStatus(422);
@@ -164,7 +167,7 @@ test('não cria usuário quando confirmação de senha não confere', function (
         'password_confirmation' => 'senha_diferente',
     ];
 
-    $response = $this->withHeaders(['Authorization' => 'Bearer ' . $token])
+    $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
         ->postJson('/api/v1/users', $payload);
 
     $response->assertStatus(422);

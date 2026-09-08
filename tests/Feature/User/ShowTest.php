@@ -1,7 +1,5 @@
 <?php
 
-use App\Http\Resources\UserResource;
-
 test('exibir os dados de um usuário específico', function () {
     $user = createUser();
     $token = JWTAuth::fromUser($user);
@@ -9,8 +7,8 @@ test('exibir os dados de um usuário específico', function () {
 
     $otherUser = createUser();
 
-    $response = $this->withHeaders(['Authorization' => 'Bearer ' . $token])
-        ->getJson('/api/v1/users/' . $otherUser->id);
+    $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
+        ->getJson('/api/v1/users/'.$otherUser->id);
 
     $response->assertStatus(200);
 
@@ -46,7 +44,7 @@ test('retorna 404 ao exibir usuário inexistente', function () {
     $token = JWTAuth::fromUser($user);
     Auth::guard('api')->setUser($user);
 
-    $response = $this->withHeaders(['Authorization' => 'Bearer ' . $token])
+    $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
         ->getJson('/api/v1/users/99999');
 
     $response->assertStatus(404);
@@ -69,7 +67,7 @@ test('retorna 404 ao exibir usuário inexistente', function () {
 test('não permite exibir usuário sem autenticação', function () {
     $user = createUser();
 
-    $response = $this->getJson('/api/v1/users/' . $user->id);
+    $response = $this->getJson('/api/v1/users/'.$user->id);
 
     $response->assertStatus(500);
 

@@ -30,7 +30,7 @@ class UpdateProfileRequest extends FormRequest
             'name' => 'required|max:255',
             'description' => 'max:255',
             'permissions' => 'array',
-            'permissions.*' => 'distinct|integer|exists:permissions,id'
+            'permissions.*' => 'distinct|integer|exists:permissions,id',
         ];
     }
 }

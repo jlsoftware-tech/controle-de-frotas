@@ -1,9 +1,5 @@
 <?php
 
-use App\Models\Profile;
-use App\Models\Secretariat;
-use App\Models\User;
-
 test('login', function () {
     $user = createUser();
 
@@ -27,7 +23,7 @@ test('login', function () {
         'success' => true,
         'status_code' => 200,
         'message' => 'Login realizado com sucesso.',
-        'data' => []
+        'data' => [],
     ]);
 
 });

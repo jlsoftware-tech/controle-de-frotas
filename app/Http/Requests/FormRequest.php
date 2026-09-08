@@ -32,10 +32,10 @@ class FormRequest extends BaseFormRequest
     protected function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(response()->json([
-            'success'     => false,
+            'success' => false,
             'status_code' => 422,
-            'message'     => 'Os dados enviados são inválidos.',
-            'data'        => $validator->errors()->toArray(),
+            'message' => 'Os dados enviados são inválidos.',
+            'data' => $validator->errors()->toArray(),
         ], 422));
     }
 }

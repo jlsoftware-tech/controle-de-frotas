@@ -1,15 +1,11 @@
 <?php
 
-use App\Models\Profile;
-use App\Models\Secretariat;
-use App\Models\User;
-
 test('refresh token', function () {
     $user = createUser();
 
     $token = JWTAuth::fromUser($user);
 
-    $response = $this->withHeaders(['Authorization' => 'Bearer ' . $token])
+    $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
         ->getJson('/api/v1/auth/refresh');
 
     $response->assertJsonStructure([
@@ -18,7 +14,7 @@ test('refresh token', function () {
         'message',
         'data' => [
             'token',
-            'user'
+            'user',
         ],
     ]);
 

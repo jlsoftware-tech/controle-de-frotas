@@ -5,21 +5,18 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
-use App\Models\Profile;
-use App\Models\Secretariat;
 use App\Models\User;
 use App\Notifications\ResetPasswordApiNotification;
 use Illuminate\Auth\Events\PasswordReset;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
-use PHPOpenSourceSaver\JWTAuth\Exceptions\JWTException;
-use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 use Knuckles\Scribe\Attributes\Endpoint;
 use Knuckles\Scribe\Attributes\Group;
 use Knuckles\Scribe\Attributes\Response as ResponseAtt;
+use PHPOpenSourceSaver\JWTAuth\Exceptions\JWTException;
+use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Group('Autenticação', description: 'Endpoints para gerenciamento de autenticação, cadastro e recuperação de senha de usuários.')]
@@ -41,7 +38,7 @@ class AuthController extends Controller
                     'secretariat_id' => 1,
                     'created_at' => '03/09/2026 19:13:32',
                     'updated_at' => '03/09/2026 19:13:32',
-                ]
+                ],
             ],
         ],
         status: Response::HTTP_OK,
@@ -88,7 +85,7 @@ class AuthController extends Controller
             'message' => 'Login realizado com sucesso.',
             'data' => [
                 'token' => $token,
-                'user' => Auth::guard('api')->user()->toResource()
+                'user' => Auth::guard('api')->user()->toResource(),
             ],
         ]);
     }

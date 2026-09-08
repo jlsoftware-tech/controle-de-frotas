@@ -11,18 +11,17 @@ use App\Traits\ApiResponse;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
-use Symfony\Component\HttpFoundation\Response;
 use Knuckles\Scribe\Attributes\Endpoint;
 use Knuckles\Scribe\Attributes\Group;
 use Knuckles\Scribe\Attributes\Response as ResponseAtt;
 use Knuckles\Scribe\Attributes\UrlParam;
+use Symfony\Component\HttpFoundation\Response;
 
 #[Group('Usuários', description: 'Endpoints para gerenciamento de usuários do sistema.')]
 class UserController extends Controller
 {
     // trait para tratamento dos erros de validação
     use ApiResponse;
-
 
     /**
      * Display a listing of the resource.
@@ -286,7 +285,7 @@ class UserController extends Controller
                 $user->toResource(),
                 'Dados atualizados com sucesso.',
                 Response::HTTP_OK,
-            ):
+            ) :
             $this->error(
                 'Ocorreu um erro ao atualizar os dados.',
                 Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -337,6 +336,7 @@ class UserController extends Controller
     public function destroy(User $user): JsonResponse
     {
         $user->delete();
+
         return $this->success(
             message: 'Usuário removido com sucesso.',
             statusCode: Response::HTTP_OK,

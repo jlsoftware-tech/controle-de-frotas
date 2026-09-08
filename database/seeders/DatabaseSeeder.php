@@ -28,7 +28,7 @@ class DatabaseSeeder extends Seeder
             foreach ($names as $name) {
                 Permission::create([
                     'name' => $name,
-                    'module' => $module
+                    'module' => $module,
                 ])->save();
             }
         }
