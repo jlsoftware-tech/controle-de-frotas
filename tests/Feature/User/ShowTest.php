@@ -69,7 +69,7 @@ test('não permite exibir usuário sem autenticação', function () {
 
     $response = $this->getJson('/api/v1/users/'.$user->id);
 
-    $response->assertStatus(500);
+    $response->assertStatus(401);
 
     $response->assertJsonStructure([
         'success',

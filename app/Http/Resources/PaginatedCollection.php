@@ -17,12 +17,14 @@ abstract class PaginatedCollection extends ResourceCollection
         return [
             'success' => true,
             'statusCode' => 200,
-            'data' => $this->collection->map->resolve($request)->all(),
-            'pagination' => [
-                'numPerPage' => $this->perPage(),
-                'currPage' => $this->currentPage(),
-                'totalEntries' => $this->total(),
-                'totalPages' => $this->lastPage(),
+            'data' => [
+                'items' => $this->collection->map->resolve($request)->all(),
+                'pagination' => [
+                    'numPerPage' => $this->perPage(),
+                    'currPage' => $this->currentPage(),
+                    'totalEntries' => $this->total(),
+                    'totalPages' => $this->lastPage(),
+                ],
             ],
         ];
     }

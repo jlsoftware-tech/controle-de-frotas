@@ -7,7 +7,7 @@ use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Http\Resources\UserCollection;
 use App\Models\User;
-use App\Traits\ApiResponse;
+use App\Support\ApiResponder;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
@@ -20,9 +20,6 @@ use Symfony\Component\HttpFoundation\Response;
 #[Group('Usuários', description: 'Endpoints para gerenciamento de usuários do sistema.')]
 class UserController extends Controller
 {
-    // trait para tratamento dos erros de validação
-    use ApiResponse;
-
     /**
      * Display a listing of the resource.
      */
@@ -32,22 +29,24 @@ class UserController extends Controller
             'success' => true,
             'statusCode' => 200,
             'data' => [
-                [
-                    'id' => 1,
-                    'name' => 'Maria Santos',
-                    'email' => 'maria.santos@example.com',
-                    'profile_id' => 1,
-                    'secretariat_id' => 1,
-                    'created_at' => '01/09/2026 10:00:00',
-                    'updated_at' => '01/09/2026 10:00:00',
-                    'deleted_at' => null,
+                'items' => [
+                    [
+                        'id' => 1,
+                        'name' => 'Maria Santos',
+                        'email' => 'maria.santos@example.com',
+                        'profile_id' => 1,
+                        'secretariat_id' => 1,
+                        'created_at' => '01/09/2026 10:00:00',
+                        'updated_at' => '01/09/2026 10:00:00',
+                        'deleted_at' => null,
+                    ],
                 ],
-            ],
-            'pagination' => [
-                'numPerPage' => 10,
-                'currPage' => 1,
-                'totalEntries' => 1,
-                'totalPages' => 1,
+                'pagination' => [
+                    'numPerPage' => 10,
+                    'currPage' => 1,
+                    'totalEntries' => 1,
+                    'totalPages' => 1,
+                ],
             ],
         ],
         status: 200,
@@ -96,12 +95,7 @@ class UserController extends Controller
             ->paginate($per_page, ['*'], 'page', $page);
 
         if (count($users) === 0) {
-            return response()->json([
-                'success' => false,
-                'statusCode' => 400,
-                'data' => null,
-                'pagination' => null,
-            ], 400);
+            return ApiResponder::error('Nenhum usuário encontrado para essa pesquisa.');
         }
 
         return new UserCollection($users);
@@ -163,13 +157,13 @@ class UserController extends Controller
                 'secretariat_id' => $request->secretariat_id,
             ]);
         } catch (Exception) {
-            return $this->error(
+            return ApiResponder::error(
                 'Ocorreu um erro ao cadastrar o usuário. Por favor, tente novamente.',
                 Response::HTTP_INTERNAL_SERVER_ERROR,
             );
         }
 
-        return $this->success(
+        return ApiResponder::success(
             $user->toResource(),
             'Usuário cadastrado com sucesso!',
             Response::HTTP_CREATED,
@@ -218,7 +212,7 @@ class UserController extends Controller
     )]
     public function show(User $user): JsonResponse
     {
-        return $this->success(
+        return ApiResponder::success(
             $user->toResource(),
             '',
             Response::HTTP_OK,
@@ -280,13 +274,13 @@ class UserController extends Controller
     {
         $status = $user->update($request->all());
 
-        return $status ?
-            $this->success(
+        return $status
+            ? ApiResponder::success(
                 $user->toResource(),
                 'Dados atualizados com sucesso.',
                 Response::HTTP_OK,
-            ) :
-            $this->error(
+            )
+            : ApiResponder::error(
                 'Ocorreu um erro ao atualizar os dados.',
                 Response::HTTP_INTERNAL_SERVER_ERROR,
             );
@@ -337,9 +331,6 @@ class UserController extends Controller
     {
         $user->delete();
 
-        return $this->success(
-            message: 'Usuário removido com sucesso.',
-            statusCode: Response::HTTP_OK,
-        );
+        return ApiResponder::success(message: 'Usuário removido com sucesso.');
     }
 }

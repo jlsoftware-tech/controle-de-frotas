@@ -4,15 +4,15 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
+use App\Support\ApiResponder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-$notFound = fn (Request $request) => response()->json([
-    'success' => false,
-    'status_code' => 404,
-    'message' => 'Recurso não encontrado.',
-    'data' => null,
-], 404);
+$notFound = function (Request $request) {
+    return ($request->user('api') !== null)
+        ? ApiResponder::error('Recurso não encontrado.', 404)
+        : ApiResponder::error('Não autenticado.', 401);
+};
 
 Route::prefix('v1')->group(function () use ($notFound) {
     Route::prefix('auth')->middleware('api')->group(function () {

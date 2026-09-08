@@ -21,7 +21,7 @@ test('refresh token', function () {
     $response->assertJson([
         'success' => true,
         'status_code' => 200,
-        'message' => '',
+        'message' => 'Sucesso.',
         'data' => [],
     ]);
 });
