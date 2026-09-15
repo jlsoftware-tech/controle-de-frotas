@@ -17,14 +17,14 @@ $notFound = function (Request $request) {
 Route::prefix('v1')->group(function () use ($notFound) {
     Route::prefix('auth')->middleware('api')->group(function () {
         Route::post('/login', [AuthController::class, 'login']);
+        Route::get('/logout', [AuthController::class, 'logout'])->middleware('jwt');
         Route::get('/refresh', [AuthController::class, 'refresh']);
         Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
         Route::post('/reset-password', [AuthController::class, 'resetPassword']);
-        Route::get('/logout', [AuthController::class, 'logout'])->middleware('jwt');
     });
 
     Route::middleware('jwt')->group(function () use ($notFound) {
-        Route::get('/me', [AuthController::class, 'me']);
+        Route::get('/profile', [UserController::class, 'profile']);
         Route::apiResource('/users', UserController::class)->missing($notFound);
         Route::apiResource('/profiles', ProfileController::class)->missing($notFound);
         Route::apiResource('/permissions', PermissionController::class)->only(['index', 'show']);
