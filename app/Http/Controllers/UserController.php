@@ -18,7 +18,7 @@ use Knuckles\Scribe\Attributes\Response as ResponseAtt;
 use Knuckles\Scribe\Attributes\UrlParam;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Group('Usuários', description: 'Endpoints para gerenciamento de usuários do sistema.', authenticated: true)]
+#[Group('Endpoints de usuário', 'Gerenciamento de recursos.', true)]
 class UserController extends Controller
 {
     #[Endpoint('Listar recursos da barra lateral (sidebar)',
@@ -29,18 +29,18 @@ class UserController extends Controller
             'success' => true,
             'status_code' => 200,
             'data' => [
-                'icon' => 'fa fa-user',
-                'nameMenu' => 'Usuário',
-                'subMenu' => [
+                'icon' => 'FaUser',
+                'name_menu' => 'Usuário',
+                'sub_menu' => [
                     [
-                        'icon' => 'fa fa-users',
-                        'nameSubMenu' => 'Listar',
-                        'link' => 'https://localhost/api/v1/auth/users',
+                        'icon' => 'FaUsers',
+                        'name_sub_menu' => 'Gerenciar usuários',
+                        'url' => '/usuarios',
                     ],
                     [
-                        'icon' => 'fa fa-users',
-                        'nameSubMenu' => 'Cadastrar',
-                        'link' => 'https://localhost/api/v1/auth/users',
+                        'icon' => 'FaUserShield',
+                        'name_mub_menu' => 'Perfis de acesso',
+                        'url' => '/perfis',
                     ],
                 ],
             ],
@@ -59,26 +59,46 @@ class UserController extends Controller
         description: 'Conta não encontrada ou inexistente.'
     )]
     /**
-     * Lista todas as ações de acordo com o perfil do usuário
+     * Lista todas as ações conforme o perfil do usuário
      */
     public function profile()
     {
         // verifica quais ações que usuário autenticado tem permissão de usar,
         // e monta a estrutura da resposta, do contrário retorna null
-        $canAccessMenu = function (array $menu, User $user, array $modules) {
+        $canAccessMenu = function (array $subMenu, User $user, array $modules) {
             return array_map(
                 function ($item) use ($modules) {
                     if (! in_array($item[3], $modules)) {
                         return null;
                     }
 
+                    // retorna a estrutura da resposta do subMenu,
+                    // indicando que o usuário tem permissão para tal ação
                     return [
                         'icon' => $item[0],
-                        'nameSubMenu' => $item[1],
+                        'name_sub_menu' => $item[1],
                         'url' => $item[2],
                     ];
                 },
-                $menu
+                $subMenu
+            );
+        };
+
+        $makeMenu = function (
+            array $menuOptions,
+            array $subMenuOptions,
+            array $modules,
+            User $user
+        ) use ($canAccessMenu) {
+            return array_map(
+                function ($item) use ($user, $canAccessMenu, $modules, $subMenuOptions) {
+                    return [
+                        'icon' => $item[0],
+                        'name_menu' => $item[1],
+                        'sub_menu' => $canAccessMenu($subMenuOptions[$item[2]], $user, $modules),
+                    ];
+                },
+                $menuOptions
             );
         };
 
@@ -86,10 +106,23 @@ class UserController extends Controller
         $modules = $user->permissions->select(['module'])->toArray();
         $modules = array_unique(array_column($modules, 'module'));
 
-        $menu = [
+        /* opções principais do menu
+         * padrão: ['nome_do_icone', 'nome_do_menu', 'nome_do_modulo_no_singular']
+         * ícones do Font Awesome 5: https://react-icons.github.io/react-icons/icons/fa/
+         */
+        $menuOptions = [
+            ['FaUser', 'Usuários', 'user'],
+            ['FaLandmark', 'Secretarias', 'secretariat'],
+        ];
+
+        /* opções do sub menu de cada menu principal
+         * padrão: ['nome_do_icone', 'nome_do_sub_menu', 'rota_do_front', 'nome_do_modulo']
+         */
+        $subMenuOptions = [
             'user' => [
                 ['FaUsers', 'Gerenciar usuários', '/usuarios', 'users'],
                 ['FaUserShield', 'Perfis de acesso', '/perfis', 'profiles'],
+                ['FaUserLock', 'Permissões de usuário', '/permisoes', 'permissions'],
             ],
             'secretariat' => [
                 ['FaLandmark', 'Gerenciar secretarias', '/secretarias', 'secretariats'],
@@ -97,47 +130,29 @@ class UserController extends Controller
         ];
 
         // array de todos possíveis menus do sidebar do usuário
-        $sidebar = [
-            [
-                'icon' => 'FaUser',
-                'nameMenu' => 'Usuários',
-                'subMenu' => $canAccessMenu($menu['user'], $user, $modules),
-            ],
-            [
-                'icon' => 'FaLandmark',
-                'nameMenu' => 'Secretarias',
-                'subMenu' => $canAccessMenu($menu['secretariat'], $user, $modules),
-            ],
-        ];
+        $sidebar = $makeMenu($menuOptions, $subMenuOptions, $modules, $user);
 
         // remove do array subMenus valores nulos
         foreach ($sidebar as &$menu) {
-            $menu['subMenu'] = array_values(array_filter($menu['subMenu']));
+            $menu['sub_menu'] = array_filter($menu['sub_menu'], function ($subMenu) {
+                return $subMenu && count($subMenu);
+            });
         }
         unset($menu);
 
         $sidebar = array_filter($sidebar, function ($menu) {
-            return (bool) count($menu['subMenu']);
+            return (bool) count($menu['sub_menu']);
         });
 
-        $sidebar = array_values($sidebar);
+        // reindexa os itens do menu, evita a exibição de índices na resposta da api
+        // $sidebar = array_values($sidebar);
 
         // verifica se o usuário tem alguma permissão
         if (count($sidebar) == 0) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Não autorizado.',
-                'status_code' => 403,
-                'data' => null,
-            ], 403);
+            return ApiResponder::error('Não autorizado.', 403);
         }
 
-        // retorna uma resposta com apenas os campos importantes para o frontend
-        return response()->json([
-            'success' => true,
-            'status_code' => 200,
-            'data' => $sidebar,
-        ]);
+        return ApiResponder::success($sidebar);
     }
 
     #[Endpoint('Listar Usuários', description: 'Retorna uma lista paginada de usuários cadastrados no sistema com opções de busca, ordenação e paginação.', authenticated: true)]
