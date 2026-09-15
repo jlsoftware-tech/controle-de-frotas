@@ -163,38 +163,6 @@ class AuthController extends Controller
         ]);
     }
 
-    #[Endpoint('Dados do Usuário Autenticado', description: 'Retorna os dados do usuário atualmente autenticado.', authenticated: true)]
-    #[ResponseAtt(
-        content: [
-            'success' => true,
-            'data' => [
-                'id' => 1,
-                'name' => 'João Silva',
-                'email' => 'joao.silva@example.com',
-                'profile_id' => 1,
-                'secretariat_id' => 1,
-                'created_at' => '05/09/2026 10:22',
-                'updated_at' => '05/09/2026 10:22',
-            ],
-        ],
-        status: Response::HTTP_OK,
-        description: 'Dados do usuário autenticado recuperados com sucesso.'
-    )]
-    #[ResponseAtt(
-        content: [
-            'message' => 'Unauthenticated.',
-        ],
-        status: Response::HTTP_UNAUTHORIZED,
-        description: 'Token não fornecido ou inválido.'
-    )]
-    public function me(): JsonResponse
-    {
-        return response()->json([
-            'success' => true,
-            'data' => Auth::guard('api')->user(),
-        ]);
-    }
-
     #[Endpoint('Esqueci minha senha', description: 'Envia um e-mail com instruções e token para redefinição de senha.')]
     #[ResponseAtt(
         content: [

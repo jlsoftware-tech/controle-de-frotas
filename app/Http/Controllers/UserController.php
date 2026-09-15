@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Support\ApiResponder;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Knuckles\Scribe\Attributes\Endpoint;
 use Knuckles\Scribe\Attributes\Group;
@@ -17,12 +18,143 @@ use Knuckles\Scribe\Attributes\Response as ResponseAtt;
 use Knuckles\Scribe\Attributes\UrlParam;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Group('Usuários', description: 'Endpoints para gerenciamento de usuários do sistema.')]
+#[Group('Endpoints de usuário', 'Gerenciamento de recursos.', true)]
 class UserController extends Controller
 {
+    #[Endpoint('Listar recursos da barra lateral (sidebar)',
+        description: 'Lista dos recursos permitidos de acordo com o perfil do usuário.',
+        authenticated: true)]
+    #[ResponseAtt(
+        content: [
+            'success' => true,
+            'status_code' => 200,
+            'data' => [
+                'icon' => 'FaUser',
+                'name_menu' => 'Usuário',
+                'sub_menu' => [
+                    [
+                        'icon' => 'FaUsers',
+                        'name_sub_menu' => 'Gerenciar usuários',
+                        'url' => '/usuarios',
+                    ],
+                    [
+                        'icon' => 'FaUserShield',
+                        'name_mub_menu' => 'Perfis de acesso',
+                        'url' => '/perfis',
+                    ],
+                ],
+            ],
+        ],
+        status: 200,
+        description: 'Opções do menu sidebar de acordo com as permissões do usuário.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
+            'status_code' => 403,
+            'message' => 'Não autorizado.',
+            'data' => null,
+        ],
+        status: 403,
+        description: 'Conta não encontrada ou inexistente.'
+    )]
     /**
-     * Display a listing of the resource.
+     * Lista todas as ações conforme o perfil do usuário
      */
+    public function profile()
+    {
+        // verifica quais ações que usuário autenticado tem permissão de usar,
+        // e monta a estrutura da resposta, do contrário retorna null
+        $canAccessMenu = function (array $subMenu, User $user, array $modules) {
+            return array_map(
+                function ($item) use ($modules) {
+                    if (! in_array($item[3], $modules)) {
+                        return null;
+                    }
+
+                    // retorna a estrutura da resposta do subMenu,
+                    // indicando que o usuário tem permissão para tal ação
+                    return [
+                        'icon' => $item[0],
+                        'name_sub_menu' => $item[1],
+                        'url' => $item[2],
+                    ];
+                },
+                $subMenu
+            );
+        };
+
+        $makeMenu = function (
+            array $menuOptions,
+            array $subMenuOptions,
+            array $modules,
+            User $user
+        ) use ($canAccessMenu) {
+            return array_map(
+                function ($item) use ($user, $canAccessMenu, $modules, $subMenuOptions) {
+                    return [
+                        'icon' => $item[0],
+                        'name_menu' => $item[1],
+                        'sub_menu' => $canAccessMenu($subMenuOptions[$item[2]], $user, $modules),
+                    ];
+                },
+                $menuOptions
+            );
+        };
+
+        $user = Auth::guard('api')->user();
+        $modules = $user->permissions->select(['module'])->toArray();
+        $modules = array_unique(array_column($modules, 'module'));
+
+        /* opções principais do menu
+         * padrão: ['nome_do_icone', 'nome_do_menu', 'nome_do_modulo_no_singular']
+         * ícones do Font Awesome 5: https://react-icons.github.io/react-icons/icons/fa/
+         */
+        $menuOptions = [
+            ['FaUser', 'Usuários', 'user'],
+            ['FaLandmark', 'Secretarias', 'secretariat'],
+        ];
+
+        /* opções do sub menu de cada menu principal
+         * padrão: ['nome_do_icone', 'nome_do_sub_menu', 'rota_do_front', 'nome_do_modulo']
+         */
+        $subMenuOptions = [
+            'user' => [
+                ['FaUsers', 'Gerenciar usuários', '/usuarios', 'users'],
+                ['FaUserShield', 'Perfis de acesso', '/perfis', 'profiles'],
+                ['FaUserLock', 'Permissões de usuário', '/permisoes', 'permissions'],
+            ],
+            'secretariat' => [
+                ['FaLandmark', 'Gerenciar secretarias', '/secretarias', 'secretariats'],
+            ],
+        ];
+
+        // array de todos possíveis menus do sidebar do usuário
+        $sidebar = $makeMenu($menuOptions, $subMenuOptions, $modules, $user);
+
+        // remove do array subMenus valores nulos
+        foreach ($sidebar as &$menu) {
+            $menu['sub_menu'] = array_filter($menu['sub_menu'], function ($subMenu) {
+                return $subMenu && count($subMenu);
+            });
+        }
+        unset($menu);
+
+        $sidebar = array_filter($sidebar, function ($menu) {
+            return (bool) count($menu['sub_menu']);
+        });
+
+        // reindexa os itens do menu, evita a exibição de índices na resposta da api
+        // $sidebar = array_values($sidebar);
+
+        // verifica se o usuário tem alguma permissão
+        if (count($sidebar) == 0) {
+            return ApiResponder::error('Não autorizado.', 403);
+        }
+
+        return ApiResponder::success($sidebar);
+    }
+
     #[Endpoint('Listar Usuários', description: 'Retorna uma lista paginada de usuários cadastrados no sistema com opções de busca, ordenação e paginação.', authenticated: true)]
     #[ResponseAtt(
         content: [
@@ -81,6 +213,9 @@ class UserController extends Controller
         status: 422,
         description: 'Erro de validação nos parâmetros de consulta.'
     )]
+    /**
+     * Display a listing of the resource.
+     */
     public function index(ListUsersRequest $request): UserCollection|JsonResponse
     {
         $page = $request->validated('page');
