@@ -22,4 +22,14 @@ class Vehicle extends Model
     {
         return $this->hasMany(VehicleDocument::class);
     }
+
+    public function tires(): HasMany
+    {
+        return $this->hasMany(Tire::class);
+    }
+
+    public function tire_history(): HasMany
+    {
+        return $this->hasMany(TireVehicleHistory::class);
+    }
 }
