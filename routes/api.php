@@ -24,8 +24,15 @@ Route::prefix('v1')->group(function () use ($notFound) {
     });
 
     Route::middleware('jwt')->group(function () use ($notFound) {
-        Route::get('/profile', [UserController::class, 'profile']);
-        Route::apiResource('/users', UserController::class)->missing($notFound);
+        Route::prefix('/users')->group(function () {
+            Route::get('/sidebar', [UserController::class, 'sidebar']);
+            Route::get('/profile', [UserController::class, 'profile']);
+            Route::get('/permissions', [UserController::class, 'permissions']);
+        });
+        Route::apiResource('/users', UserController::class)
+            ->whereNumber('user')
+            ->missing($notFound);
+
         Route::apiResource('/profiles', ProfileController::class)->missing($notFound);
         Route::apiResource('/permissions', PermissionController::class)->only(['index', 'show']);
     });
