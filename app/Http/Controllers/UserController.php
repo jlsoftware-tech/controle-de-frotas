@@ -468,4 +468,24 @@ class UserController extends Controller
 
         return ApiResponder::success(message: 'Usuário removido com sucesso.');
     }
+
+    #[Endpoint('Perfil de acesso do usuário', description: '', authenticated: true)]
+    public function profile(): JsonResponse
+    {
+        $user = Auth::guard('api')->user();
+
+        return ApiResponder::success(
+            $user->profile
+        );
+    }
+
+    #[Endpoint('Permissões que o usuário possui', description: '', authenticated: true)]
+    public function permissions(): JsonResponse
+    {
+        $user = Auth::guard('api')->user();
+
+        return ApiResponder::success(
+            $user->permissions
+        );
+    }
 }
