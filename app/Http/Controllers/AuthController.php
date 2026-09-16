@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
+use App\Http\Resources\AuthUserResource;
 use App\Models\User;
 use App\Notifications\ResetPasswordApiNotification;
 use App\Support\ApiResponder;
@@ -35,8 +36,15 @@ class AuthController extends Controller
                     'id' => 1,
                     'name' => 'João Silva',
                     'email' => 'joao.silva@example.com',
-                    'profile_id' => 1,
-                    'secretariat_id' => 1,
+                    'profile' => [
+                        'id' => 1,
+                        'name' => 'Perfil de teste',
+                    ],
+                    'secretariat' => [
+                        'id' => 1,
+                        'name' => 'Secretaria',
+                        'acronym' => 'AJS',
+                    ],
                     'created_at' => '03/09/2026 19:13:32',
                     'updated_at' => '03/09/2026 19:13:32',
                 ],
@@ -77,7 +85,7 @@ class AuthController extends Controller
 
         return ApiResponder::success([
             'token' => $token,
-            'user' => Auth::guard('api')->user()->toResource(),
+            'user' => Auth::guard('api')->user()->toResource(AuthUserResource::class),
         ],
             'Login realizado com sucesso.',
         );
@@ -121,15 +129,22 @@ class AuthController extends Controller
         content: [
             'success' => true,
             'status_code' => Response::HTTP_OK,
-            'message' => '',
+            'message' => 'Sucesso.',
             'data' => [
                 'token' => 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
                 'user' => [
                     'id' => 1,
                     'name' => 'João Silva',
                     'email' => 'joao.silva@example.com',
-                    'profile_id' => 1,
-                    'secretariat_id' => 1,
+                    'profile' => [
+                        'id' => 1,
+                        'name' => 'Perfil de teste',
+                    ],
+                    'secretariat' => [
+                        'id' => 1,
+                        'name' => 'Secretaria',
+                        'acronym' => 'AJS',
+                    ],
                     'created_at' => '03/09/2026 19:13:32',
                     'updated_at' => '03/09/2026 19:13:32',
                 ],
@@ -159,7 +174,7 @@ class AuthController extends Controller
 
         return ApiResponder::success([
             'token' => $token,
-            'user' => Auth::guard('api')->user()->toResource(),
+            'user' => Auth::guard('api')->user()->toResource(AuthUserResource::class),
         ]);
     }
 

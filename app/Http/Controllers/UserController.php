@@ -61,7 +61,7 @@ class UserController extends Controller
     /**
      * Lista todas as ações conforme o perfil do usuário
      */
-    public function profile()
+    public function sidebar()
     {
         // verifica quais ações que usuário autenticado tem permissão de usar,
         // e monta a estrutura da resposta, do contrário retorna null
@@ -467,5 +467,87 @@ class UserController extends Controller
         $user->delete();
 
         return ApiResponder::success(message: 'Usuário removido com sucesso.');
+    }
+
+    /**
+     * Retorna os dados do perfil de acesso do usuário autenticado.
+     */
+    #[Endpoint('Perfil de acesso do usuário', description: 'Retorna os dados do perfil de acesso associado ao usuário autenticado.', authenticated: true)]
+    #[ResponseAtt(
+        content: [
+            'success' => true,
+            'status_code' => 200,
+            'message' => 'Sucesso.',
+            'data' => [
+                'id' => 1,
+                'name' => 'Administrador',
+                'description' => 'Perfil com acesso total ao sistema.',
+                'created_at' => '01/09/2026 10:00:00',
+                'updated_at' => '01/09/2026 10:00:00',
+            ],
+        ],
+        status: 200,
+        description: 'Perfil de acesso recuperado com sucesso.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
+            'message' => 'Token não fornecido.',
+            'data' => null,
+        ],
+        status: 401,
+        description: 'Token de autenticação não fornecido ou inválido.'
+    )]
+    public function profile(): JsonResponse
+    {
+        $user = Auth::guard('api')->user();
+
+        return ApiResponder::success(
+            $user->profile
+        );
+    }
+
+    /**
+     * Retorna as permissões do perfil do usuário autenticado.
+     */
+    #[Endpoint('Permissões que o usuário possui', description: 'Retorna a lista de todas as permissões associadas ao perfil do usuário autenticado.', authenticated: true)]
+    #[ResponseAtt(
+        content: [
+            'success' => true,
+            'status_code' => 200,
+            'message' => 'Sucesso.',
+            'data' => [
+                [
+                    'id' => 1,
+                    'name' => 'Criar Usuário',
+                    'module' => 'users',
+                    'created_at' => '01/09/2026 10:00:00',
+                    'updated_at' => '01/09/2026 10:00:00',
+                    'pivot' => [
+                        'profile_id' => 1,
+                        'permission_id' => 1,
+                    ],
+                ],
+            ],
+        ],
+        status: 200,
+        description: 'Lista de permissões recuperada com sucesso.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
+            'message' => 'Token não fornecido.',
+            'data' => null,
+        ],
+        status: 401,
+        description: 'Token de autenticação não fornecido ou inválido.'
+    )]
+    public function permissions(): JsonResponse
+    {
+        $user = Auth::guard('api')->user();
+
+        return ApiResponder::success(
+            $user->permissions
+        );
     }
 }
