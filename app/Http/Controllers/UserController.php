@@ -61,7 +61,7 @@ class UserController extends Controller
     /**
      * Lista todas as ações conforme o perfil do usuário
      */
-    public function profile()
+    public function sidebar()
     {
         // verifica quais ações que usuário autenticado tem permissão de usar,
         // e monta a estrutura da resposta, do contrário retorna null
