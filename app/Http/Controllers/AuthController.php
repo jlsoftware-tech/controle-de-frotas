@@ -46,6 +46,7 @@ class AuthController extends Controller
                     ],
                     'created_at' => '03/09/2026 19:13:32',
                     'updated_at' => '03/09/2026 19:13:32',
+                    'deleted_at' => null,
                 ],
             ],
         ],
@@ -103,7 +104,10 @@ class AuthController extends Controller
     )]
     #[ResponseAtt(
         content: [
-            'message' => 'Unauthenticated.',
+            'success' => false,
+            'status_code' => Response::HTTP_UNAUTHORIZED,
+            'message' => 'Não autenticado',
+            'data' => null,
         ],
         status: Response::HTTP_UNAUTHORIZED,
         description: 'Token de autenticação não fornecido ou inválido.'
@@ -146,6 +150,7 @@ class AuthController extends Controller
                     ],
                     'created_at' => '03/09/2026 19:13:32',
                     'updated_at' => '03/09/2026 19:13:32',
+                    'deleted_at' => null,
                 ],
             ],
         ],

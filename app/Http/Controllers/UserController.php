@@ -28,19 +28,22 @@ class UserController extends Controller
         content: [
             'success' => true,
             'status_code' => 200,
+            'message' => 'Sucesso.',
             'data' => [
-                'icon' => 'FaUser',
-                'name_menu' => 'Usuário',
-                'sub_menu' => [
-                    [
-                        'icon' => 'FaUsers',
-                        'name_sub_menu' => 'Gerenciar usuários',
-                        'url' => '/usuarios',
-                    ],
-                    [
-                        'icon' => 'FaUserShield',
-                        'name_mub_menu' => 'Perfis de acesso',
-                        'url' => '/perfis',
+                [
+                    'icon' => 'FaUser',
+                    'name_menu' => 'Usuários',
+                    'sub_menu' => [
+                        [
+                            'icon' => 'FaUsers',
+                            'name_sub_menu' => 'Gerenciar usuários',
+                            'url' => '/usuarios',
+                        ],
+                        [
+                            'icon' => 'FaUserShield',
+                            'name_sub_menu' => 'Perfis de acesso',
+                            'url' => '/perfis',
+                        ],
                     ],
                 ],
             ],
@@ -51,12 +54,22 @@ class UserController extends Controller
     #[ResponseAtt(
         content: [
             'success' => false,
+            'status_code' => 401,
+            'message' => 'Não autenticado',
+            'data' => null,
+        ],
+        status: 401,
+        description: 'Token de autenticação não fornecido ou inválido.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
             'status_code' => 403,
             'message' => 'Não autorizado.',
             'data' => null,
         ],
         status: 403,
-        description: 'Conta não encontrada ou inexistente.'
+        description: 'Usuário sem permissão para acessar os recursos.'
     )]
     /**
      * Lista todas as ações conforme o perfil do usuário
@@ -166,8 +179,15 @@ class UserController extends Controller
                         'id' => 1,
                         'name' => 'Maria Santos',
                         'email' => 'maria.santos@example.com',
-                        'profile_id' => 1,
-                        'secretariat_id' => 1,
+                        'profile' => [
+                            'id' => 1,
+                            'name' => 'Administrador',
+                        ],
+                        'secretariat' => [
+                            'id' => 1,
+                            'name' => 'Secretaria de Administração',
+                            'acronym' => 'SECAD',
+                        ],
                         'created_at' => '01/09/2026 10:00:00',
                         'updated_at' => '01/09/2026 10:00:00',
                         'deleted_at' => null,
@@ -187,9 +207,9 @@ class UserController extends Controller
     #[ResponseAtt(
         content: [
             'success' => false,
-            'statusCode' => 400,
+            'status_code' => 400,
+            'message' => 'Nenhum usuário encontrado para essa pesquisa.',
             'data' => null,
-            'pagination' => null,
         ],
         status: 400,
         description: 'Nenhum usuário encontrado para os critérios informados.'
@@ -197,7 +217,8 @@ class UserController extends Controller
     #[ResponseAtt(
         content: [
             'success' => false,
-            'message' => 'Token não fornecido.',
+            'status_code' => 401,
+            'message' => 'Não autenticado',
             'data' => null,
         ],
         status: 401,
@@ -243,25 +264,34 @@ class UserController extends Controller
     #[ResponseAtt(
         content: [
             'success' => true,
+            'status_code' => 201,
             'message' => 'Usuário cadastrado com sucesso!',
             'data' => [
                 'id' => 1,
                 'name' => 'Maria Santos',
                 'email' => 'maria.santos@example.com',
-                'profile_id' => 1,
-                'secretariat_id' => 1,
+                'profile' => [
+                    'id' => 1,
+                    'name' => 'Administrador',
+                ],
+                'secretariat' => [
+                    'id' => 1,
+                    'name' => 'Secretaria de Administração',
+                    'acronym' => 'SECAD',
+                ],
                 'created_at' => '01/09/2026 10:00:00',
                 'updated_at' => '01/09/2026 10:00:00',
                 'deleted_at' => null,
             ],
         ],
-        status: 200,
+        status: 201,
         description: 'Usuário cadastrado com sucesso.'
     )]
     #[ResponseAtt(
         content: [
             'success' => false,
-            'message' => 'Token não fornecido.',
+            'status_code' => 401,
+            'message' => 'Não autenticado',
             'data' => null,
         ],
         status: 401,
@@ -313,12 +343,21 @@ class UserController extends Controller
     #[ResponseAtt(
         content: [
             'success' => true,
+            'status_code' => 200,
+            'message' => '',
             'data' => [
                 'id' => 1,
                 'name' => 'Maria Santos',
                 'email' => 'maria.santos@example.com',
-                'profile_id' => 1,
-                'secretariat_id' => 1,
+                'profile' => [
+                    'id' => 1,
+                    'name' => 'Administrador',
+                ],
+                'secretariat' => [
+                    'id' => 1,
+                    'name' => 'Secretaria de Administração',
+                    'acronym' => 'SECAD',
+                ],
                 'created_at' => '01/09/2026 10:00:00',
                 'updated_at' => '01/09/2026 10:00:00',
                 'deleted_at' => null,
@@ -330,7 +369,8 @@ class UserController extends Controller
     #[ResponseAtt(
         content: [
             'success' => false,
-            'message' => 'Token não fornecido.',
+            'status_code' => 401,
+            'message' => 'Não autenticado',
             'data' => null,
         ],
         status: 401,
@@ -339,6 +379,7 @@ class UserController extends Controller
     #[ResponseAtt(
         content: [
             'success' => false,
+            'status_code' => 404,
             'message' => 'Recurso não encontrado.',
             'data' => null,
         ],
@@ -362,13 +403,21 @@ class UserController extends Controller
     #[ResponseAtt(
         content: [
             'success' => true,
-            'message' => 'Dados atualizados com sucesso',
+            'status_code' => 200,
+            'message' => 'Dados atualizados com sucesso.',
             'data' => [
                 'id' => 1,
                 'name' => 'Maria Santos Silva',
                 'email' => 'maria.silva@example.com',
-                'profile_id' => 1,
-                'secretariat_id' => 1,
+                'profile' => [
+                    'id' => 1,
+                    'name' => 'Administrador',
+                ],
+                'secretariat' => [
+                    'id' => 1,
+                    'name' => 'Secretaria de Administração',
+                    'acronym' => 'SECAD',
+                ],
                 'created_at' => '01/09/2026 10:00:00',
                 'updated_at' => '01/09/2026 10:05:00',
                 'deleted_at' => null,
@@ -380,7 +429,8 @@ class UserController extends Controller
     #[ResponseAtt(
         content: [
             'success' => false,
-            'message' => 'Token não fornecido.',
+            'status_code' => 401,
+            'message' => 'Não autenticado',
             'data' => null,
         ],
         status: 401,
@@ -399,6 +449,7 @@ class UserController extends Controller
     #[ResponseAtt(
         content: [
             'success' => false,
+            'status_code' => 404,
             'message' => 'Recurso não encontrado.',
             'data' => null,
         ],
@@ -429,17 +480,9 @@ class UserController extends Controller
     #[ResponseAtt(
         content: [
             'success' => true,
-            'message' => 'Usuário removido com sucesso!',
-            'data' => [
-                'id' => 1,
-                'name' => 'Maria Santos',
-                'email' => 'maria.santos@example.com',
-                'profile_id' => 1,
-                'secretariat_id' => 1,
-                'created_at' => '01/09/2026 10:00:00',
-                'updated_at' => '01/09/2026 10:10:00',
-                'deleted_at' => '01/09/2026 10:15:00',
-            ],
+            'status_code' => 200,
+            'message' => 'Usuário removido com sucesso.',
+            'data' => null,
         ],
         status: 200,
         description: 'Usuário removido com sucesso.'
@@ -447,7 +490,8 @@ class UserController extends Controller
     #[ResponseAtt(
         content: [
             'success' => false,
-            'message' => 'Token não fornecido.',
+            'status_code' => 401,
+            'message' => 'Não autenticado',
             'data' => null,
         ],
         status: 401,
@@ -456,6 +500,7 @@ class UserController extends Controller
     #[ResponseAtt(
         content: [
             'success' => false,
+            'status_code' => 404,
             'message' => 'Recurso não encontrado.',
             'data' => null,
         ],
@@ -492,7 +537,8 @@ class UserController extends Controller
     #[ResponseAtt(
         content: [
             'success' => false,
-            'message' => 'Token não fornecido.',
+            'status_code' => 401,
+            'message' => 'Não autenticado',
             'data' => null,
         ],
         status: 401,
@@ -536,7 +582,8 @@ class UserController extends Controller
     #[ResponseAtt(
         content: [
             'success' => false,
-            'message' => 'Token não fornecido.',
+            'status_code' => 401,
+            'message' => 'Não autenticado',
             'data' => null,
         ],
         status: 401,
