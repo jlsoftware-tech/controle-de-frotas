@@ -27,4 +27,14 @@ class Secretariat extends Model
     {
         return $this->belongsTo(TransportationRequest::class, 'requesting_secretariat_id');
     }
+
+    public function transfers_requested(): HasMany
+    {
+        return $this->hasMany(VehicleTransfer::class, 'requesting_secretariat_id');
+    }
+
+    public function transfers_given(): HasMany
+    {
+        return $this->hasMany(VehicleTransfer::class, 'requested_secretariat_id');
+    }
 }

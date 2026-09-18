@@ -38,4 +38,9 @@ class Vehicle extends Model
     {
         return $this->belongsToMany(TransportationRequest::class);
     }
+
+    public function vehicle_transfers(): HasMany
+    {
+        return $this->hasMany(VehicleTransfer::class);
+    }
 }
