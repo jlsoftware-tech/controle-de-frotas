@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('transportation_request', function (Blueprint $table) {
+        Schema::create('transportation_requests', function (Blueprint $table) {
             $table->id();
             $table->mediumText('description');
             $table->string('origin');
@@ -34,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('request_transportation');
+        Schema::dropIfExists('transportation_requests');
     }
 };
