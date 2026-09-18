@@ -17,7 +17,7 @@ class SecretariatController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(ListSecretariatRequest $request)
+    public function index(ListSecretariatRequest $request) : JsonResponse
     {
         $page = $request->validated('page');
         $per_page = $request->validated('per_page');
@@ -34,7 +34,7 @@ class SecretariatController extends Controller
             return ApiResponder::success(message: 'Nenhuma secretaria encontrada para esta pesquisa.');
         }
 
-        return new SecretariatCollection($secretariats);
+        return ApiResponder::success($secretariats->toResourceCollection());
     }
 
     /**
