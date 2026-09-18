@@ -80,3 +80,10 @@ function createUser(?array $attributes = null): User
 
     return User::factory()->create($_attributes);
 }
+
+function authenticateUser(User $user) {
+    $token = JWTAuth::fromUser($user);
+    Auth::guard('api')->setUser($user);
+
+    return $token;
+}
