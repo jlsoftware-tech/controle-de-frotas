@@ -1,58 +1,151 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SAAS - Controle de Frotas
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Sumário
 
-## About Laravel
+- [Sobre o projeto](#sobre-o-projeto)
+- [Arquitetura](#arquitetura)
+- [Funcionalidades implementadas](#funcionalidades-implementadas)
+- [Padrão de resposta da API](#padrão-de-resposta-da-api)
+- [Requisitos](#requisitos)
+- [Instalação](#instalação)
+- [Screenshots](#screenshots)
+- [Documentação da API](#documentação-da-api)
+- [Testes](#testes)
+- [Deploy (produção)](#deploy-produção)
+- [Licença](#licença)
+- [Contribuidores](#contribuidores)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Sobre o projeto
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Sistema de gestão e monitoramento eletrônico de frota (veículos, máquinas e equipamentos), com backend em **Laravel** e frontend separado em **Vite**. O backend expõe uma API consumida pelo frontend, com gerenciamento de perfis, secretarias, usuários e permissões (RBAC).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+O sistema contempla, entre outras funcionalidades previstas para o domínio de frotas:
 
-## Learning Laravel
+- Cadastro e gerenciamento de veículos, máquinas, equipamentos, implementos e motoristas
+- Controle de abastecimentos, consumo e estoque de combustíveis
+- Compra de autopeças e controle de aquisição/aplicação de peças e materiais de manutenção
+- Manutenções preventivas e corretivas, com abertura, acompanhamento e encerramento de ordens de serviço
+- Gestão de oficinas, borracharias e fornecedores de serviços (lava-jatos, autopeças, etc.)
+- Controle de lavagens
+- Controle de pneus, baterias, lubrificantes e demais componentes (vida útil, histórico, substituição)
+- Cadastro e gerenciamento de secretarias, unidades administrativas e centros de custo
+- Organização da frota e utilização compartilhada de veículos entre secretarias (requisição, cessão, transferência)
+- Controle de diárias de motoristas (solicitação, autorização, registro e prestação de contas)
+- Controle de solicitações, reservas e autorizações de saída/retorno de veículos
+- Emissão de autorizações e identificação de veículos por **QR code** (abastecimento, lavagem, etc.)
+- Controle de multas de trânsito e indicação de condutores
+- Controle de custos operacionais, quilometragem, horímetro e médias de consumo por veículo/secretaria/período
+- Registro de avarias e ocorrências pelos motoristas via aplicativo móvel, com notificação automática aos gestores
+- Emissão de alerta automáticos (vencimento de CNH, licenciamento, documentação, seguros, manutenções, revisões, pneus)
+- Aplicativo móvel para gestores, motoristas e fornecedores
+- Painel gerencial com indicadores de custo, consumo, disponibilidade e desempenho da frota (dashboards)
+- Emissão de relatórios gerenciais (PDF, Excel, CSV) com assinatura digital
+- Integração/exportação de dados compatível com o Sistema de Informações Municipais (SIM) do TCE-CE
+- Registro de logs de auditoria e histórico completo das operações
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Arquitetura
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- **Backend:** Laravel (via Sail em desenvolvimento), servindo APIs REST
+- **Frontend:** repositório separado — [controle-de-frotas-fe](https://github.com/jlsoftware-tech/controle-de-frotas-fe), rodando com Vite/Docker (porta `5173`)
+- **Banco de dados:** PostgreSQL
+- **Cache/Filas:** Redis
+- **E-mail (dev):** Mailpit
+- **Produção:** Nginx + PHP-FPM, com queue worker e scheduler (`schedule:work`) rodando junto
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## Funcionalidades implementadas
 
-## Agentic Development
+Com base no estado atual do repositório da API ([controle-de-frotas](https://github.com/jlsoftware-tech/controle-de-frotas)), o projeto encontra-se na camada de fundação (autenticação, usuários e controle de acesso), ainda sem os módulos específicos de frota (veículos, abastecimentos, manutenções, etc. — ver seção "Sobre o projeto" para o escopo previsto):
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+- **Autenticação via JWT** (`AuthController`, `JwtMiddleware`), incluindo fluxo de "esqueci minha senha" e redefinição de senha (`ResetPasswordApiNotification`)
+- **Gerenciamento de usuários** (`UserController`), com requests dedicados de listagem, criação e atualização
+- **Gerenciamento de perfis de acesso** (`ProfileController`)
+- **Gerenciamento de permissões** (`PermissionController`), com relação many-to-many entre Perfil e Permissão via tabela pivô `profile_permission`
+- **Gerenciamento de secretarias** (`SecretariatController`)
+- **Autorização por Policies** (`UserPolicy`, `ProfilePolicy`, `SecretariatPolicy`)
+- **Respostas e paginação padronizadas** via `ApiResponder` (classe com métodos estáticos `ApiResponder::success()` e `ApiResponder::error()`) e `PaginatedCollection`/`UserCollection`/`UserResource`/`ProfileResource`
+- Seeders para perfis e secretarias
 
-```bash
-composer require laravel/boost --dev
+## Padrão de resposta da API
 
-php artisan boost:install
+Todas as respostas (incluindo erros de validação) seguem um formato padronizado, gerado pela classe `ApiResponder`, com métodos estáticos `ApiResponder::success()` e `ApiResponder::error()` reutilizados nos controllers/handlers:
+
+```json
+{
+  "success": true,
+  "status_code": 200,
+  "message": "string",
+  "data": {}
+}
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+## Requisitos
 
-## Contributing
+- Docker e Docker Compose
+- Laravel Sail (backend)
+- Node.js (frontend)
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Instalação
 
-## Code of Conduct
+### Backend
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+# clonar o repositório
+git clone https://github.com/jlsoftware-tech/controle-de-frotas.git
+cd controle-de-frotas
 
-## Security Vulnerabilities
+# subir os containers via Sail
+./vendor/bin/sail up -d
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# instalar dependências (se necessário)
+./vendor/bin/sail composer install
 
-## License
+# rodar migrations e seeders
+./vendor/bin/sail artisan migrate --seed
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Frontend
+
+```bash
+git clone https://github.com/jlsoftware-tech/controle-de-frotas-fe.git
+cd controle-de-frotas-fe
+docker compose up -d
+# aplicação disponível em http://localhost:5173
+```
+
+## Documentação da API
+
+A documentação da API é gerada via **Scribe** (pacote `knuckleswtf/scribe` para Laravel).
+
+> 📌 Após subir o backend, gere/atualize a documentação com `./vendor/bin/sail artisan scribe:generate`. Por padrão, ela fica disponível em `/docs`.
+
+## Testes
+
+Os testes são escritos com **Pest**, organizados por funcionalidade/endpoint:
+
+```bash
+./vendor/bin/sail artisan test
+```
+
+Exemplo de estrutura:
+```
+tests/Feature/Auth/LoginTest.php
+```
+
+## Deploy (produção)
+
+- Dockerfile próprio para produção (Nginx + PHP-FPM)
+- Queue worker e scheduler rodando como processos junto ao container
+
+## Licença
+
+Este é um software proprietário. Todos os direitos reservados — uso, cópia, modificação e distribuição não autorizados são proibidos.
+
+## Contribuidores
+
+**Back-end**
+- Rener Pontes
+- Gabriel Santos
+- Yago Elias
+
+**Front-end**
+- Débora Veras
