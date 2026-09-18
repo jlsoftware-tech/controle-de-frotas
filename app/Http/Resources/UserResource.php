@@ -18,8 +18,15 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
-            'profile_id' => $this->profile_id,
-            'secretariat_id' => $this->secretariat_id,
+            'profile' => $this->profile ? [
+                'id' => $this->profile->id,
+                'name' => $this->profile->name,
+            ] : null,
+            'secretariat' => [
+                'id' => $this->secretariat_id,
+                'name' => $this->secretariat->name,
+                'acronym' => $this->secretariat->acronym,
+            ],
             'created_at' => $this->created_at->format('d/m/Y H:i:s'),
             'updated_at' => $this->updated_at->format('d/m/Y H:i:s'),
             'deleted_at' => $this->deleted_at?->format('d/m/Y H:i:s'),
