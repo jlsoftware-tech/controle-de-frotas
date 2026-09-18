@@ -15,16 +15,12 @@ abstract class PaginatedCollection extends ResourceCollection
     public function toArray(Request $request): array
     {
         return [
-            'success' => true,
-            'statusCode' => 200,
-            'data' => [
-                'items' => $this->collection->map->resolve($request)->all(),
-                'pagination' => [
-                    'numPerPage' => $this->perPage(),
-                    'currPage' => $this->currentPage(),
-                    'totalEntries' => $this->total(),
-                    'totalPages' => $this->lastPage(),
-                ],
+            'items' => $this->collection->map->resolve($request)->all(),
+            'pagination' => [
+                'numPerPage' => $this->perPage(),
+                'currPage' => $this->currentPage(),
+                'totalEntries' => $this->total(),
+                'totalPages' => $this->lastPage(),
             ],
         ];
     }
