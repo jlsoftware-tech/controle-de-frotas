@@ -8,7 +8,6 @@
 - [Padrão de resposta da API](#padrão-de-resposta-da-api)
 - [Requisitos](#requisitos)
 - [Instalação](#instalação)
-- [Screenshots](#screenshots)
 - [Documentação da API](#documentação-da-api)
 - [Testes](#testes)
 - [Deploy (produção)](#deploy-produção)
@@ -100,7 +99,7 @@ cd controle-de-frotas
 ./vendor/bin/sail composer install
 
 # rodar migrations e seeders
-./vendor/bin/sail artisan migrate --seed
+./vendor/bin/sail artisan migrate:fresh --seed
 ```
 
 ### Frontend
