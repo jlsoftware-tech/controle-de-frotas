@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Secretariat;
 
+use App\Http\Requests\FormRequest;
 use Illuminate\Contracts\Validation\ValidationRule;
-use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateSecretariatRequest extends FormRequest
 {
