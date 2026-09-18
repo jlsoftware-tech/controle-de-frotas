@@ -31,7 +31,7 @@ class SecretariatController extends Controller
             ->paginate($per_page, ['*'], 'page', $page);
 
         if (count($secretariats) === 0) {
-            return ApiResponder::error('Nenhuma secretaria encontrada para esta pesquisa.');
+            return ApiResponder::success(message: 'Nenhuma secretaria encontrada para esta pesquisa.');
         }
 
         return new SecretariatCollection($secretariats);
@@ -48,10 +48,8 @@ class SecretariatController extends Controller
                 'acronym' => $request->acronym,
             ]);
         } catch (Exception $e) {
-            dd($e);
-
             return ApiResponder::error(
-                'Ocorreu um erro ao cadastar a secretaria. Por favor, tente novamente.',
+                'Ocorreu um erro ao cadastrar a secretaria. Por favor, tente novamente.',
                 Response::HTTP_INTERNAL_SERVER_ERROR,
             );
         }
