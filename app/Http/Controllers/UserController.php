@@ -237,7 +237,7 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(ListUsersRequest $request): UserCollection|JsonResponse
+    public function index(ListUsersRequest $request): JsonResponse
     {
         $page = $request->validated('page');
         $per_page = $request->validated('per_page');
@@ -254,7 +254,7 @@ class UserController extends Controller
             return ApiResponder::error('Nenhum usuário encontrado para essa pesquisa.');
         }
 
-        return new UserCollection($users);
+        return ApiResponder::success($users->toResourceCollection());
     }
 
     /**

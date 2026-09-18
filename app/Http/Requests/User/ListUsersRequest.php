@@ -57,7 +57,7 @@ class ListUsersRequest extends FormRequest
             'page' => $this->input('page', 1),
             'per_page' => $this->input('per_page', 10),
             'sort' => $this->input('sort', 'name'),
-            'order' => $this->input('order', 'desc'),
+            'order' => $this->input('order', 'asc'),
         ]);
     }
 }
