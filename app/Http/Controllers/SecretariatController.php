@@ -26,7 +26,7 @@ class SecretariatController extends Controller
         $order = $request->validated('order');
 
         $secretariats = Secretariat::query()
-            ->when($request->filled('search'), fn($query) => $query->where('name', 'like', "%{$search}%"))
+            ->when($request->filled('search'), fn ($query) => $query->where('name', 'like', "%{$search}%"))
             ->orderBy($sort, $order)
             ->paginate($per_page, ['*'], 'page', $page);
 
@@ -49,6 +49,7 @@ class SecretariatController extends Controller
             ]);
         } catch (Exception $e) {
             dd($e);
+
             return ApiResponder::error(
                 'Ocorreu um erro ao cadastar a secretaria. Por favor, tente novamente.',
                 Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -100,6 +101,6 @@ class SecretariatController extends Controller
     {
         $secretariat->delete();
 
-        return ApiResponder::success('Usuário removido com sucesso.');
+        return ApiResponder::success(message: 'Secretaria removida com sucesso.');
     }
 }
