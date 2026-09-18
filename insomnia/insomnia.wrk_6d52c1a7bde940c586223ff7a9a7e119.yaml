@@ -1,0 +1,760 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: API
+meta:
+  id: wrk_6d52c1a7bde940c586223ff7a9a7e119
+  created: 1787877584627
+  modified: 1787877584627
+  description: ""
+collection:
+  - name: Auth
+    meta:
+      id: fld_9d1bb14bcbaf415d88fff2536a897bfe
+      created: 1787877589540
+      modified: 1789697995483
+      sortKey: -1789686591168
+      description: ""
+    children:
+      - url: "{{ _.base_url }}/auth/login"
+        name: Login
+        meta:
+          id: req_98795089d72f4d55895092bb16a438e8
+          created: 1787877597659
+          modified: 1789606980354
+          isPrivate: false
+          description: ""
+          sortKey: -1787877597659
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"email": "test@example.com",
+            	"password": "senha123"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |-
+            const jsonBody = insomnia.response.json();
+
+            if (jsonBody.data)
+            	insomnia.environment.set("token", jsonBody.data.token);
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/auth/logout"
+        name: Logout
+        meta:
+          id: req_1e4a6110f77141d499b706242034934f
+          created: 1787880952412
+          modified: 1788650420680
+          isPrivate: false
+          description: ""
+          sortKey: -1787880952412
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/auth/refresh"
+        name: Refresh
+        meta:
+          id: req_56e0a078541e45028893bb7ebe576367
+          created: 1788657971081
+          modified: 1789689419618
+          isPrivate: false
+          description: ""
+          sortKey: -1788657971081
+        method: GET
+        scripts:
+          afterResponse: |-
+            const jsonBody = insomnia.response.json();
+
+            if (jsonBody.data)
+            	insomnia.environment.set("token", jsonBody.data.token);
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/auth/reset-password"
+        name: Reset password
+        meta:
+          id: req_bcd59abdf8594f0780a4b7e1fd92cc3a
+          created: 1789605454307
+          modified: 1789689431140
+          isPrivate: false
+          description: ""
+          sortKey: -1789605454307
+        method: POST
+        body:
+          mimeType: multipart/form-data
+          params:
+            - name: token
+              value: "{{ _.token }}"
+              description: ""
+              disabled: false
+            - name: email
+              value: renercpontes@gmail.com
+              description: ""
+              disabled: false
+            - name: password
+              value: senha123
+              description: ""
+              disabled: false
+            - name: password_confirmation
+              value: senha123
+              description: ""
+              disabled: false
+        headers:
+          - name: Content-Type
+            value: multipart/form-data
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/auth/forgot-password"
+        name: Forgot password
+        meta:
+          id: req_5d6e8933408f464dbe3b411baf414d73
+          created: 1789605639114
+          modified: 1789689427643
+          isPrivate: false
+          description: ""
+          sortKey: -1789600440427
+        method: POST
+        body:
+          mimeType: multipart/form-data
+          params:
+            - name: email
+              value: renercpontes@gmail.com
+              description: ""
+              disabled: false
+        headers:
+          - name: Content-Type
+            value: multipart/form-data
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+    authentication:
+      type: bearer
+      token: "{{ _.token }}"
+    environment:
+      "": ""
+  - name: Secretariat
+    meta:
+      id: fld_5b787bbefd114018a71216417bd094bb
+      created: 1789686590868
+      modified: 1789695172449
+      sortKey: -1789686590868
+      description: ""
+    children:
+      - url: "{{ _.base_url }}/secretariats"
+        name: Create
+        meta:
+          id: req_6f8fed74f401440bbca884e7799c9ce0
+          created: 1789686594387
+          modified: 1789695448655
+          isPrivate: false
+          description: ""
+          sortKey: -1789691265197
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"name": "",
+            	"acronym": ""
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/secretariats"
+        name: Index
+        meta:
+          id: req_56f1193700584488998862dbd6752916
+          created: 1789689245420
+          modified: 1789695443064
+          isPrivate: false
+          description: ""
+          sortKey: -1789691265222
+        method: GET
+        parameters:
+          - name: search
+            value: ""
+            description: ""
+            disabled: true
+          - name: page
+            value: ""
+            description: ""
+            disabled: true
+          - name: per_page
+            value: ""
+            description: ""
+            disabled: true
+          - name: sort
+            value: ""
+            description: ""
+            disabled: true
+          - name: order
+            value: ""
+            description: ""
+            disabled: true
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/secretariats/:id"
+        name: Update
+        meta:
+          id: req_21e80eadd23543509eff2630f08fc719
+          created: 1789691265122
+          modified: 1789695447223
+          isPrivate: false
+          description: ""
+          sortKey: -1789691265172
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+        pathParameters:
+          - name: id
+            value: ""
+      - url: "{{ _.base_url }}/secretariats/:id"
+        name: Destroy
+        meta:
+          id: req_0ba21f7fe66c48598f7f8af9491cc1c7
+          created: 1789695224161
+          modified: 1789695389704
+          isPrivate: false
+          description: ""
+          sortKey: -1789666309367
+        method: DELETE
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+        pathParameters:
+          - name: id
+            value: ""
+      - url: "{{ _.base_url }}/permissions/:id"
+        name: Show
+        meta:
+          id: req_c0431809bddc4c1c977b82a0360ee8f0
+          created: 1789695975559
+          modified: 1789695990733
+          isPrivate: false
+          description: ""
+          sortKey: -1789691265178.25
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+        pathParameters:
+          - name: id
+            value: ""
+    authentication:
+      type: bearer
+      token: "{{ _.token }}"
+      prefix: ""
+  - name: Users
+    meta:
+      id: fld_116e4f8dd0b94ad088fcd0f0f113800d
+      created: 1789695494481
+      modified: 1789695494481
+      sortKey: -1788682159777.5
+      description: ""
+    children:
+      - url: "{{ _.base_url }}/users/:id"
+        name: Show
+        meta:
+          id: req_50b00a7046964907b1ad0661d9ec7532
+          created: 1789695494481
+          modified: 1789695516417
+          isPrivate: false
+          description: ""
+          sortKey: -1789691265184.5
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+        pathParameters:
+          - name: id
+            value: ""
+      - url: "{{ _.base_url }}/users/:id"
+        name: Update
+        meta:
+          id: req_81076e58f3e34962b43a5df23b7bafcf
+          created: 1789695494481
+          modified: 1789695521147
+          isPrivate: false
+          description: ""
+          sortKey: -1789691265172
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+        pathParameters:
+          - name: id
+            value: ""
+      - url: "{{ _.base_url }}/users/:id"
+        name: Destroy
+        meta:
+          id: req_a245b68438e14b59a2c9a9e1e1c7a53d
+          created: 1789695494481
+          modified: 1789695527901
+          isPrivate: false
+          description: ""
+          sortKey: -1789666309367
+        method: DELETE
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+        pathParameters:
+          - name: id
+            value: ""
+      - url: "{{ _.base_url }}/users"
+        name: Index
+        meta:
+          id: req_ad38aec0f3244569bade0697a9d3822b
+          created: 1789695494481
+          modified: 1789695557115
+          isPrivate: false
+          description: ""
+          sortKey: -1789691265222
+        method: GET
+        parameters:
+          - name: search
+            value: ""
+            description: ""
+            disabled: true
+          - name: page
+            value: ""
+            description: ""
+            disabled: true
+          - name: per_page
+            value: ""
+            description: ""
+            disabled: true
+          - name: sort
+            value: ""
+            description: ""
+            disabled: true
+          - name: order
+            value: ""
+            description: ""
+            disabled: true
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/users"
+        name: Create
+        meta:
+          id: req_fc0e1f7f569e439f95f27855459081f7
+          created: 1789695494481
+          modified: 1789695509433
+          isPrivate: false
+          description: ""
+          sortKey: -1789691265197
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"name": "",
+            	"acronym": ""
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/users/permissions"
+        name: Permissions
+        meta:
+          id: req_6fe3937581504e878bf7c66cd386a9de
+          created: 1789695536740
+          modified: 1789695572794
+          isPrivate: false
+          description: ""
+          sortKey: -1789666309267
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/users/profile"
+        name: Profile
+        meta:
+          id: req_476cfdd33bf84f35b0df71b3bbf0f101
+          created: 1789695582254
+          modified: 1789695619873
+          isPrivate: false
+          description: ""
+          sortKey: -1789635881787
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/users/sidebar"
+        name: Sidebar
+        meta:
+          id: req_958b772f5fb84b468a632c37199fd2ca
+          created: 1789695585977
+          modified: 1789695597645
+          isPrivate: false
+          description: ""
+          sortKey: -1789620668047
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+    authentication:
+      type: bearer
+      token: "{{ _.token }}"
+      prefix: ""
+  - name: Profile
+    meta:
+      id: fld_45d07d0651ae431da232defddf976835
+      created: 1789695696510
+      modified: 1789695701431
+      sortKey: -1789686590918
+      description: ""
+    children:
+      - url: "{{ _.base_url }}/profiles"
+        name: Create
+        meta:
+          id: req_324fa5c5ed6c4b8fb2a1eb1bdf672438
+          created: 1789695696510
+          modified: 1789695717853
+          isPrivate: false
+          description: ""
+          sortKey: -1789691265197
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"name": "",
+            	"acronym": ""
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/profiles/:id"
+        name: Update
+        meta:
+          id: req_5670107c1d09457f96daffa151782497
+          created: 1789695696510
+          modified: 1789695730867
+          isPrivate: false
+          description: ""
+          sortKey: -1789691265172
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+        pathParameters:
+          - name: id
+            value: ""
+      - url: "{{ _.base_url }}/profiles/:id"
+        name: Destroy
+        meta:
+          id: req_94d86f5f40e34ed7a2bf53bd87b8f51e
+          created: 1789695696510
+          modified: 1789695739313
+          isPrivate: false
+          description: ""
+          sortKey: -1789666309367
+        method: DELETE
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+        pathParameters:
+          - name: id
+            value: ""
+      - url: "{{ _.base_url }}/profiles/:id"
+        name: Show
+        meta:
+          id: req_b9774b8274864878bc6f9ad57c58e5f6
+          created: 1789695696510
+          modified: 1789695725585
+          isPrivate: false
+          description: ""
+          sortKey: -1789691265184.5
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+        pathParameters:
+          - name: id
+            value: ""
+      - url: "{{ _.base_url }}/profiles"
+        name: Index
+        meta:
+          id: req_f96434f2071a49778d0f3d1316b3f797
+          created: 1789695696510
+          modified: 1789695710256
+          isPrivate: false
+          description: ""
+          sortKey: -1789691265222
+        method: GET
+        parameters:
+          - name: search
+            value: ""
+            description: ""
+            disabled: true
+          - name: page
+            value: ""
+            description: ""
+            disabled: true
+          - name: per_page
+            value: ""
+            description: ""
+            disabled: true
+          - name: sort
+            value: ""
+            description: ""
+            disabled: true
+          - name: order
+            value: ""
+            description: ""
+            disabled: true
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+    authentication:
+      type: bearer
+      token: "{{ _.token }}"
+      prefix: ""
+  - name: Permissions
+    meta:
+      id: fld_fab7dc5ea6fb462b9360f589daf8fd71
+      created: 1789695761985
+      modified: 1789696016017
+      sortKey: -1789686591068
+      description: ""
+    children:
+      - url: "{{ _.base_url }}/permissions/:id"
+        name: Show
+        meta:
+          id: req_1a5ca23af65b4b688f308837d4e9b062
+          created: 1789695215984
+          modified: 1789696066725
+          isPrivate: false
+          description: ""
+          sortKey: -1789695968755
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+        pathParameters:
+          - name: id
+            value: "4"
+      - url: "{{ _.base_url }}/permissions"
+        name: Index
+        meta:
+          id: req_db309404baaa403f9ff11e8d53ace7ef
+          created: 1789695965115
+          modified: 1789696049386
+          isPrivate: false
+          description: ""
+          sortKey: -1789695968855
+        method: GET
+        parameters:
+          - name: search
+            value: ""
+            description: ""
+            disabled: true
+          - name: page
+            value: ""
+            description: ""
+            disabled: true
+          - name: per_page
+            value: ""
+            description: ""
+            disabled: true
+          - name: sort
+            value: ""
+            description: ""
+            disabled: true
+          - name: order
+            value: ""
+            description: ""
+            disabled: true
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+    authentication:
+      type: bearer
+      token: "{{ _.token }}"
+      prefix: ""
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_af0511d5cdfa52588d75254d625ee17847067d00
+    created: 1787877584641
+    modified: 1789697995479
+environments:
+  name: Base Environment
+  meta:
+    id: env_af0511d5cdfa52588d75254d625ee17847067d00
+    created: 1787877584633
+    modified: 1789697995480
+    isPrivate: false
+  data:
+    token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0L2FwaS92MS9hdXRoL3JlZnJlc2giLCJpYXQiOjE3ODk2ODkzOTQsImV4cCI6MTc4OTcwMTU5NSwibmJmIjoxNzg5Njk3OTk1LCJqdGkiOiJjMGNMMHh1UUZwV0QwZFBIIiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.AzKHpwNw0dO0F1UAc5KHxuTpN7sX_A3n1gyetfPcaKI
