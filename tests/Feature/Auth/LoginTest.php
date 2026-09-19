@@ -7,7 +7,7 @@ test('login', function () {
         [
             'email' => $user->email,
             'password' => 'senha123',
-            'remember' => true
+            'remember' => true,
         ]);
 
     $response->assertJsonStructure([
