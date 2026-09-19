@@ -19,7 +19,6 @@ Route::prefix('v1')->group(function () use ($notFound) {
     Route::prefix('auth')->middleware('api')->group(function () {
         Route::post('/login', [AuthController::class, 'login']);
         Route::get('/logout', [AuthController::class, 'logout'])->middleware('jwt');
-        Route::get('/refresh', [AuthController::class, 'refresh']);
         Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
         Route::post('/reset-password', [AuthController::class, 'resetPassword']);
     });
