@@ -65,10 +65,10 @@ class AuthController extends Controller
     )]
     #[ResponseAtt(
         content: [
-            'message' => 'The email field is required.',
+            'message' => 'Os dados enviados são inválidos.',
             'errors' => [
-                'email' => ['The email field is required.'],
-                'password' => ['The password field is required.'],
+                'email' => ['O campo e-mail é obrigatório.'],
+                'password' => ['O campo senha é obrigatório.']
             ],
         ],
         status: 422,
@@ -77,7 +77,7 @@ class AuthController extends Controller
     public function login(LoginRequest $request): JsonResponse
     {
         $credentials = $request->only('email', 'password');
-        $remember = $request->only('remember')['remember'];
+        $remember = (bool)$request->input('remember', false);
 
         // define o ttl do token conforme a checkbox lembrar-me
         if ($remember) {
