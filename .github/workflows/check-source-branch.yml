@@ -1,0 +1,17 @@
+name: Check source branch
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  check-source:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Só aceitar PR vindo de develop
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          if [ "$HEAD_REF" != "develop" ]; then
+            echo "PRs para main só podem vir de develop (origem: $HEAD_REF)"
+            exit 1
+          fi
