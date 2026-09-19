@@ -1,4 +1,5 @@
 <?php
+
 /*
 test('refresh token', function () {
     $user = createUser();
