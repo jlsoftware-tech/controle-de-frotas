@@ -15,7 +15,7 @@ test('listar secretarias estando autenticado', function () {
     $response->assertStatus(200);
     $response->assertJsonStructure([
         'success',
-        'statusCode',
+        'status_code',
         'data' => [
             'items' => [
                 '*' => ['id', 'name', 'acronym', 'created_at', 'updated_at', 'deleted_at'],
