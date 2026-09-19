@@ -145,11 +145,14 @@ class UserController extends Controller
         // array de todos possíveis menus do sidebar do usuário
         $sidebar = $makeMenu($menuOptions, $subMenuOptions, $modules, $user);
 
-        // remove do array subMenus valores nulos
+        // remove do array subMenus nulos, e evita indexação
+        // explícita em caso de remoção de alguma permissão
         foreach ($sidebar as &$menu) {
-            $menu['sub_menu'] = array_filter($menu['sub_menu'], function ($subMenu) {
-                return $subMenu && count($subMenu);
-            });
+            $menu['sub_menu'] = array_values(
+                array_filter($menu['sub_menu'], function ($subMenu) {
+                    return $subMenu && count($subMenu);
+                })
+            );
         }
         unset($menu);
 
@@ -158,7 +161,7 @@ class UserController extends Controller
         });
 
         // reindexa os itens do menu, evita a exibição de índices na resposta da api
-        // $sidebar = array_values($sidebar);
+        $sidebar = array_values($sidebar);
 
         // verifica se o usuário tem alguma permissão
         if (count($sidebar) == 0) {
