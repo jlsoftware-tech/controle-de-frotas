@@ -178,20 +178,20 @@ class AuthController extends Controller
      */
     public function refresh()
     {
-//        try {
-//            $token = Auth::guard('api')->refresh();
-//        } catch (JWTException) {
-//            return ApiResponder::error('Sua sessão expirou.', Response::HTTP_UNAUTHORIZED);
-//        }
-//
-//        // Define o novo token do usuário
-//        // Se não definir, o usuário continuaria com o token invalidado pelo refresh()
-//        Auth::guard('api')->setToken($token)->authenticate();
-//
-//        return ApiResponder::success([
-//            'token' => $token,
-//            'user' => Auth::guard('api')->user()->toResource(),
-//        ]);
+        //        try {
+        //            $token = Auth::guard('api')->refresh();
+        //        } catch (JWTException) {
+        //            return ApiResponder::error('Sua sessão expirou.', Response::HTTP_UNAUTHORIZED);
+        //        }
+        //
+        //        // Define o novo token do usuário
+        //        // Se não definir, o usuário continuaria com o token invalidado pelo refresh()
+        //        Auth::guard('api')->setToken($token)->authenticate();
+        //
+        //        return ApiResponder::success([
+        //            'token' => $token,
+        //            'user' => Auth::guard('api')->user()->toResource(),
+        //        ]);
     }
 
     #[Endpoint('Esqueci minha senha', description: 'Envia um e-mail com instruções e token para redefinição de senha.')]
