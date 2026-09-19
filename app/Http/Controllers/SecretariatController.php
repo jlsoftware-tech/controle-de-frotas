@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Secretariat\ListSecretariatRequest;
 use App\Http\Requests\Secretariat\StoreSecretariatRequest;
 use App\Http\Requests\Secretariat\UpdateSecretariatRequest;
-use App\Http\Resources\SecretariatCollection;
 use App\Models\Secretariat;
 use App\Support\ApiResponder;
 use Exception;
@@ -17,7 +16,7 @@ class SecretariatController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(ListSecretariatRequest $request) : JsonResponse
+    public function index(ListSecretariatRequest $request): JsonResponse
     {
         $page = $request->validated('page');
         $per_page = $request->validated('per_page');
@@ -34,7 +33,10 @@ class SecretariatController extends Controller
             return ApiResponder::success(message: 'Nenhuma secretaria encontrada para esta pesquisa.');
         }
 
-        return ApiResponder::success($secretariats->toResourceCollection());
+        return ApiResponder::success(
+            $secretariats->toResourceCollection(),
+            'Lista de todas as secretarias'
+        );
     }
 
     /**

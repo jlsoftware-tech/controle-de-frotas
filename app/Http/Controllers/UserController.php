@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\User\ListUsersRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
-use App\Http\Resources\UserCollection;
 use App\Models\User;
 use App\Support\ApiResponder;
 use Exception;
@@ -21,9 +20,11 @@ use Symfony\Component\HttpFoundation\Response;
 #[Group('Endpoints de usuário', 'Gerenciamento de recursos.', true)]
 class UserController extends Controller
 {
-    #[Endpoint('Listar recursos da barra lateral (sidebar)',
+    #[Endpoint(
+        'Listar recursos da barra lateral (sidebar)',
         description: 'Lista dos recursos permitidos de acordo com o perfil do usuário.',
-        authenticated: true)]
+        authenticated: true
+    )]
     #[ResponseAtt(
         content: [
             'success' => true,
@@ -254,7 +255,10 @@ class UserController extends Controller
             return ApiResponder::error('Nenhum usuário encontrado para essa pesquisa.');
         }
 
-        return ApiResponder::success($users->toResourceCollection());
+        return ApiResponder::success(
+            $users->toResourceCollection(),
+            'Lista de todos os usuário',
+        );
     }
 
     /**
