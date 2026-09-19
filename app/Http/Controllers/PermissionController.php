@@ -26,7 +26,7 @@ class PermissionController extends Controller
         $order = $request->validated('order');
 
         $permissions = Permission::query()
-            ->when($request->filled('search'), fn($query) => $query->where('name', 'like', "%{$search}%"))
+            ->when($request->filled('search'), fn ($query) => $query->where('name', 'like', "%{$search}%"))
             ->orderBy($sort, $order)
             ->paginate($per_page, ['*'], 'page', $page);
 

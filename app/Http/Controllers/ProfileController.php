@@ -28,7 +28,7 @@ class ProfileController extends Controller
         $order = $request->validated('order');
 
         $profiles = Profile::query()
-            ->when($request->filled('search'), fn(Builder $q) => $q->whereLike('name', "%{$search}%"))
+            ->when($request->filled('search'), fn (Builder $q) => $q->whereLike('name', "%{$search}%"))
             ->orderBy($sort, $order)
             ->paginate($per_page, ['*'], 'page', $page);
 
