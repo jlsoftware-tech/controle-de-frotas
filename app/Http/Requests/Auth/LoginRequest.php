@@ -51,7 +51,7 @@ class LoginRequest extends FormRequest
             ],
             'remember' => [
                 'description' => 'Checkbox "Lembrar-me".',
-            ]
+            ],
         ];
     }
 }
