@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Permissions\ListPermissionsRequest;
 use App\Models\Permission;
 use App\Models\Profile;
 use App\Support\ApiResponder;
@@ -14,17 +15,29 @@ class PermissionController extends Controller
     /**
      * Listar todas as permissões.
      */
-    public function index(): JsonResponse
+    public function index(ListPermissionsRequest $request): JsonResponse
     {
         Gate::authorize('viewAny', Profile::class);
 
-        return ApiResponder::success(Permission::all());
+        $page = $request->validated('page');
+        $per_page = $request->validated('per_page');
+        $search = $request->validated('search');
+        $sort = $request->validated('sort');
+        $order = $request->validated('order');
 
-        return response()->json([
-            'status' => true,
-            'message' => 'Listando todas as permissões',
-            'data' => Permission::all(),
-        ]);
+        $permissions = Permission::query()
+            ->when($request->filled('search'), fn ($query) => $query->where('name', 'like', "%{$search}%"))
+            ->orderBy($sort, $order)
+            ->paginate($per_page, ['*'], 'page', $page);
+
+        if (count($permissions) === 0) {
+            return ApiResponder::success(message: 'Nenhuma permissão encontrada para esta pesquisa.');
+        }
+
+        return ApiResponder::success(
+            $permissions->toResourceCollection(),
+            'Lista de todas as permissões'
+        );
     }
 
     /**
@@ -36,7 +49,7 @@ class PermissionController extends Controller
 
         try {
             $permission = Permission::findOrFail($id);
-        } catch (ModelNotFoundException $e) {
+        } catch (ModelNotFoundException) {
             return response()->json([
                 'status' => true,
                 'message' => 'Recurso não encontrado.',

@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreProfileRequest;
-use App\Http\Requests\UpdateProfileRequest;
-use App\Http\Resources\ProfileResource;
+use App\Http\Requests\Profile\ListProfilesRequest;
+use App\Http\Requests\Profile\StoreProfileRequest;
+use App\Http\Requests\Profile\UpdateProfileRequest;
 use App\Models\Profile;
+use App\Support\ApiResponder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use PHPUnit\Exception;
 
@@ -17,22 +17,29 @@ class ProfileController extends Controller
     /**
      * Listar todos os perfis.
      */
-    public function index(Request $request): JsonResponse
+    public function index(ListProfilesRequest $request): JsonResponse
     {
         Gate::authorize('viewAny', Profile::class);
 
-        $profiles = Profile::query()
-            ->when($request->filled('search'), function (Builder $q) use ($request) {
-                return $q->whereLike('name', "%{$request->input('search')}%");
-            })
-            ->orderBy($request->input('sort', 'name'), $request->input('order', 'desc'))
-            ->paginate($request->input('per_page', 10));
+        $search = $request->validated('search');
+        $page = $request->validated('page');
+        $per_page = $request->validated('per_page');
+        $sort = $request->validated('sort');
+        $order = $request->validated('order');
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Lista de todos os perfis de acesso',
-            'data' => ProfileResource::collection($profiles),
-        ]);
+        $profiles = Profile::query()
+            ->when($request->filled('search'), fn (Builder $q) => $q->whereLike('name', "%{$search}%"))
+            ->orderBy($sort, $order)
+            ->paginate($per_page, ['*'], 'page', $page);
+
+        if (count($profiles) === 0) {
+            return ApiResponder::error('Nenhum profile encontrado para esta pesquisa.');
+        }
+
+        return ApiResponder::success(
+            $profiles->toResourceCollection(),
+            'Lista de todos os perfis de acesso'
+        );
     }
 
     /**
