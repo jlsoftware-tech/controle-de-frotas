@@ -1,21 +1,18 @@
 <?php
 
-namespace App\Http\Requests\User;
+namespace App\Http\Requests\Secretariat;
 
 use App\Http\Requests\FormRequest;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Knuckles\Scribe\Attributes\QueryParam;
 use Override;
 
-/**
- * Query parameters
- */
 #[QueryParam('page', type: 'integer', description: 'Número da página atual para paginação dos resultados.', required: false, example: 1, nullable: true)]
 #[QueryParam('per_page', type: 'integer', description: 'Quantidade de registros retornados por página (mínimo: 1, máximo: 100).', required: false, example: 10, nullable: true)]
-#[QueryParam('search', type: 'string', description: 'Termo para busca e filtragem por nome do usuário.', required: false, example: 'João', nullable: true)]
-#[QueryParam('sort', type: 'string', description: 'Campo utilizado para ordenação dos resultados.', required: false, example: 'name', enum: ['name', 'email', 'profile_id', 'created_at'], nullable: true)]
+#[QueryParam('search', type: 'string', description: 'Termo para busca e filtragem por nome da secretaria.', required: false, example: 'João', nullable: true)]
+#[QueryParam('sort', type: 'string', description: 'Campo utilizado para ordenação dos resultados.', required: false, example: 'name', enum: ['name', 'acronym', 'created_at'], nullable: true)]
 #[QueryParam('order', type: 'string', description: 'Direção da ordenação dos resultados.', required: false, example: 'desc', enum: ['asc', 'desc'], nullable: true)]
-class ListUsersRequest extends FormRequest
+class ListSecretariatRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -40,7 +37,7 @@ class ListUsersRequest extends FormRequest
                 'nullable',
                 'sometimes',
                 'string',
-                'in:name,email,profile_id,created_at',
+                'in:name,acronym,created_at',
             ],
             'order' => ['nullable', 'sometimes', 'string', 'in:desc,asc'],
         ];
@@ -50,7 +47,7 @@ class ListUsersRequest extends FormRequest
      * Prepare the data for validation.
      * Sets default values for pagination and ordering if not provided.
      */
-    #[Override]
+    #[Override()]
     public function prepareForValidation(): void
     {
         $this->merge([

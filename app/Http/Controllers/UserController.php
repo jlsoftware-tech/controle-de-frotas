@@ -5,11 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\User\ListUsersRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
-use App\Http\Resources\UserCollection;
 use App\Models\User;
 use App\Support\ApiResponder;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Knuckles\Scribe\Attributes\Endpoint;
 use Knuckles\Scribe\Attributes\Group;
@@ -17,12 +17,162 @@ use Knuckles\Scribe\Attributes\Response as ResponseAtt;
 use Knuckles\Scribe\Attributes\UrlParam;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Group('Usuários', description: 'Endpoints para gerenciamento de usuários do sistema.')]
+#[Group('Endpoints de usuário', 'Gerenciamento de recursos.', true)]
 class UserController extends Controller
 {
+    #[Endpoint(
+        'Listar recursos da barra lateral (sidebar)',
+        description: 'Lista dos recursos permitidos de acordo com o perfil do usuário.',
+        authenticated: true
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => true,
+            'status_code' => 200,
+            'message' => 'Sucesso.',
+            'data' => [
+                [
+                    'icon' => 'FaUser',
+                    'name_menu' => 'Usuários',
+                    'sub_menu' => [
+                        [
+                            'icon' => 'FaUsers',
+                            'name_sub_menu' => 'Gerenciar usuários',
+                            'url' => '/usuarios',
+                        ],
+                        [
+                            'icon' => 'FaUserShield',
+                            'name_sub_menu' => 'Perfis de acesso',
+                            'url' => '/perfis',
+                        ],
+                    ],
+                ],
+            ],
+        ],
+        status: 200,
+        description: 'Opções do menu sidebar de acordo com as permissões do usuário.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
+            'status_code' => 401,
+            'message' => 'Não autenticado',
+            'data' => null,
+        ],
+        status: 401,
+        description: 'Token de autenticação não fornecido ou inválido.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
+            'status_code' => 403,
+            'message' => 'Não autorizado.',
+            'data' => null,
+        ],
+        status: 403,
+        description: 'Usuário sem permissão para acessar os recursos.'
+    )]
     /**
-     * Display a listing of the resource.
+     * Lista todas as ações conforme o perfil do usuário
      */
+    public function sidebar()
+    {
+        // verifica quais ações que usuário autenticado tem permissão de usar,
+        // e monta a estrutura da resposta, do contrário retorna null
+        $canAccessMenu = function (array $subMenu, User $user, array $modules) {
+            return array_map(
+                function ($item) use ($modules) {
+                    if (! in_array($item[4], $modules)) {
+                        return null;
+                    }
+
+                    // retorna a estrutura da resposta do subMenu,
+                    // indicando que o usuário tem permissão para tal ação
+                    return [
+                        'icon' => $item[0],
+                        'name_sub_menu' => $item[1],
+                        'description' => $item[2],
+                        'url' => $item[3],
+                    ];
+                },
+                $subMenu
+            );
+        };
+
+        $makeMenu = function (
+            array $menuOptions,
+            array $subMenuOptions,
+            array $modules,
+            User $user
+        ) use ($canAccessMenu) {
+            return array_map(
+                function ($item) use ($user, $canAccessMenu, $modules, $subMenuOptions) {
+                    return [
+                        'icon' => $item[0],
+                        'name_menu' => $item[1],
+                        'sub_menu' => $canAccessMenu($subMenuOptions[$item[2]], $user, $modules),
+                    ];
+                },
+                $menuOptions
+            );
+        };
+
+        $user = Auth::guard('api')->user();
+        $modules = $user->permissions->select(['module'])->toArray();
+        $modules = array_unique(array_column($modules, 'module'));
+
+        /* opções principais do menu
+         * padrão: ['nome_do_icone', 'nome_do_menu', 'nome_do_modulo_no_singular']
+         * ícones do Font Awesome 5: https://react-icons.github.io/react-icons/icons/fa/
+         */
+        $menuOptions = [
+            ['FaUser', 'Usuários', 'user'],
+            ['FaLandmark', 'Secretarias', 'secretariat'],
+        ];
+
+        /* opções do sub menu de cada menu principal
+         * padrão: ['nome_do_icone', 'nome_do_sub_menu', 'descricao', 'rota_do_front', 'nome_do_modulo']
+         */
+        $subMenuOptions = [
+            'user' => [
+                ['FaUsers', 'Gerenciar usuários', 'Cadastre, edite e gerencie os usuários do sistema.', '/usuarios', 'users'],
+                ['FaUserShield', 'Perfis de acesso', 'Crie e gerencie os perfis de acesso para definir quais recursos cada usuário pode utilizar.', '/perfis', 'profiles'],
+                ['FaUserLock', 'Permissões de usuário', 'Configure as permissões individuais de acesso dos usuários às funcionalidades do sistema.', '/permissoes', 'permissions'],
+            ],
+            'secretariat' => [
+                ['FaLandmark', 'Gerenciar secretarias', 'Cadastre e gerencie as secretarias e suas informações no sistema.', '/secretarias', 'secretariats'],
+            ],
+        ];
+
+        // array de todos possíveis menus do sidebar do usuário
+        $sidebar = $makeMenu($menuOptions, $subMenuOptions, $modules, $user);
+
+        // remove do array subMenus nulos, e evita indexação
+        // explícita em caso de remoção de alguma permissão
+        foreach ($sidebar as &$menu) {
+            $menu['sub_menu'] = array_values(
+                array_filter($menu['sub_menu'], function ($subMenu) {
+                    return $subMenu && count($subMenu);
+                })
+            );
+        }
+        unset($menu);
+
+        $sidebar = array_filter($sidebar, function ($menu) {
+            return (bool) count($menu['sub_menu']);
+        });
+
+        // reindexa os itens do menu, evita a exibição de índices na resposta da api
+        $sidebar = array_values($sidebar);
+
+        // verifica se o usuário tem alguma permissão
+        if (count($sidebar) == 0) {
+            return ApiResponder::error('Não autorizado.', 403);
+        }
+
+        return ApiResponder::success($sidebar);
+    }
+
     #[Endpoint('Listar Usuários', description: 'Retorna uma lista paginada de usuários cadastrados no sistema com opções de busca, ordenação e paginação.', authenticated: true)]
     #[ResponseAtt(
         content: [
@@ -34,8 +184,15 @@ class UserController extends Controller
                         'id' => 1,
                         'name' => 'Maria Santos',
                         'email' => 'maria.santos@example.com',
-                        'profile_id' => 1,
-                        'secretariat_id' => 1,
+                        'profile' => [
+                            'id' => 1,
+                            'name' => 'Administrador',
+                        ],
+                        'secretariat' => [
+                            'id' => 1,
+                            'name' => 'Secretaria de Administração',
+                            'acronym' => 'SECAD',
+                        ],
                         'created_at' => '01/09/2026 10:00:00',
                         'updated_at' => '01/09/2026 10:00:00',
                         'deleted_at' => null,
@@ -55,9 +212,9 @@ class UserController extends Controller
     #[ResponseAtt(
         content: [
             'success' => false,
-            'statusCode' => 400,
+            'status_code' => 400,
+            'message' => 'Nenhum usuário encontrado para essa pesquisa.',
             'data' => null,
-            'pagination' => null,
         ],
         status: 400,
         description: 'Nenhum usuário encontrado para os critérios informados.'
@@ -65,7 +222,8 @@ class UserController extends Controller
     #[ResponseAtt(
         content: [
             'success' => false,
-            'message' => 'Token não fornecido.',
+            'status_code' => 401,
+            'message' => 'Não autenticado',
             'data' => null,
         ],
         status: 401,
@@ -81,7 +239,10 @@ class UserController extends Controller
         status: 422,
         description: 'Erro de validação nos parâmetros de consulta.'
     )]
-    public function index(ListUsersRequest $request): UserCollection|JsonResponse
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(ListUsersRequest $request): JsonResponse
     {
         $page = $request->validated('page');
         $per_page = $request->validated('per_page');
@@ -98,7 +259,10 @@ class UserController extends Controller
             return ApiResponder::error('Nenhum usuário encontrado para essa pesquisa.');
         }
 
-        return new UserCollection($users);
+        return ApiResponder::success(
+            $users->toResourceCollection(),
+            'Lista de todos os usuário',
+        );
     }
 
     /**
@@ -108,25 +272,34 @@ class UserController extends Controller
     #[ResponseAtt(
         content: [
             'success' => true,
+            'status_code' => 201,
             'message' => 'Usuário cadastrado com sucesso!',
             'data' => [
                 'id' => 1,
                 'name' => 'Maria Santos',
                 'email' => 'maria.santos@example.com',
-                'profile_id' => 1,
-                'secretariat_id' => 1,
+                'profile' => [
+                    'id' => 1,
+                    'name' => 'Administrador',
+                ],
+                'secretariat' => [
+                    'id' => 1,
+                    'name' => 'Secretaria de Administração',
+                    'acronym' => 'SECAD',
+                ],
                 'created_at' => '01/09/2026 10:00:00',
                 'updated_at' => '01/09/2026 10:00:00',
                 'deleted_at' => null,
             ],
         ],
-        status: 200,
+        status: 201,
         description: 'Usuário cadastrado com sucesso.'
     )]
     #[ResponseAtt(
         content: [
             'success' => false,
-            'message' => 'Token não fornecido.',
+            'status_code' => 401,
+            'message' => 'Não autenticado',
             'data' => null,
         ],
         status: 401,
@@ -178,12 +351,21 @@ class UserController extends Controller
     #[ResponseAtt(
         content: [
             'success' => true,
+            'status_code' => 200,
+            'message' => '',
             'data' => [
                 'id' => 1,
                 'name' => 'Maria Santos',
                 'email' => 'maria.santos@example.com',
-                'profile_id' => 1,
-                'secretariat_id' => 1,
+                'profile' => [
+                    'id' => 1,
+                    'name' => 'Administrador',
+                ],
+                'secretariat' => [
+                    'id' => 1,
+                    'name' => 'Secretaria de Administração',
+                    'acronym' => 'SECAD',
+                ],
                 'created_at' => '01/09/2026 10:00:00',
                 'updated_at' => '01/09/2026 10:00:00',
                 'deleted_at' => null,
@@ -195,7 +377,8 @@ class UserController extends Controller
     #[ResponseAtt(
         content: [
             'success' => false,
-            'message' => 'Token não fornecido.',
+            'status_code' => 401,
+            'message' => 'Não autenticado',
             'data' => null,
         ],
         status: 401,
@@ -204,6 +387,7 @@ class UserController extends Controller
     #[ResponseAtt(
         content: [
             'success' => false,
+            'status_code' => 404,
             'message' => 'Recurso não encontrado.',
             'data' => null,
         ],
@@ -227,13 +411,21 @@ class UserController extends Controller
     #[ResponseAtt(
         content: [
             'success' => true,
-            'message' => 'Dados atualizados com sucesso',
+            'status_code' => 200,
+            'message' => 'Dados atualizados com sucesso.',
             'data' => [
                 'id' => 1,
                 'name' => 'Maria Santos Silva',
                 'email' => 'maria.silva@example.com',
-                'profile_id' => 1,
-                'secretariat_id' => 1,
+                'profile' => [
+                    'id' => 1,
+                    'name' => 'Administrador',
+                ],
+                'secretariat' => [
+                    'id' => 1,
+                    'name' => 'Secretaria de Administração',
+                    'acronym' => 'SECAD',
+                ],
                 'created_at' => '01/09/2026 10:00:00',
                 'updated_at' => '01/09/2026 10:05:00',
                 'deleted_at' => null,
@@ -245,7 +437,8 @@ class UserController extends Controller
     #[ResponseAtt(
         content: [
             'success' => false,
-            'message' => 'Token não fornecido.',
+            'status_code' => 401,
+            'message' => 'Não autenticado',
             'data' => null,
         ],
         status: 401,
@@ -264,6 +457,7 @@ class UserController extends Controller
     #[ResponseAtt(
         content: [
             'success' => false,
+            'status_code' => 404,
             'message' => 'Recurso não encontrado.',
             'data' => null,
         ],
@@ -294,17 +488,9 @@ class UserController extends Controller
     #[ResponseAtt(
         content: [
             'success' => true,
-            'message' => 'Usuário removido com sucesso!',
-            'data' => [
-                'id' => 1,
-                'name' => 'Maria Santos',
-                'email' => 'maria.santos@example.com',
-                'profile_id' => 1,
-                'secretariat_id' => 1,
-                'created_at' => '01/09/2026 10:00:00',
-                'updated_at' => '01/09/2026 10:10:00',
-                'deleted_at' => '01/09/2026 10:15:00',
-            ],
+            'status_code' => 200,
+            'message' => 'Usuário removido com sucesso.',
+            'data' => null,
         ],
         status: 200,
         description: 'Usuário removido com sucesso.'
@@ -312,7 +498,8 @@ class UserController extends Controller
     #[ResponseAtt(
         content: [
             'success' => false,
-            'message' => 'Token não fornecido.',
+            'status_code' => 401,
+            'message' => 'Não autenticado',
             'data' => null,
         ],
         status: 401,
@@ -321,6 +508,7 @@ class UserController extends Controller
     #[ResponseAtt(
         content: [
             'success' => false,
+            'status_code' => 404,
             'message' => 'Recurso não encontrado.',
             'data' => null,
         ],
@@ -332,5 +520,89 @@ class UserController extends Controller
         $user->delete();
 
         return ApiResponder::success(message: 'Usuário removido com sucesso.');
+    }
+
+    /**
+     * Retorna os dados do perfil de acesso do usuário autenticado.
+     */
+    #[Endpoint('Perfil de acesso do usuário', description: 'Retorna os dados do perfil de acesso associado ao usuário autenticado.', authenticated: true)]
+    #[ResponseAtt(
+        content: [
+            'success' => true,
+            'status_code' => 200,
+            'message' => 'Sucesso.',
+            'data' => [
+                'id' => 1,
+                'name' => 'Administrador',
+                'description' => 'Perfil com acesso total ao sistema.',
+                'created_at' => '01/09/2026 10:00:00',
+                'updated_at' => '01/09/2026 10:00:00',
+            ],
+        ],
+        status: 200,
+        description: 'Perfil de acesso recuperado com sucesso.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
+            'status_code' => 401,
+            'message' => 'Não autenticado',
+            'data' => null,
+        ],
+        status: 401,
+        description: 'Token de autenticação não fornecido ou inválido.'
+    )]
+    public function profile(): JsonResponse
+    {
+        $user = Auth::guard('api')->user();
+
+        return ApiResponder::success(
+            $user->profile
+        );
+    }
+
+    /**
+     * Retorna as permissões do perfil do usuário autenticado.
+     */
+    #[Endpoint('Permissões que o usuário possui', description: 'Retorna a lista de todas as permissões associadas ao perfil do usuário autenticado.', authenticated: true)]
+    #[ResponseAtt(
+        content: [
+            'success' => true,
+            'status_code' => 200,
+            'message' => 'Sucesso.',
+            'data' => [
+                [
+                    'id' => 1,
+                    'name' => 'Criar Usuário',
+                    'module' => 'users',
+                    'created_at' => '01/09/2026 10:00:00',
+                    'updated_at' => '01/09/2026 10:00:00',
+                    'pivot' => [
+                        'profile_id' => 1,
+                        'permission_id' => 1,
+                    ],
+                ],
+            ],
+        ],
+        status: 200,
+        description: 'Lista de permissões recuperada com sucesso.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
+            'status_code' => 401,
+            'message' => 'Não autenticado',
+            'data' => null,
+        ],
+        status: 401,
+        description: 'Token de autenticação não fornecido ou inválido.'
+    )]
+    public function permissions(): JsonResponse
+    {
+        $user = Auth::guard('api')->user();
+
+        return ApiResponder::success(
+            $user->permissions
+        );
     }
 }
