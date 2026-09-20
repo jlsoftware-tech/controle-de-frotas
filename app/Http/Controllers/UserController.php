@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\User\ListUsersRequest;
+use App\Http\Requests\User\PermissionsRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Models\User;
@@ -571,16 +572,17 @@ class UserController extends Controller
             'status_code' => 200,
             'message' => 'Sucesso.',
             'data' => [
-                [
-                    'id' => 1,
-                    'name' => 'Criar Usuário',
-                    'module' => 'users',
-                    'created_at' => '01/09/2026 10:00:00',
-                    'updated_at' => '01/09/2026 10:00:00',
-                    'pivot' => [
-                        'profile_id' => 1,
-                        'permission_id' => 1,
-                    ],
+                'users' => [
+                    'view' => true,
+                    'create' => true,
+                    'update' => true,
+                    'delete' => true,
+                ],
+                'profiles' => [
+                    'view' => true,
+                    'create' => false,
+                    'update' => false,
+                    'delete' => false,
                 ],
             ],
         ],
@@ -597,12 +599,28 @@ class UserController extends Controller
         status: 401,
         description: 'Token de autenticação não fornecido ou inválido.'
     )]
-    public function permissions(): JsonResponse
+    public function permissions(PermissionsRequest $request): JsonResponse
     {
-        $user = Auth::guard('api')->user();
+        $permissions = [
+            'view' => false,
+            'create' => false,
+            'update' => false,
+            'delete' => false
+        ];
+        $enabled_permissions = Auth::guard('api')
+            ->user()
+            ->permissions
+            ->where('module', $request->module)
+            ->select('name')
+            ->toArray();
 
-        return ApiResponder::success(
-            $user->permissions
-        );
+        foreach ($enabled_permissions as $ep) {
+            $permissions[$ep['name']] = true;
+        }
+        unset($permission);
+
+        return ApiResponder::success([
+            $request->module => $permissions
+        ]);
     }
 }
