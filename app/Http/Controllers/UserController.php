@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\User\ListUsersRequest;
+use App\Http\Requests\User\ResetPasswordRequest;
 use App\Http\Requests\User\StoreUserRequest;
+use App\Http\Requests\User\UpdateInfoRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Models\User;
 use App\Support\ApiResponder;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Knuckles\Scribe\Attributes\Endpoint;
@@ -604,5 +607,34 @@ class UserController extends Controller
         return ApiResponder::success(
             $user->permissions
         );
+    }
+
+    // atualiza os dados pessoais do usuário logado
+    public function updateInfo(UpdateInfoRequest $request): JsonResponse
+    {
+
+        $update = $request->validated();
+        if (empty($update)) {
+            return ApiResponder::error('Nenhum dado foi enviado.');
+        }
+
+        Auth::guard('api')->user()->update($update);
+
+        return ApiResponder::success(message: 'Dados atualizados com sucesso.');
+    }
+
+    // redefine a senha quando logado no sistema
+    public function resetPassword(ResetPasswordRequest $request): JsonResponse
+    {
+        $user = Auth::guard('api')->user();
+
+        if (Hash::check($request->password, $user->password)) {
+            return ApiResponder::success(message: 'Informe uma senha diferente para redefinir sua senha.');
+        }
+
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        return ApiResponder::success(message: 'Sua senha foi redefinida com sucesso.');
     }
 }
