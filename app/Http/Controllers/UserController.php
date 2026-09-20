@@ -82,7 +82,7 @@ class UserController extends Controller
         $canAccessMenu = function (array $subMenu, User $user, array $modules) {
             return array_map(
                 function ($item) use ($modules) {
-                    if (! in_array($item[3], $modules)) {
+                    if (! in_array($item[4], $modules)) {
                         return null;
                     }
 
@@ -91,7 +91,8 @@ class UserController extends Controller
                     return [
                         'icon' => $item[0],
                         'name_sub_menu' => $item[1],
-                        'url' => $item[2],
+                        'description' => $item[2],
+                        'url' => $item[3],
                     ];
                 },
                 $subMenu
@@ -130,16 +131,16 @@ class UserController extends Controller
         ];
 
         /* opções do sub menu de cada menu principal
-         * padrão: ['nome_do_icone', 'nome_do_sub_menu', 'rota_do_front', 'nome_do_modulo']
+         * padrão: ['nome_do_icone', 'nome_do_sub_menu', 'descricao', 'rota_do_front', 'nome_do_modulo']
          */
         $subMenuOptions = [
             'user' => [
-                ['FaUsers', 'Gerenciar usuários', '/usuarios', 'users'],
-                ['FaUserShield', 'Perfis de acesso', '/perfis', 'profiles'],
-                ['FaUserLock', 'Permissões de usuário', '/permisoes', 'permissions'],
+                ['FaUsers', 'Gerenciar usuários', 'Cadastre, edite e gerencie os usuários do sistema.', '/usuarios', 'users'],
+                ['FaUserShield', 'Perfis de acesso', 'Crie e gerencie os perfis de acesso para definir quais recursos cada usuário pode utilizar.', '/perfis', 'profiles'],
+                ['FaUserLock', 'Permissões de usuário', 'Configure as permissões individuais de acesso dos usuários às funcionalidades do sistema.', '/permissoes', 'permissions'],
             ],
             'secretariat' => [
-                ['FaLandmark', 'Gerenciar secretarias', '/secretarias', 'secretariats'],
+                ['FaLandmark', 'Gerenciar secretarias', 'Cadastre e gerencie as secretarias e suas informações no sistema.', '/secretarias', 'secretariats'],
             ],
         ];
 
