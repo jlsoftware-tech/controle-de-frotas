@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Profile;
 
+use App\Http\Requests\FormRequest;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Knuckles\Scribe\Attributes\BodyParam;
 
