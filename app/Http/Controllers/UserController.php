@@ -605,7 +605,7 @@ class UserController extends Controller
             'view' => false,
             'create' => false,
             'update' => false,
-            'delete' => false
+            'delete' => false,
         ];
         $enabled_permissions = Auth::guard('api')
             ->user()
@@ -620,7 +620,7 @@ class UserController extends Controller
         unset($permission);
 
         return ApiResponder::success([
-            $request->module => $permissions
+            $request->module => $permissions,
         ]);
     }
 }

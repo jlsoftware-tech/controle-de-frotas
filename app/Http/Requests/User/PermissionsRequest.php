@@ -23,13 +23,14 @@ class PermissionsRequest extends FormRequest
     public function rules(): array
     {
         $module = $this->request->get('module');
+
         return [
             'module' => [
                 'required',
                 'string',
                 'in:'.$module,
                 'exists:permissions,module',
-            ]
+            ],
         ];
     }
 
@@ -37,7 +38,7 @@ class PermissionsRequest extends FormRequest
     {
         return [
             'module.required' => 'Informe o nome do módulo',
-            'module.exists' => 'O módulo ' . strtoupper($this->request->get('module')) . ' não existe',
+            'module.exists' => 'O módulo '.strtoupper($this->request->get('module')).' não existe',
         ];
     }
 }
