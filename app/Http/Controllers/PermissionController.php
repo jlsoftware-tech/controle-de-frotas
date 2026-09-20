@@ -19,12 +19,6 @@ class PermissionController extends Controller
         Gate::authorize('viewAny', Profile::class);
 
         return ApiResponder::success(Permission::all());
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Listando todas as permissões',
-            'data' => Permission::all(),
-        ]);
     }
 
     /**
@@ -37,16 +31,9 @@ class PermissionController extends Controller
         try {
             $permission = Permission::findOrFail($id);
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'status' => true,
-                'message' => 'Recurso não encontrado.',
-                'data' => null,
-            ]);
+            return ApiResponder::error('Perfil não encontrado');
         }
 
-        return response()->json([
-            'status' => true,
-            'data' => $permission,
-        ]);
+        return ApiResponder::success($permission);
     }
 }

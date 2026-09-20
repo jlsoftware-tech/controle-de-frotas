@@ -12,17 +12,17 @@ class UserPolicy
     public function viewAny(User $user): bool
     {
         return $user->permissions->contains(function ($permission, $key) {
-            return $permission->name === 'view' && $permission->module === 'users';
+            return $permission->action === 'view' && $permission->module === 'users';
         });
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, User $model): bool
+    public function view(User $user, ?User $model = null): bool
     {
         return $user->permissions->contains(function ($permission, $key) {
-            return $permission->name === 'view' && $permission->module === 'users';
+            return $permission->action === 'view' && $permission->module === 'users';
         });
     }
 
@@ -32,34 +32,34 @@ class UserPolicy
     public function create(User $user): bool
     {
         return $user->permissions->contains(function ($permission, $key) {
-            return $permission->name === 'create' && $permission->module === 'users';
+            return $permission->action === 'create' && $permission->module === 'users';
         });
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, User $model): bool
+    public function update(User $user, ?User $model = null): bool
     {
         return $user->permissions->contains(function ($permission, $key) {
-            return $permission->name === 'update' && $permission->module === 'users';
+            return $permission->action === 'update' && $permission->module === 'users';
         });
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, User $model): bool
+    public function delete(User $user, ?User $model = null): bool
     {
         return $user->permissions->contains(function ($permission, $key) {
-            return $permission->name === 'delete' && $permission->module === 'user';
+            return $permission->action === 'delete' && $permission->module === 'users';
         });
     }
 
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, User $model): bool
+    public function restore(User $user, ?User $model = null): bool
     {
         return false;
     }
@@ -67,7 +67,7 @@ class UserPolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, User $model): bool
+    public function forceDelete(User $user, ?User $model = null): bool
     {
         return false;
     }
