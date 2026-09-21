@@ -514,7 +514,7 @@ class UserController extends Controller
     /**
      * Retorna as permissões do perfil do usuário autenticado.
      */
-    #[Endpoint('Permissões que o usuário possui', description: 'Retorna a lista de todas as permissões associadas ao perfil do usuário autenticado.', authenticated: true)]
+    #[Endpoint('Permissões que o usuário possui', description: 'Retorna a lista das permissões associadas ao perfil do usuário autenticado.', authenticated: true)]
     #[ResponseAtt(
         content: [
             'success' => true,
@@ -522,14 +522,17 @@ class UserController extends Controller
             'message' => 'Sucesso.',
             'data' => [
                 [
-                    'id' => 1,
-                    'name' => 'Criar Usuário',
-                    'module' => 'users',
-                    'created_at' => '01/09/2026 10:00:00',
-                    'updated_at' => '01/09/2026 10:00:00',
-                    'pivot' => [
-                        'profile_id' => 1,
-                        'permission_id' => 1,
+                    'users' => [
+                        'view' => true,
+                        'create' => true,
+                        'update' => true,
+                        'delete' => false
+                    ],
+                    'profiles' => [
+                        'view' => true,
+                        'create' => true,
+                        'update' => true,
+                        'delete' => false
                     ],
                 ],
             ],
