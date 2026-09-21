@@ -25,7 +25,7 @@ class ListUserPermissionsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'modules' => ['sometimes', 'list']
+            'modules' => ['sometimes', 'list'],
         ];
     }
 }

@@ -28,7 +28,7 @@ class AppServiceProvider extends ServiceProvider
         Relation::morphMap([
             'users' => User::class,
             'profiles' => Profile::class,
-            'secretariats' => Secretariat::class
+            'secretariats' => Secretariat::class,
         ]);
     }
 }

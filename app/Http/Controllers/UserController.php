@@ -526,13 +526,13 @@ class UserController extends Controller
                         'view' => true,
                         'create' => true,
                         'update' => true,
-                        'delete' => false
+                        'delete' => false,
                     ],
                     'profiles' => [
                         'view' => true,
                         'create' => true,
                         'update' => true,
-                        'delete' => false
+                        'delete' => false,
                     ],
                 ],
             ],
@@ -562,8 +562,8 @@ class UserController extends Controller
                 $module => $items->mapWithKeys(
                     fn ($permission) => [
                         $permission->action => $user->can($permission->action, Relation::getMorphedModel($module)),
-                    ])
-                ]
+                    ]),
+            ]
             )
             ->toArray();
 
