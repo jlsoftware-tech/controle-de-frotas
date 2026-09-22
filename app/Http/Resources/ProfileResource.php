@@ -21,7 +21,7 @@ class ProfileResource extends JsonResource
             'permissions' => $this->permissions,
             'created_at' => $this->created_at->format('d/m/Y H:i:s'),
             'updated_at' => $this->updated_at->format('d/m/Y H:i:s'),
-            'deleted_at' => $this->deleted_at ? $this->deleted_at->format('d/m/Y H:i:s') : null,
+            'deleted_at' => $this->deleted_at?->format('d/m/Y H:i:s'),
         ];
     }
 }

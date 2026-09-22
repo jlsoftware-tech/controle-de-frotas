@@ -8,6 +8,7 @@ use Knuckles\Scribe\Attributes\BodyParam;
 
 #[BodyParam('email', description: 'Email cadastrado do usuário.', example: 'admin@example.com')]
 #[BodyParam('password', description: 'Senha de acesso do usuário.', example: 'senha123')]
+#[BodyParam('remember', description: 'Checkbox "Lembrar-me".')]
 class LoginRequest extends FormRequest
 {
     /**
@@ -28,6 +29,7 @@ class LoginRequest extends FormRequest
         return [
             'email' => 'required|email',
             'password' => 'required|string',
+            'remember' => 'boolean',
         ];
     }
 
@@ -46,6 +48,9 @@ class LoginRequest extends FormRequest
             'password' => [
                 'description' => 'Senha de acesso do usuário.',
                 'example' => 'senha123',
+            ],
+            'remember' => [
+                'description' => 'Checkbox "Lembrar-me".',
             ],
         ];
     }

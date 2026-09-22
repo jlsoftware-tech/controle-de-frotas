@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SecretariatController;
 use App\Http\Controllers\UserController;
 use App\Support\ApiResponder;
 use Illuminate\Http\Request;
@@ -18,7 +19,6 @@ Route::prefix('v1')->group(function () use ($notFound) {
     Route::prefix('auth')->middleware('api')->group(function () {
         Route::post('/login', [AuthController::class, 'login']);
         Route::get('/logout', [AuthController::class, 'logout'])->middleware('jwt');
-        Route::get('/refresh', [AuthController::class, 'refresh']);
         Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
         Route::post('/reset-password', [AuthController::class, 'resetPassword']);
     });
@@ -33,6 +33,9 @@ Route::prefix('v1')->group(function () use ($notFound) {
             ->whereNumber('user')
             ->missing($notFound);
 
+        Route::apiResource('/secretariats', SecretariatController::class)
+            ->whereNumber('secretariat')
+            ->missing($notFound);
         Route::apiResource('/profiles', ProfileController::class)->missing($notFound);
         Route::apiResource('/permissions', PermissionController::class)->only(['index', 'show']);
     });

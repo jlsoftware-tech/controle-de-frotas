@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
-use App\Http\Resources\AuthUserResource;
 use App\Models\User;
 use App\Notifications\ResetPasswordApiNotification;
 use App\Support\ApiResponder;
@@ -47,6 +46,7 @@ class AuthController extends Controller
                     ],
                     'created_at' => '03/09/2026 19:13:32',
                     'updated_at' => '03/09/2026 19:13:32',
+                    'deleted_at' => null,
                 ],
             ],
         ],
@@ -65,10 +65,10 @@ class AuthController extends Controller
     )]
     #[ResponseAtt(
         content: [
-            'message' => 'The email field is required.',
+            'message' => 'Os dados enviados são inválidos.',
             'errors' => [
-                'email' => ['The email field is required.'],
-                'password' => ['The password field is required.'],
+                'email' => ['O campo e-mail é obrigatório.'],
+                'password' => ['O campo senha é obrigatório.'],
             ],
         ],
         status: 422,
@@ -77,15 +77,24 @@ class AuthController extends Controller
     public function login(LoginRequest $request): JsonResponse
     {
         $credentials = $request->only('email', 'password');
+        $remember = (bool) $request->input('remember', false);
 
-        $token = Auth::guard('api')->attempt($credentials);
+        // define o ttl do token conforme a checkbox lembrar-me
+        if ($remember) {
+            // define o ttl do token para 7 dias
+            $token = Auth::guard('api')->setTTL(10080)->attempt($credentials);
+        } else {
+            // define o ttl do token com o valor padrão de 1 dia
+            $token = Auth::guard('api')->attempt($credentials);
+        }
+
         if (! $token) {
             return ApiResponder::error('Usuário ou senha incorretos.', Response::HTTP_UNAUTHORIZED);
         }
 
         return ApiResponder::success([
             'token' => $token,
-            'user' => Auth::guard('api')->user()->toResource(AuthUserResource::class),
+            'user' => Auth::guard('api')->user()->toResource(),
         ],
             'Login realizado com sucesso.',
         );
@@ -104,7 +113,10 @@ class AuthController extends Controller
     )]
     #[ResponseAtt(
         content: [
-            'message' => 'Unauthenticated.',
+            'success' => false,
+            'status_code' => Response::HTTP_UNAUTHORIZED,
+            'message' => 'Não autenticado',
+            'data' => null,
         ],
         status: Response::HTTP_UNAUTHORIZED,
         description: 'Token de autenticação não fornecido ou inválido.'
@@ -147,6 +159,7 @@ class AuthController extends Controller
                     ],
                     'created_at' => '03/09/2026 19:13:32',
                     'updated_at' => '03/09/2026 19:13:32',
+                    'deleted_at' => null,
                 ],
             ],
         ],
@@ -160,22 +173,25 @@ class AuthController extends Controller
         status: Response::HTTP_UNAUTHORIZED,
         description: 'Token não fornecido ou inválido para renovação.'
     )]
+    /**
+     * @deprecated Rota removida em 2026-09. Será excluído na próxima alteração.
+     */
     public function refresh()
     {
-        try {
-            $token = Auth::guard('api')->refresh();
-        } catch (JWTException) {
-            return ApiResponder::error('Sua sessão expirou.', Response::HTTP_UNAUTHORIZED);
-        }
-
-        // Define o novo token do usuário
-        // Se não definir, o usuário continuaria com o token invalidado pelo refresh()
-        Auth::guard('api')->setToken($token)->authenticate();
-
-        return ApiResponder::success([
-            'token' => $token,
-            'user' => Auth::guard('api')->user()->toResource(AuthUserResource::class),
-        ]);
+        //        try {
+        //            $token = Auth::guard('api')->refresh();
+        //        } catch (JWTException) {
+        //            return ApiResponder::error('Sua sessão expirou.', Response::HTTP_UNAUTHORIZED);
+        //        }
+        //
+        //        // Define o novo token do usuário
+        //        // Se não definir, o usuário continuaria com o token invalidado pelo refresh()
+        //        Auth::guard('api')->setToken($token)->authenticate();
+        //
+        //        return ApiResponder::success([
+        //            'token' => $token,
+        //            'user' => Auth::guard('api')->user()->toResource(),
+        //        ]);
     }
 
     #[Endpoint('Esqueci minha senha', description: 'Envia um e-mail com instruções e token para redefinição de senha.')]
