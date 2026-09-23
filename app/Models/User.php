@@ -69,12 +69,7 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne(Driver::class);
     }
 
-    public function provider(): HasOne
-    {
-        return $this->hasOne(Driver::class);
-    }
-
-    public function approved(): HasMany
+    public function approvedTransportationRequests(): HasMany
     {
         return $this->hasMany(TransportationRequest::class, 'approver_id');
     }

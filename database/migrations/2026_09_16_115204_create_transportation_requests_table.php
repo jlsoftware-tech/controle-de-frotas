@@ -20,8 +20,6 @@ return new class extends Migration
             $table->dateTime('expected_arrival_datetime');
             $table->dateTime('real_departure_datetime')->nullable();
             $table->dateTime('real_arrival_datetime')->nullable();
-            $table->integer('km_before')->nullable();
-            $table->integer('km_after')->nullable();
             $table->string('status');
             $table->foreignId('requesting_secretariat_id')->constrained('secretariats');
             $table->foreignId('approver_id')->nullable()->constrained('users');
