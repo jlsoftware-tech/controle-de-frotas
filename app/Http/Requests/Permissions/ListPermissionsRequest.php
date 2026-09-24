@@ -53,7 +53,7 @@ class ListPermissionsRequest extends FormRequest
         $this->merge([
             'page' => $this->input('page', 1),
             'per_page' => $this->input('per_page', 10),
-            'sort' => $this->input('sort', 'name'),
+            'sort' => $this->input('sort', 'module'),
             'order' => $this->input('order', 'asc'),
         ]);
     }
