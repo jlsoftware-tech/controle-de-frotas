@@ -26,7 +26,7 @@ class PermissionController extends Controller
         $order = $request->validated('order');
 
         $permissions = Permission::query()
-            ->when($request->filled('search'), fn ($query) => $query->where('name', 'like', "%{$search}%"))
+            ->when($request->filled('search'), fn ($query) => $query->where('action', 'like', "%{$search}%"))
             ->orderBy($sort, $order)
             ->paginate($per_page, ['*'], 'page', $page);
 
@@ -50,16 +50,9 @@ class PermissionController extends Controller
         try {
             $permission = Permission::findOrFail($id);
         } catch (ModelNotFoundException) {
-            return response()->json([
-                'status' => true,
-                'message' => 'Recurso não encontrado.',
-                'data' => null,
-            ]);
+            return ApiResponder::error('Perfil não encontrado');
         }
 
-        return response()->json([
-            'status' => true,
-            'data' => $permission,
-        ]);
+        return ApiResponder::success($permission);
     }
 }

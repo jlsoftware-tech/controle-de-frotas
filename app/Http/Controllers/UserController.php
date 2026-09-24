@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\User\ListUserPermissionsRequest;
 use App\Http\Requests\User\ListUsersRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
+use App\Models\Permission;
 use App\Models\User;
 use App\Support\ApiResponder;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -564,7 +568,7 @@ class UserController extends Controller
     /**
      * Retorna as permissões do perfil do usuário autenticado.
      */
-    #[Endpoint('Permissões que o usuário possui', description: 'Retorna a lista de todas as permissões associadas ao perfil do usuário autenticado.', authenticated: true)]
+    #[Endpoint('Permissões que o usuário possui', description: 'Retorna a lista das permissões associadas ao perfil do usuário autenticado.', authenticated: true)]
     #[ResponseAtt(
         content: [
             'success' => true,
@@ -572,14 +576,17 @@ class UserController extends Controller
             'message' => 'Sucesso.',
             'data' => [
                 [
-                    'id' => 1,
-                    'name' => 'Criar Usuário',
-                    'module' => 'users',
-                    'created_at' => '01/09/2026 10:00:00',
-                    'updated_at' => '01/09/2026 10:00:00',
-                    'pivot' => [
-                        'profile_id' => 1,
-                        'permission_id' => 1,
+                    'users' => [
+                        'view' => true,
+                        'create' => true,
+                        'update' => true,
+                        'delete' => false,
+                    ],
+                    'profiles' => [
+                        'view' => true,
+                        'create' => true,
+                        'update' => true,
+                        'delete' => false,
                     ],
                 ],
             ],
@@ -597,12 +604,26 @@ class UserController extends Controller
         status: 401,
         description: 'Token de autenticação não fornecido ou inválido.'
     )]
-    public function permissions(): JsonResponse
+    public function permissions(ListUserPermissionsRequest $request): JsonResponse
     {
         $user = Auth::guard('api')->user();
+        $permissions = Permission::query()
+            ->when($request->filled('modules'), function (Builder $q) use ($request) {
+                return $q->whereIn('module', $request->input('modules'));
+            })
+            ->get(['module', 'action'])
+            ->groupBy('module')
+            ->mapWithKeys(fn ($items, $module) => [
+                $module => $items->mapWithKeys(
+                    fn ($permission) => [
+                        $permission->action => $user->can($permission->action, Relation::getMorphedModel($module)),
+                    ]),
+            ]
+            )
+            ->toArray();
 
         return ApiResponder::success(
-            $user->permissions
+            $permissions
         );
     }
 }

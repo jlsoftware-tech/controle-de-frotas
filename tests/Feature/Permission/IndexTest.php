@@ -5,7 +5,7 @@ use App\Models\Profile;
 
 function authenticateUserWithViewPermission()
 {
-    $viewProfilesPermission = Permission::create(['name' => 'view', 'module' => 'profiles']);
+    $viewProfilesPermission = Permission::create(['action' => 'view', 'module' => 'profiles']);
 
     $profile = Profile::create(['name' => 'admin', 'description' => 'admin']);
     $profile->permissions()->attach($viewProfilesPermission);
@@ -19,8 +19,8 @@ function authenticateUserWithViewPermission()
 test('listar permissões estando autenticado e autorizado', function () {
     $token = authenticateUserWithViewPermission();
 
-    Permission::create(['name' => 'create', 'module' => 'users']);
-    Permission::create(['name' => 'delete', 'module' => 'users']);
+    Permission::create(['action' => 'create', 'module' => 'users']);
+    Permission::create(['action' => 'delete', 'module' => 'users']);
 
     $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
         ->getJson('/api/v1/permissions');
@@ -32,7 +32,7 @@ test('listar permissões estando autenticado e autorizado', function () {
         'message',
         'data' => [
             'items' => [
-                '*' => ['id', 'name', 'module', 'created_at', 'updated_at'],
+                '*' => ['id', 'action', 'module', 'created_at', 'updated_at'],
             ],
             'pagination' => ['numPerPage', 'currPage', 'totalEntries', 'totalPages'],
         ],
@@ -42,8 +42,8 @@ test('listar permissões estando autenticado e autorizado', function () {
 test('filtra permissões por busca', function () {
     $token = authenticateUserWithViewPermission();
 
-    Permission::create(['name' => 'create', 'module' => 'users']);
-    Permission::create(['name' => 'delete', 'module' => 'users']);
+    Permission::create(['action' => 'create', 'module' => 'users']);
+    Permission::create(['action' => 'delete', 'module' => 'users']);
 
     $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
         ->getJson('/api/v1/permissions?search=create');
