@@ -16,8 +16,10 @@ return new class extends Migration
             $table->string('serial_number');
             $table->string('brand');
             $table->integer('service_life_km');
-            $table->string('position')->nullable();
-            $table->string('status');
+            $table->enum('position', ['FRONT_RIGHT', 'FRONT_LEFT', 'BACK_RIGHT', 'BACK_LEFT'])
+                ->nullable();
+            $table->enum('status', ['IN_USE', 'STORED', 'DISCARDED'])
+                ->default('IN_USE');
             $table->foreignId('vehicle_id')->nullable()->constrained()->nullOnDelete();
             $table->timestamps();
         });

@@ -19,10 +19,12 @@ return new class extends Migration
             $table->string('chassi')->nullable();
             $table->string('brand');
             $table->string('model');
-            $table->string('model_year');
-            $table->string('fuel_type')->nullable();
+            $table->integer('model_year');
+            $table->enum('fuel_type', ['GASOLINE', 'DIESEL', 'ETHANOL', 'ELECTRICITY'])
+                ->nullable();
             $table->integer('tank_capacity')->nullable();
-            $table->string('status');
+            $table->enum('status', ['AVAILABLE', 'UNAVAILABLE'])
+                ->default('AVAILABLE');
             $table->foreignId('secretariat_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });

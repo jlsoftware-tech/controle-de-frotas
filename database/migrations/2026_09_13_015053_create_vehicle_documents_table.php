@@ -18,7 +18,7 @@ return new class extends Migration
             $table->date('issue_date');
             $table->date('expiration_date');
             $table->string('file_url');
-            $table->string('status');
+            $table->enum('status', ['VALID', 'EXPIRED'])->default('VALID');
             $table->foreignId('vehicle_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });

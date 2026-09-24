@@ -16,8 +16,9 @@ return new class extends Migration
             $table->date('begin_transfer_date');
             $table->date('end_transfer_date');
             $table->string('motivation');
-            $table->string('status');
-            $table->foreignId('vehicle_id');
+            $table->enum('status', ['PENDING', 'APPROVED', 'CANCELLED', 'FINISHED'])
+                ->default('PENDING');
+            $table->foreignId('vehicle_id')->constrained();
             $table->foreignId('approver_id')->constrained('users');
             $table->foreignId('requested_secretariat_id')->constrained('secretariats');
             $table->foreignId('requesting_secretariat_id')->constrained('secretariats');

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('tire_id')->constrained()->cascadeOnDelete();
             $table->foreignId('vehicle_id')->constrained()->cascadeOnDelete();
-            $table->string('event');
+            $table->enum('event', ['INSTALLATION', 'REMOVAL', 'DISPOSAL']);
             $table->date('date');
             $table->integer('vehicle_km')->nullable();
             $table->timestamps();

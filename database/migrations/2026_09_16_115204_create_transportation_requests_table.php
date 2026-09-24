@@ -20,7 +20,8 @@ return new class extends Migration
             $table->dateTime('expected_arrival_datetime');
             $table->dateTime('real_departure_datetime')->nullable();
             $table->dateTime('real_arrival_datetime')->nullable();
-            $table->string('status');
+            $table->enum('status', ['PENDING', 'APPROVED', 'CANCELLED', 'FINISHED'])
+                ->default('PENDING');
             $table->foreignId('requesting_secretariat_id')->constrained('secretariats');
             $table->foreignId('approver_id')->nullable()->constrained('users');
             $table->timestamps();

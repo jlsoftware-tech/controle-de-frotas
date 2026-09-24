@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('cpf');
             $table->string('cnh');
-            $table->string('cnh_category');
+            $table->enum('cnh_category', ['A', 'B', 'C', 'D', 'E', 'AB', 'AC', 'AD', 'AE']);
             $table->date('cnh_expiration_date');
             $table->string('phone_number');
-            $table->string('status');
+            $table->enum('status', ['VALID', 'EXPIRED'])->default('VALID');
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });

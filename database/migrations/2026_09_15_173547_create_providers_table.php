@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('cnpj_cpf');
-            $table->string('type');
+            $table->enum('type', ['FUEL', 'REPAIR', 'CAR_WASH', 'AUTO_PARTS', 'TIRE_SHOP']);
             $table->tinyText('address');
             $table->string('phone_number');
-            $table->string('status');
+            $table->enum('status', ['ACTIVE', 'INACTIVE'])->default('ACTIVE');
             $table->timestamps();
         });
     }

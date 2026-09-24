@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('vehicle_measures', function (Blueprint $table) {
             $table->id();
             $table->dateTime('date_time');
-            $table->string('measure_type');
+            $table->enum('measure_type', ['HOUR_METER', 'KILOMETER']);
             $table->integer('value');
             $table->string('motivation')->nullable();
             $table->foreignId('vehicle_id')->constrained()->cascadeOnDelete();
