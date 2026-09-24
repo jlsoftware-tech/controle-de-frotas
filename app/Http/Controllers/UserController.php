@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 use Knuckles\Scribe\Attributes\Endpoint;
 use Knuckles\Scribe\Attributes\Group;
@@ -248,6 +249,8 @@ class UserController extends Controller
      */
     public function index(ListUsersRequest $request): JsonResponse
     {
+        Gate::authorize('viewAny', User::class);
+
         $page = $request->validated('page');
         $per_page = $request->validated('per_page');
         $search = $request->validated('search');
@@ -325,6 +328,8 @@ class UserController extends Controller
     )]
     public function store(StoreUserRequest $request): JsonResponse
     {
+        Gate::authorize('create', User::class);
+
         try {
             $user = User::create([
                 'name' => $request->name,
@@ -400,6 +405,8 @@ class UserController extends Controller
     )]
     public function show(User $user): JsonResponse
     {
+        Gate::authorize('view', $user);
+
         return ApiResponder::success(
             $user->toResource(),
             '',
@@ -470,6 +477,8 @@ class UserController extends Controller
     )]
     public function update(UpdateUserRequest $request, User $user): JsonResponse
     {
+        Gate::authorize('update', $user);
+
         $status = $user->update($request->all());
 
         return $status
@@ -521,6 +530,8 @@ class UserController extends Controller
     )]
     public function destroy(User $user): JsonResponse
     {
+        Gate::authorize('delete', $user);
+
         $user->delete();
 
         return ApiResponder::success(message: 'Usuário removido com sucesso.');
