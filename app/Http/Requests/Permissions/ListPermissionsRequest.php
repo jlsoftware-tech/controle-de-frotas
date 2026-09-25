@@ -37,7 +37,7 @@ class ListPermissionsRequest extends FormRequest
                 'nullable',
                 'sometimes',
                 'string',
-                'in:name,module,created_at',
+                'in:action,module,created_at',
             ],
             'order' => ['nullable', 'sometimes', 'string', 'in:desc,asc'],
         ];
@@ -53,7 +53,7 @@ class ListPermissionsRequest extends FormRequest
         $this->merge([
             'page' => $this->input('page', 1),
             'per_page' => $this->input('per_page', 10),
-            'sort' => $this->input('sort', 'name'),
+            'sort' => $this->input('sort', 'action'),
             'order' => $this->input('order', 'asc'),
         ]);
     }

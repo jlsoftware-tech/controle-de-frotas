@@ -22,12 +22,12 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         $modules = ['users', 'profiles', 'secretariats'];
-        $names = ['view', 'create', 'update', 'delete'];
+        $actions = ['view', 'create', 'update', 'delete'];
 
         foreach ($modules as $module) {
-            foreach ($names as $name) {
+            foreach ($actions as $action) {
                 Permission::create([
-                    'name' => $name,
+                    'action' => $action,
                     'module' => $module,
                 ])->save();
             }
