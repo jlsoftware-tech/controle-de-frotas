@@ -4,7 +4,10 @@ namespace App\Http\Requests\User;
 
 use App\Http\Requests\FormRequest;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Knuckles\Scribe\Attributes\QueryParam;
 
+#[QueryParam('password', description: 'Nova senha do usuário', required: false, example: 'jemzkjcm')]
+#[QueryParam('password_confirmation', description: 'Confirmação da nova senha do usuário', required: false, example: 'jemzkjcm')]
 class ResetPasswordRequest extends FormRequest
 {
     /**
@@ -32,5 +35,10 @@ class ResetPasswordRequest extends FormRequest
         return [
             'password.required' => 'Informe uma senha',
         ];
+    }
+
+    public function bodyParameters(): array
+    {
+        return [];
     }
 }
