@@ -3,7 +3,7 @@
 use App\Models\Secretariat;
 
 test('excluir secretaria estando autenticado', function () {
-    $user = createUser();
+    $user = getUserWithPermission(createUser(), 'delete', 'secretariats');
     $token = authenticateUser($user);
 
     $secretariat = Secretariat::create(['name' => 'Secretaria de Teste', 'acronym' => 'ST']);
@@ -24,7 +24,7 @@ test('excluir secretaria estando autenticado', function () {
 });
 
 test('retorna 404 ao excluir secretaria inexistente', function () {
-    $user = createUser();
+    $user = getUserWithPermission(createUser(), 'delete', 'secretariats');
     $token = authenticateUser($user);
 
     $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
@@ -44,4 +44,16 @@ test('não permite excluir secretaria sem autenticação', function () {
         'id' => $secretariat->id,
         'deleted_at' => null,
     ]);
+});
+
+test('não permite excluir secretaria sem autorização', function () {
+    $user = createUser();
+    $token = authenticateUser($user);
+
+    $secretariat = Secretariat::create(['name' => 'Secretaria de Teste', 'acronym' => 'ST']);
+
+    $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
+        ->deleteJson('/api/v1/secretariats/'.$secretariat->id);
+
+    $response->assertStatus(403);
 });

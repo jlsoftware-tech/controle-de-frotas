@@ -1,9 +1,8 @@
 <?php
 
 test('atualiza usuário com dados válidos', function () {
-    $user = createUser();
-    $token = JWTAuth::fromUser($user);
-    Auth::guard('api')->setUser($user);
+    $user = getUserWithPermission(createUser(), 'update', 'users');
+    $token = authenticateUser($user);
 
     $username = fake()->name;
     $email = fake()->email;
@@ -37,8 +36,8 @@ test('atualiza usuário com dados válidos', function () {
 });
 
 test('não atualiza usuário inexistente', function () {
-    $user = createUser();
-    $token = JWTAuth::fromUser($user);
+    $user = getUserWithPermission(createUser(), 'update', 'users');
+    $token = authenticateUser($user);
 
     $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
         ->putJson('/api/v1/users/99999', [
@@ -73,9 +72,8 @@ test('não atualiza usuário sem autenticação', function () {
 });
 
 test('não atualiza usuário com email em formato inválido', function () {
-    $user = createUser();
-    $token = JWTAuth::fromUser($user);
-    Auth::guard('api')->setUser($user);
+    $user = getUserWithPermission(createUser(), 'update', 'users');
+    $token = authenticateUser($user);
 
     $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
         ->putJson('/api/v1/users/'.$user->id, [
@@ -95,8 +93,8 @@ test('não atualiza usuário com email em formato inválido', function () {
 });
 
 test('não atualiza usuário com email já usado por outro usuário', function () {
-    $user = createUser();
-    $token = JWTAuth::fromUser($user);
+    $user = getUserWithPermission(createUser(), 'create', 'users');
+    $token = authenticateUser($user);
 
     createUser(['email' => 'ocupado@example.com']);
 
@@ -118,9 +116,8 @@ test('não atualiza usuário com email já usado por outro usuário', function (
 });
 
 test('permite atualizar usuário mantendo o próprio email', function () {
-    $user = createUser(['email' => 'mesmo@example.com']);
-    $token = JWTAuth::fromUser($user);
-    Auth::guard('api')->setUser($user);
+    $user = getUserWithPermission(createUser(['email' => 'mesmo@example.com']), 'update', 'users');
+    $token = authenticateUser($user);
 
     $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
         ->putJson('/api/v1/users/'.$user->id, [
@@ -140,4 +137,24 @@ test('permite atualizar usuário mantendo o próprio email', function () {
             'email',
         ],
     ]);
+});
+
+test('não permite atualizar usuários sem autorização', function () {
+    $user = createUser();
+    $token = authenticateUser($user);
+
+    $username = fake()->name;
+    $email = fake()->email;
+
+    $payload = [
+        'name' => $username,
+        'email' => $email,
+        'password' => 'senhaforte',
+        'password_confirmation' => 'senhaforte',
+    ];
+
+    $response = $this->withHeader('Authorization', 'Bearer '.$token)
+        ->putJson('/api/v1/users/'.$user->id, $payload);
+
+    $response->assertStatus(403);
 });

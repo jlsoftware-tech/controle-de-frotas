@@ -1,9 +1,8 @@
 <?php
 
 test('exibir os dados de um usuário específico', function () {
-    $user = createUser();
-    $token = JWTAuth::fromUser($user);
-    Auth::guard('api')->setUser($user);
+    $user = getUserWithPermission(createUser(), 'view', 'users');
+    $token = authenticateUser($user);
 
     $otherUser = createUser();
 
@@ -40,9 +39,8 @@ test('exibir os dados de um usuário específico', function () {
 });
 
 test('retorna 404 ao exibir usuário inexistente', function () {
-    $user = createUser();
-    $token = JWTAuth::fromUser($user);
-    Auth::guard('api')->setUser($user);
+    $user = getUserWithPermission(createUser(), 'view', 'users');
+    $token = authenticateUser($user);
 
     $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
         ->getJson('/api/v1/users/99999');
@@ -77,4 +75,16 @@ test('não permite exibir usuário sem autenticação', function () {
         'message',
         'data',
     ]);
+});
+
+test('não permite exibir usuários sem autorização', function () {
+    $user = createUser();
+    $token = authenticateUser($user);
+
+    $otherUser = createUser();
+
+    $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
+        ->getJson('/api/v1/users/'.$otherUser->id);
+
+    $response->assertStatus(403);
 });

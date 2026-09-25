@@ -3,7 +3,7 @@
 use App\Models\Secretariat;
 
 test('listar secretarias estando autenticado', function () {
-    $user = createUser();
+    $user = getUserWithPermission(createUser(), 'view', 'secretariats');
     $token = authenticateUser($user);
 
     Secretariat::create(['name' => 'Secretaria A', 'acronym' => 'SA']);
@@ -29,4 +29,14 @@ test('não permite listar secretarias sem autenticação', function () {
     $response = $this->getJson('/api/v1/secretariats');
 
     $response->assertStatus(401);
+});
+
+test('não permite listar secretarias sem autorização', function () {
+    $user = createUser();
+    $token = authenticateUser($user);
+
+    $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
+        ->getJson('/api/v1/secretariats');
+
+    $response->assertStatus(403);
 });

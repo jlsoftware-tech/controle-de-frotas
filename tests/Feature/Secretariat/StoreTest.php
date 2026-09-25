@@ -3,7 +3,7 @@
 use App\Models\Secretariat;
 
 test('cria secretaria com dados válidos estando autenticado', function () {
-    $user = createUser();
+    $user = getUserWithPermission(createUser(), 'create', 'secretariats');
     $token = authenticateUser($user);
 
     $name = fake()->company;
@@ -41,7 +41,7 @@ test('cria secretaria com dados válidos estando autenticado', function () {
 });
 
 test('não cria secretaria sem campos obrigatórios', function () {
-    $user = createUser();
+    $user = getUserWithPermission(createUser(), 'create', 'secretariats');
     $token = authenticateUser($user);
 
     $countBefore = Secretariat::count();
@@ -65,7 +65,7 @@ test('não cria secretaria sem campos obrigatórios', function () {
 });
 
 test('não cria secretaria com nome maior que o permitido', function () {
-    $user = createUser();
+    $user = getUserWithPermission(createUser(), 'create', 'secretariats');
     $token = JWTAuth::fromUser($user);
     Auth::guard('api')->setUser($user);
 
@@ -81,7 +81,7 @@ test('não cria secretaria com nome maior que o permitido', function () {
 });
 
 test('não cria secretaria com sigla maior que o permitido', function () {
-    $user = createUser();
+    $user = getUserWithPermission(createUser(), 'create', 'secretariats');
     $token = JWTAuth::fromUser($user);
     Auth::guard('api')->setUser($user);
 
@@ -105,4 +105,20 @@ test('não permite cadastrar secretaria sem autenticação', function () {
     $response->assertStatus(401);
 
     $this->assertDatabaseMissing('secretariats', ['name' => 'Secretaria de Teste']);
+});
+
+test('não permite criar secretarias sem autorização', function () {
+    $user = createUser();
+    $token = authenticateUser($user);
+
+    $name = fake()->company;
+    $acronym = fake()->lexify('???');
+
+    $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
+        ->postJson('/api/v1/secretariats', [
+            'name' => $name,
+            'acronym' => $acronym,
+        ]);
+
+    $response->assertStatus(403);
 });
