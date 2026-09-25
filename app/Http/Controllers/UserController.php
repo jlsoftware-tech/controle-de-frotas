@@ -658,7 +658,7 @@ class UserController extends Controller
             'status_code' => 422,
             'message' => 'Os dados enviados são inválidos',
             'data' => [
-                'email' => 'O campo e-mail deve ser um endereço de e-mail válido.'
+                'email' => 'O campo e-mail deve ser um endereço de e-mail válido.',
             ],
         ],
         status: 422,
