@@ -640,10 +640,10 @@ class UserController extends Controller
             'status_code' => 200,
             'message' => 'Dados atualizados com sucesso',
             'data' => [
-                    'id' => 1,
-                    'name' => 'Test User',
-                    'email' => 'test@example.com',
-                    'profile' => [
+                'id' => 1,
+                'name' => 'Test User',
+                'email' => 'test@example.com',
+                'profile' => [
                     'id' => 1,
                     'name' => 'Test Profile',
                 ],
@@ -711,8 +711,8 @@ class UserController extends Controller
             'message' => 'Os dados enviados são inválidos',
             'data' => [
                 'password' => [
-                    'Informe uma senha'
-                ]
+                    'Informe uma senha',
+                ],
             ],
         ],
         status: 422,
@@ -725,8 +725,8 @@ class UserController extends Controller
             'message' => 'Os dados enviados são inválidos',
             'data' => [
                 'password' => [
-                    'A confirmação do campo senha não confere'
-                ]
+                    'A confirmação do campo senha não confere',
+                ],
             ],
         ],
         status: 422,
