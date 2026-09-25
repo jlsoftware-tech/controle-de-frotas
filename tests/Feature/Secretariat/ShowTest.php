@@ -3,7 +3,7 @@
 use App\Models\Secretariat;
 
 test('exibir os dados de uma secretaria específica estando autenticado', function () {
-    $user = createUser();
+    $user = getUserWithPermission(createUser(), 'view', 'secretariats');
     $token = authenticateUser($user);
 
     $secretariat = Secretariat::create(['name' => 'Secretaria de Teste', 'acronym' => 'ST']);
@@ -33,7 +33,7 @@ test('exibir os dados de uma secretaria específica estando autenticado', functi
 });
 
 test('retorna 404 ao exibir secretaria inexistente', function () {
-    $user = createUser();
+    $user = getUserWithPermission(createUser(), 'view', 'secretariats');
     $token = authenticateUser($user);
 
     $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
@@ -56,3 +56,16 @@ test('não permite exibir secretaria sem autenticação', function () {
 
     $response->assertStatus(401);
 });
+
+test('não permite visualizar secretarias sem autorização', function () {
+    $user = createUser();
+    $token = authenticateUser($user);
+
+    $secretariat = Secretariat::create(['name' => 'Secretaria de Teste', 'acronym' => 'ST']);
+
+    $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
+        ->getJson('/api/v1/secretariats/'.$secretariat->id);
+
+    $response->assertStatus(403);
+});
+

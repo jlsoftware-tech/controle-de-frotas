@@ -3,7 +3,7 @@
 use App\Models\Secretariat;
 
 test('atualiza secretaria com dados válidos estando autenticado', function () {
-    $user = createUser();
+    $user = getUserWithPermission(createUser(), 'update', 'secretariats');
     $token = authenticateUser($user);
 
     $secretariat = Secretariat::create(['name' => 'Secretaria A', 'acronym' => 'SA']);
@@ -34,7 +34,7 @@ test('atualiza secretaria com dados válidos estando autenticado', function () {
 });
 
 test('atualiza apenas o campo enviado, mantendo os demais inalterados', function () {
-    $user = createUser();
+    $user = getUserWithPermission(createUser(), 'update', 'secretariats');
     $token = authenticateUser($user);
 
     $secretariat = Secretariat::create(['name' => 'Secretaria A', 'acronym' => 'SA']);
@@ -62,7 +62,7 @@ test('atualiza apenas o campo enviado, mantendo os demais inalterados', function
 });
 
 test('não atualiza secretaria inexistente', function () {
-    $user = createUser();
+    $user = getUserWithPermission(createUser(), 'update', 'secretariats');
     $token = authenticateUser($user);
 
     $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
@@ -96,7 +96,7 @@ test('não atualiza secretaria sem autenticação', function () {
 });
 
 test('não atualiza secretaria com nome maior que o permitido', function () {
-    $user = createUser();
+    $user = getUserWithPermission(createUser(), 'update', 'secretariats');
     $token = authenticateUser($user);
 
     $secretariat = Secretariat::create(['name' => 'Secretaria A', 'acronym' => 'SA']);
@@ -112,7 +112,7 @@ test('não atualiza secretaria com nome maior que o permitido', function () {
 });
 
 test('não atualiza secretaria com sigla maior que o permitido', function () {
-    $user = createUser();
+    $user = getUserWithPermission(createUser(), 'update', 'secretariats');
     $token = authenticateUser($user);
 
     $secretariat = Secretariat::create(['name' => 'Secretaria A', 'acronym' => 'SA']);
@@ -126,3 +126,19 @@ test('não atualiza secretaria com sigla maior que o permitido', function () {
 
     $response->assertJsonValidationErrorFor('acronym', 'data');
 });
+
+test('não permite atualizar secretarias sem autorização', function () {
+    $user = createUser();
+    $token = authenticateUser($user);
+
+    $secretariat = Secretariat::create(['name' => 'Secretaria A', 'acronym' => 'SA']);
+
+    $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
+        ->putJson('/api/v1/secretariats/'.$secretariat->id, [
+            'name' => 'Secretaria Alterada',
+            'acronym' => 'ALT',
+        ]);
+
+    $response->assertStatus(403);
+});
+

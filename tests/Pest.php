@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Permission;
 use App\Models\Profile;
 use App\Models\Secretariat;
 use App\Models\User;
@@ -87,4 +88,10 @@ function authenticateUser(User $user)
     Auth::guard('api')->setUser($user);
 
     return $token;
+}
+
+function getUserWithPermission($user, $action, $module)
+{
+    $user->permissions()->attach(Permission::create(['action' => $action, 'module' => $module]));
+    return $user;
 }
