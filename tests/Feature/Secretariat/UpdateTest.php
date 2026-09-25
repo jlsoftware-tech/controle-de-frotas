@@ -141,4 +141,3 @@ test('não permite atualizar secretarias sem autorização', function () {
 
     $response->assertStatus(403);
 });
-

@@ -93,5 +93,6 @@ function authenticateUser(User $user)
 function getUserWithPermission($user, $action, $module)
 {
     $user->permissions()->attach(Permission::create(['action' => $action, 'module' => $module]));
+
     return $user;
 }

@@ -68,4 +68,3 @@ test('não permite visualizar secretarias sem autorização', function () {
 
     $response->assertStatus(403);
 });
-

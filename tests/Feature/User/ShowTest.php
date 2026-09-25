@@ -88,4 +88,3 @@ test('não permite exibir usuários sem autorização', function () {
 
     $response->assertStatus(403);
 });
-
