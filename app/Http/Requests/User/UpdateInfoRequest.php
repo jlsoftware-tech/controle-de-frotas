@@ -30,7 +30,7 @@ class UpdateInfoRequest extends FormRequest
             'name' => 'sometimes|string|max:255',
             'email' => [
                 'sometimes',
-                'string',
+                'email',
                 Rule::unique('users', 'email')
                     ->ignore($this->user('api')),
                 'max:255',

@@ -655,6 +655,18 @@ class UserController extends Controller
     #[ResponseAtt(
         content: [
             'success' => false,
+            'status_code' => 422,
+            'message' => 'Os dados enviados são inválidos',
+            'data' => [
+                'email' => 'O campo e-mail deve ser um endereço de e-mail válido.'
+            ],
+        ],
+        status: 422,
+        description: 'Formato de e-mail inválido.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
             'status_code' => 400,
             'message' => 'Nenhum dado foi enviado',
             'data' => null,
