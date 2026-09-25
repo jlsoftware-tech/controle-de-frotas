@@ -4,9 +4,8 @@ use App\Models\Profile;
 use App\Models\Secretariat;
 
 test('cria usuário com dados válidos', function () {
-    $user = createUser();
-    $token = JWTAuth::fromUser($user);
-    Auth::guard('api')->setUser($user);
+    $user = getUserWithPermission(createUser(), 'create', 'users');
+    $token = authenticateUser($user);
 
     $username = fake()->name;
     $email = fake()->email;
@@ -22,14 +21,14 @@ test('cria usuário com dados válidos', function () {
     $payload = [
         'name' => $username,
         'email' => $email,
-        'profile' => $profile->id,
+        'profile_id' => $profile->id,
         'secretariat_id' => $secretariat->id,
         'password' => '12345678',
         'password_confirmation' => '12345678',
     ];
 
     $response = $this->withHeader('Authorization', 'Bearer '.$token)
-        ->putJson('/api/v1/users/'.$user->id, $payload);
+        ->postJson('/api/v1/users', $payload);
 
     $response->assertJsonStructure([
         'success',
@@ -54,8 +53,8 @@ test('cria usuário com dados válidos', function () {
 });
 
 test('não cria usuário sem campos obrigatórios', function () {
-    $user = createUser();
-    $token = JWTAuth::fromUser($user);
+    $user = getUserWithPermission(createUser(), 'create', 'users');
+    $token = authenticateUser($user);
 
     $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
         ->postJson('/api/v1/users', []);
@@ -77,8 +76,8 @@ test('não cria usuário sem campos obrigatórios', function () {
 });
 
 test('não cria usuário com email já existente', function () {
-    $user = createUser();
-    $token = JWTAuth::fromUser($user);
+    $user = getUserWithPermission(createUser(), 'create', 'users');
+    $token = authenticateUser($user);
 
     $existente = createUser(['email' => 'duplicado@example.com']);
     $payload = [
@@ -104,8 +103,8 @@ test('não cria usuário com email já existente', function () {
 });
 
 test('não cria usuário com email em formato inválido', function () {
-    $admin = createUser();
-    $token = JWTAuth::fromUser($admin);
+    $user = getUserWithPermission(createUser(), 'create', 'users');
+    $token = authenticateUser($user);
 
     $payload = [
         'name' => fake()->name,
@@ -130,8 +129,8 @@ test('não cria usuário com email em formato inválido', function () {
 });
 
 test('não cria usuário com senha menor que o mínimo permitido', function () {
-    $admin = createUser();
-    $token = JWTAuth::fromUser($admin);
+    $user = getUserWithPermission(createUser(), 'create', 'users');
+    $token = authenticateUser($user);
 
     $payload = [
         'name' => fake()->name,
@@ -156,9 +155,8 @@ test('não cria usuário com senha menor que o mínimo permitido', function () {
 });
 
 test('não cria usuário quando confirmação de senha não confere', function () {
-    $admin = createUser();
-    $token = JWTAuth::fromUser($admin);
-    Auth::guard('api')->setUser($admin);
+    $user = getUserWithPermission(createUser(), 'create', 'users');
+    $token = authenticateUser($user);
 
     $payload = [
         'name' => fake()->name,
@@ -180,4 +178,34 @@ test('não cria usuário quando confirmação de senha não confere', function (
         'message',
         'data',
     ]);
+});
+
+test('não permite criar usuários sem autorização', function () {
+    $user = createUser();
+    $token = authenticateUser($user);
+
+    $username = fake()->name;
+    $email = fake()->email;
+    $profile = Profile::create([
+        'name' => 'test',
+        'description' => 'test',
+    ]);
+    $secretariat = Secretariat::create([
+        'name' => 'test',
+        'acronym' => 'test',
+    ]);
+
+    $payload = [
+        'name' => $username,
+        'email' => $email,
+        'profile' => $profile->id,
+        'secretariat_id' => $secretariat->id,
+        'password' => '12345678',
+        'password_confirmation' => '12345678',
+    ];
+
+    $response = $this->withHeader('Authorization', 'Bearer '.$token)
+        ->putJson('/api/v1/users/'.$user->id, $payload);
+
+    $response->assertStatus(403);
 });

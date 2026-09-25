@@ -1,10 +1,8 @@
 <?php
 
 test('excluir usuário', function () {
-    $user = createUser();
-
-    $token = JWTAuth::fromUser($user);
-    Auth::guard('api')->setUser($user);
+    $user = getUserWithPermission(createUser(), 'delete', 'users');
+    $token = authenticateUser($user);
 
     $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
         ->deleteJson('api/v1/users/'.$user->id);
@@ -27,8 +25,8 @@ test('excluir usuário', function () {
 });
 
 test('retorna 404 ao excluir usuário inexistente', function () {
-    $user = createUser();
-    $token = JWTAuth::fromUser($user);
+    $user = getUserWithPermission(createUser(), 'delete', 'users');
+    $token = authenticateUser($user);
 
     $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
         ->deleteJson('/api/v1/users/99999');
@@ -37,7 +35,7 @@ test('retorna 404 ao excluir usuário inexistente', function () {
 });
 
 test('não permite excluir usuário sem autenticação', function () {
-    $user = createUser();
+    $user = getUserWithPermission(createUser(), 'delete', 'users');
 
     $response = $this->deleteJson('/api/v1/users/'.$user->id);
 
@@ -50,4 +48,14 @@ test('não permite excluir usuário sem autenticação', function () {
         'data',
     ]);
 
+});
+
+test('não permite excluir usuário sem autorização', function () {
+    $user = createUser();
+    $token = authenticateUser($user);
+
+    $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
+        ->deleteJson('api/v1/users/'.$user->id);
+
+    $response->assertStatus(403);
 });
