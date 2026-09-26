@@ -8,7 +8,7 @@ use Knuckles\Scribe\Attributes\BodyParam;
 
 #[BodyParam('email', description: 'Email cadastrado do usuário.', example: 'admin@example.com')]
 #[BodyParam('password', description: 'Senha de acesso do usuário.', example: 'senha123')]
-#[BodyParam('remember', description: 'Checkbox "Lembrar-me".')]
+#[BodyParam('remember', 'bool', description: 'Checkbox "Lembrar-me".', example: true)]
 class LoginRequest extends FormRequest
 {
     /**

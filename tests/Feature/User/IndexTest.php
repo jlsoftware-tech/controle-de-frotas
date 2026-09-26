@@ -1,9 +1,8 @@
 <?php
 
 test('listar usuários autenticado', function () {
-    $user = createUser();
-    $token = JWTAuth::fromUser($user);
-    Auth::guard('api')->setUser($user);
+    $user = getUserWithPermission(createUser(), 'view', 'users');
+    $token = authenticateUser($user);
 
     createUser();
     createUser();
@@ -29,4 +28,14 @@ test('não permite listar usuários sem autenticação', function () {
     $response = $this->getJson('/api/v1/users');
 
     $response->assertStatus(401);
+});
+
+test('não permite listar usuários sem autorização', function () {
+    $user = createUser();
+    $token = authenticateUser($user);
+
+    $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
+        ->getJson('/api/v1/users');
+
+    $response->assertStatus(403);
 });

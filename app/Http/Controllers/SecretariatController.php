@@ -9,6 +9,7 @@ use App\Models\Secretariat;
 use App\Support\ApiResponder;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\Response;
 
 class SecretariatController extends Controller
@@ -18,6 +19,8 @@ class SecretariatController extends Controller
      */
     public function index(ListSecretariatRequest $request): JsonResponse
     {
+        Gate::authorize('viewAny', Secretariat::class);
+
         $page = $request->validated('page');
         $per_page = $request->validated('per_page');
         $search = $request->validated('search');
@@ -44,6 +47,8 @@ class SecretariatController extends Controller
      */
     public function store(StoreSecretariatRequest $request): JsonResponse
     {
+        Gate::authorize('create', Secretariat::class);
+
         try {
             $secretariat = Secretariat::create([
                 'name' => $request->name,
@@ -68,6 +73,8 @@ class SecretariatController extends Controller
      */
     public function show(Secretariat $secretariat)
     {
+        Gate::authorize('view', $secretariat);
+
         return ApiResponder::success(
             $secretariat->toResource(),
             '',
@@ -80,6 +87,8 @@ class SecretariatController extends Controller
      */
     public function update(UpdateSecretariatRequest $request, Secretariat $secretariat)
     {
+        Gate::authorize('update', $secretariat);
+
         $status = $secretariat->update($request->all());
 
         return $status
@@ -99,6 +108,8 @@ class SecretariatController extends Controller
      */
     public function destroy(Secretariat $secretariat)
     {
+        Gate::authorize('delete', $secretariat);
+
         $secretariat->delete();
 
         return ApiResponder::success(message: 'Secretaria removida com sucesso.');
