@@ -7,7 +7,7 @@ test('redefine a senha do usuário autenticado com sucesso', function () {
     $token = authenticateUser($user);
 
     $response = $this->withHeader('Authorization', 'Bearer '.$token)
-        ->putJson('/api/v1/user/reset-password', [
+        ->putJson('/api/v1/users/reset-password', [
             'password' => 'novaSenhaForte',
             'password_confirmation' => 'novaSenhaForte',
         ]);
@@ -26,7 +26,7 @@ test('redefine a senha do usuário autenticado com sucesso', function () {
 });
 
 test('não redefine a senha sem autenticação', function () {
-    $response = $this->putJson('/api/v1/user/reset-password', [
+    $response = $this->putJson('/api/v1/users/reset-password', [
         'password' => 'novaSenhaForte',
         'password_confirmation' => 'novaSenhaForte',
     ]);
@@ -45,7 +45,7 @@ test('não redefine a senha quando o campo password está vazio', function () {
     $token = authenticateUser($user);
 
     $response = $this->withHeader('Authorization', 'Bearer '.$token)
-        ->putJson('/api/v1/user/reset-password', [
+        ->putJson('/api/v1/users/reset-password', [
             'password' => '',
             'password_confirmation' => '',
         ]);
@@ -62,7 +62,7 @@ test('não redefine a senha quando a confirmação não confere', function () {
     $token = authenticateUser($user);
 
     $response = $this->withHeader('Authorization', 'Bearer '.$token)
-        ->putJson('/api/v1/user/reset-password', [
+        ->putJson('/api/v1/users/reset-password', [
             'password' => 'novaSenhaForte',
             'password_confirmation' => 'senhaDiferente',
         ]);
@@ -77,7 +77,7 @@ test('não redefine a senha quando é menor que 8 caracteres', function () {
     $token = authenticateUser($user);
 
     $response = $this->withHeader('Authorization', 'Bearer '.$token)
-        ->putJson('/api/v1/user/reset-password', [
+        ->putJson('/api/v1/users/reset-password', [
             'password' => '1234567',
             'password_confirmation' => '1234567',
         ]);
@@ -92,7 +92,7 @@ test('não redefine a senha quando a confirmação não é enviada', function ()
     $token = authenticateUser($user);
 
     $response = $this->withHeader('Authorization', 'Bearer '.$token)
-        ->putJson('/api/v1/user/reset-password', [
+        ->putJson('/api/v1/users/reset-password', [
             'password' => 'novaSenhaForte',
         ]);
 
@@ -106,7 +106,7 @@ test('avisa quando a nova senha é igual à senha atual', function () {
     $token = authenticateUser($user);
 
     $response = $this->withHeader('Authorization', 'Bearer '.$token)
-        ->putJson('/api/v1/user/reset-password', [
+        ->putJson('/api/v1/users/reset-password', [
             'password' => 'senhaAtual123',
             'password_confirmation' => 'senhaAtual123',
         ]);
@@ -125,7 +125,7 @@ test('não altera a senha de outro usuário', function () {
     $token = authenticateUser($userLogado);
 
     $response = $this->withHeader('Authorization', 'Bearer '.$token)
-        ->putJson('/api/v1/user/reset-password', [
+        ->putJson('/api/v1/users/reset-password', [
             'password' => 'novaSenhaForte',
             'password_confirmation' => 'novaSenhaForte',
         ]);

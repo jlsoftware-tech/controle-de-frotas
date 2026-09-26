@@ -8,7 +8,7 @@ test('atualiza os dados do usuário autenticado com sucesso', function () {
     $novoEmail = fake()->unique()->email;
 
     $response = $this->withHeader('Authorization', 'Bearer '.$token)
-        ->putJson('/api/v1/user/update', [
+        ->putJson('/api/v1/users/update', [
             'name' => $novoNome,
             'email' => $novoEmail,
         ]);
@@ -48,7 +48,7 @@ test('atualiza apenas o campo enviado (name), mantendo o restante', function () 
     $novoNome = fake()->name;
 
     $response = $this->withHeader('Authorization', 'Bearer '.$token)
-        ->putJson('/api/v1/user/update', [
+        ->putJson('/api/v1/users/update', [
             'name' => $novoNome,
         ]);
 
@@ -70,7 +70,7 @@ test('atualiza apenas o campo enviado (name), mantendo o restante', function () 
 });
 
 test('não atualiza dados sem autenticação', function () {
-    $response = $this->putJson('/api/v1/user/update', [
+    $response = $this->putJson('/api/v1/users/update', [
         'name' => fake()->name,
     ]);
 
@@ -95,7 +95,7 @@ test('retorna erro quando nenhum dado é enviado', function () {
     $token = authenticateUser($user);
 
     $response = $this->withHeader('Authorization', 'Bearer '.$token)
-        ->putJson('/api/v1/user/update', []);
+        ->putJson('/api/v1/users/update', []);
 
     $response->assertStatus(400);
 
@@ -112,7 +112,7 @@ test('não atualiza com email em formato inválido', function () {
     $token = authenticateUser($user);
 
     $response = $this->withHeader('Authorization', 'Bearer '.$token)
-        ->putJson('/api/v1/user/update', [
+        ->putJson('/api/v1/users/update', [
             'email' => 'email-invalido',
         ]);
 
@@ -128,7 +128,7 @@ test('não atualiza com email já usado por outro usuário', function () {
     createUser(['email' => 'ocupado@example.com']);
 
     $response = $this->withHeader('Authorization', 'Bearer '.$token)
-        ->putJson('/api/v1/user/update', [
+        ->putJson('/api/v1/users/update', [
             'email' => 'ocupado@example.com',
         ]);
 
@@ -142,7 +142,7 @@ test('permite manter o próprio email ao atualizar', function () {
     $token = authenticateUser($user);
 
     $response = $this->withHeader('Authorization', 'Bearer '.$token)
-        ->putJson('/api/v1/user/update', [
+        ->putJson('/api/v1/users/update', [
             'name' => fake()->name,
             'email' => 'mesmo@example.com',
         ]);
@@ -163,7 +163,7 @@ test('não atualiza dados de outro usuário, apenas do usuário autenticado', fu
     $token = authenticateUser($userLogado);
 
     $response = $this->withHeader('Authorization', 'Bearer '.$token)
-        ->putJson('/api/v1/user/update', [
+        ->putJson('/api/v1/users/update', [
             'name' => 'Nome Alterado',
         ]);
 
@@ -185,7 +185,7 @@ test('não aceita o campo name maior que 255 caracteres', function () {
     $token = authenticateUser($user);
 
     $response = $this->withHeader('Authorization', 'Bearer '.$token)
-        ->putJson('/api/v1/user/update', [
+        ->putJson('/api/v1/users/update', [
             'name' => str_repeat('a', 256),
         ]);
 
