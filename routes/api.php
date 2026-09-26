@@ -24,7 +24,7 @@ Route::prefix('v1')->group(function () use ($notFound) {
     });
 
     Route::middleware('jwt')->group(function () use ($notFound) {
-        Route::prefix('/user')->group(function () {
+        Route::prefix('/users')->group(function () {
             Route::get('/sidebar', [UserController::class, 'sidebar']);
             Route::get('/profile', [UserController::class, 'profile']);
             Route::get('/permissions', [UserController::class, 'permissions']);
