@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\User\ListUserPermissionsRequest;
 use App\Http\Requests\User\ListUsersRequest;
+use App\Http\Requests\User\ResetPasswordRequest;
 use App\Http\Requests\User\StoreUserRequest;
+use App\Http\Requests\User\UpdateInfoRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Models\Permission;
 use App\Models\User;
@@ -16,6 +18,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
+use Knuckles\Scribe\Attributes\BodyParam;
 use Knuckles\Scribe\Attributes\Endpoint;
 use Knuckles\Scribe\Attributes\Group;
 use Knuckles\Scribe\Attributes\Response as ResponseAtt;
@@ -636,5 +639,143 @@ class UserController extends Controller
         return ApiResponder::success(
             $permissions
         );
+    }
+
+    /**
+     * Atualiza os dados pessoais do usuário logado
+     */
+    #[Endpoint('Atualização dos dados pessoais', description: 'Endpoint para realizar a atualização dos dados pessoais do usuário logado.', authenticated: true)]
+    #[ResponseAtt(
+        content: [
+            'success' => true,
+            'status_code' => 200,
+            'message' => 'Dados atualizados com sucesso',
+            'data' => [
+                'id' => 1,
+                'name' => 'Test User',
+                'email' => 'test@example.com',
+                'profile' => [
+                    'id' => 1,
+                    'name' => 'Test Profile',
+                ],
+            ],
+        ],
+        status: 200,
+        description: 'Atualiza dados com sucesso.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
+            'status_code' => 422,
+            'message' => 'Os dados enviados são inválidos',
+            'data' => [
+                'email' => 'O campo e-mail deve ser um endereço de e-mail válido.',
+            ],
+        ],
+        status: 422,
+        description: 'Formato de e-mail inválido.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
+            'status_code' => 400,
+            'message' => 'Nenhum dado foi enviado',
+            'data' => null,
+        ],
+        status: 400,
+        description: 'Envio de campos vazios.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
+            'status_code' => 401,
+            'message' => 'Token inválido',
+            'data' => null,
+        ],
+        status: 401,
+        description: 'Usuário não autenticado.'
+    )]
+    public function updateInfo(UpdateInfoRequest $request): JsonResponse
+    {
+
+        $update = $request->validated();
+        if (empty($update)) {
+            return ApiResponder::error('Nenhum dado foi enviado');
+        }
+
+        Auth::guard('api')->user()->update($update);
+
+        return ApiResponder::success(
+            Auth::guard('api')->user(),
+            'Dados atualizados com sucesso'
+        );
+    }
+
+    /**
+     * Redefine a senha quando logado no sistema
+     */
+    #[Endpoint('Redefinição de senha', description: 'Endpoint para redefinição de senha do usuário logado', authenticated: true)]
+    #[BodyParam('password', 'string', 'A nova senha do usuário', required: true, example: 'jemzkjcm')]
+    #[BodyParam('password_confirmation', 'string', 'Confirmação da nova senha', required: true, example: 'jemzkjcm')]
+    #[ResponseAtt(
+        content: [
+            'success' => true,
+            'status_code' => 200,
+            'message' => 'Sua senha foi redefinida com sucesso',
+            'data' => null,
+        ],
+        status: 200,
+        description: 'Redefinição de senha com sucesso.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
+            'status_code' => 422,
+            'message' => 'Os dados enviados são inválidos',
+            'data' => [
+                'password' => [
+                    'Informe uma senha',
+                ],
+            ],
+        ],
+        status: 422,
+        description: 'Campo "password" vazio ou inexistente.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
+            'status_code' => 422,
+            'message' => 'Os dados enviados são inválidos',
+            'data' => [
+                'password' => [
+                    'A confirmação do campo senha não confere',
+                ],
+            ],
+        ],
+        status: 422,
+        description: 'Campo "password_confirmation" vazio ou inexistente.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
+            'status_code' => 401,
+            'message' => 'Token inválido',
+            'data' => null,
+        ],
+        status: 401,
+        description: 'Usuário não autenticado.'
+    )]
+    public function resetPassword(ResetPasswordRequest $request): JsonResponse
+    {
+        $user = Auth::guard('api')->user();
+
+        if (Hash::check($request->password, $user->password)) {
+            return ApiResponder::success(message: 'Informe uma senha diferente para redefinir sua senha');
+        }
+
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        return ApiResponder::success(message: 'Sua senha foi redefinida com sucesso');
     }
 }

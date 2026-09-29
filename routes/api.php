@@ -28,6 +28,8 @@ Route::prefix('v1')->group(function () use ($notFound) {
             Route::get('/sidebar', [UserController::class, 'sidebar']);
             Route::get('/profile', [UserController::class, 'profile']);
             Route::get('/permissions', [UserController::class, 'permissions']);
+            Route::put('/update', [UserController::class, 'updateInfo']);
+            Route::put('/reset-password', [UserController::class, 'resetPassword']);
         });
         Route::apiResource('/users', UserController::class)
             ->whereNumber('user')
