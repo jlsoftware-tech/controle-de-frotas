@@ -6,7 +6,10 @@ use App\Http\Requests\FormRequest;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Knuckles\Scribe\Attributes\BodyParam;
 
-#[BodyParam('email', description: 'Email cadastrado do usuário para envio do link de recuperação.', example: 'joao.silva@example.com')]
+/**
+ * Request body for password recovery (`POST /api/v1/auth/forgot-password`).
+ */
+#[BodyParam('email', type: 'string', description: 'E-mail cadastrado do usuário que receberá o link de recuperação.', example: 'joao.silva@example.com')]
 class ForgotPasswordRequest extends FormRequest
 {
     /**
@@ -26,21 +29,6 @@ class ForgotPasswordRequest extends FormRequest
     {
         return [
             'email' => 'required|email',
-        ];
-    }
-
-    /**
-     * Custom parameter data for Scribe documentation.
-     *
-     * @return array<string, array<string, mixed>>
-     */
-    public function bodyParameters(): array
-    {
-        return [
-            'email' => [
-                'description' => 'Email cadastrado do usuário para envio do link de recuperação.',
-                'example' => 'joao.silva@example.com',
-            ],
         ];
     }
 }
