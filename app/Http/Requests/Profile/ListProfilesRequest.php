@@ -7,11 +7,14 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Knuckles\Scribe\Attributes\QueryParam;
 use Override;
 
-#[QueryParam('page', type: 'integer', description: 'Número da página atual para paginação dos resultados.', required: false, example: 1, nullable: true)]
-#[QueryParam('per_page', type: 'integer', description: 'Quantidade de registros retornados por página (mínimo: 1, máximo: 100).', required: false, example: 10, nullable: true)]
-#[QueryParam('search', type: 'string', description: 'Termo para busca e filtragem por nome da secretaria.', required: false, example: 'João', nullable: true)]
-#[QueryParam('sort', type: 'string', description: 'Campo utilizado para ordenação dos resultados.', required: false, example: 'name', enum: ['name', 'description'], nullable: true)]
-#[QueryParam('order', type: 'string', description: 'Direção da ordenação dos resultados.', required: false, example: 'desc', enum: ['asc', 'desc'], nullable: true)]
+/**
+ * Query parameters for listing profiles (`GET /api/v1/profiles`).
+ */
+#[QueryParam('page', type: 'integer', description: 'Número da página atual para paginação dos resultados. Padrão: 1.', required: false, example: 1, nullable: true)]
+#[QueryParam('per_page', type: 'integer', description: 'Quantidade de registros retornados por página (mínimo: 1, máximo: 100). Padrão: 10.', required: false, example: 10, nullable: true)]
+#[QueryParam('search', type: 'string', description: 'Termo para busca por parte do nome do perfil.', required: false, example: 'Administrador', nullable: true)]
+#[QueryParam('sort', type: 'string', description: 'Campo utilizado para ordenação dos resultados. Padrão: `name`.', required: false, example: 'name', enum: ['name', 'description', 'created_at'], nullable: true)]
+#[QueryParam('order', type: 'string', description: 'Direção da ordenação dos resultados (`asc` ou `desc`). Padrão: `asc`.', required: false, example: 'desc', enum: ['asc', 'desc'], nullable: true)]
 class ListProfilesRequest extends FormRequest
 {
     /**
