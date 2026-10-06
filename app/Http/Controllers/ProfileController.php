@@ -15,6 +15,7 @@ use Knuckles\Scribe\Attributes\Group;
 use Knuckles\Scribe\Attributes\Response as ResponseAtt;
 use Knuckles\Scribe\Attributes\UrlParam;
 use PHPUnit\Exception;
+use Symfony\Component\HttpFoundation\Response;
 
 #[Group('Perfis de acesso', description: 'Gerenciamento dos perfis de acesso e das permissões vinculadas a cada um.')]
 class ProfileController extends Controller
@@ -194,7 +195,7 @@ class ProfileController extends Controller
      * Show a profile.
      */
     #[Endpoint('Visualizar Perfil', description: 'Retorna os dados de um perfil de acesso a partir do seu ID (sem a lista de permissões). Requer a permissão `view` do módulo `profiles`.', authenticated: true)]
-    #[UrlParam('profile', type: 'integer', description: 'ID do perfil de acesso.', example: 1)]
+    #[UrlParam('id', type: 'integer', description: 'ID do perfil de acesso.', example: 1)]
     #[ResponseAtt(
         content: [
             'success' => true,
@@ -252,7 +253,7 @@ class ProfileController extends Controller
      * Update a profile.
      */
     #[Endpoint('Atualizar Perfil', description: 'Atualiza nome, descrição e permissões de um perfil de acesso. O conjunto de permissões do perfil é substituído pelo enviado em `permissions`. Requer a permissão `update` do módulo `profiles`.', authenticated: true)]
-    #[UrlParam('profile', type: 'integer', description: 'ID do perfil de acesso a ser atualizado.', example: 1)]
+    #[UrlParam('id', type: 'integer', description: 'ID do perfil de acesso a ser atualizado.', example: 1)]
     #[ResponseAtt(
         content: [
             'success' => true,
@@ -321,7 +322,7 @@ class ProfileController extends Controller
      * Delete a profile.
      */
     #[Endpoint('Excluir Perfil', description: 'Remove um perfil de acesso a partir do seu ID. Requer a permissão `delete` do módulo `profiles`.', authenticated: true)]
-    #[UrlParam('profile', type: 'integer', description: 'ID do perfil de acesso a ser removido.', example: 1)]
+    #[UrlParam('id', type: 'integer', description: 'ID do perfil de acesso a ser removido.', example: 1)]
     #[ResponseAtt(
         content: [
             'success' => true,
@@ -369,7 +370,10 @@ class ProfileController extends Controller
         try {
             $profile->deleteOrFail();
         } catch (Exception $e) {
-            return ApiResponder::error();
+            return ApiResponder::error(
+                'Ocorreu um erro. Tente novamente mais tarde.',
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
         }
 
         return ApiResponder::success(message: 'Perfil removido com sucesso');

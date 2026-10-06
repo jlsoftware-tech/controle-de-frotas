@@ -208,7 +208,7 @@ class SecretariatController extends Controller
      * Show a secretariat.
      */
     #[Endpoint('Visualizar Secretaria', description: 'Retorna os dados de uma secretaria a partir do seu ID. Requer a permissão `view` do módulo `secretariats`.', authenticated: true)]
-    #[UrlParam('secretariat', type: 'integer', description: 'ID da secretaria.', example: 1)]
+    #[UrlParam('id', type: 'integer', description: 'ID da secretaria.', example: 1)]
     #[ResponseAtt(
         content: [
             'success' => true,
@@ -271,7 +271,7 @@ class SecretariatController extends Controller
      * Update a secretariat.
      */
     #[Endpoint('Atualizar Secretaria', description: 'Atualiza o nome e/ou a sigla de uma secretaria a partir do seu ID. Requer a permissão `update` do módulo `secretariats`.', authenticated: true)]
-    #[UrlParam('secretariat', type: 'integer', description: 'ID da secretaria a ser atualizada.', example: 1)]
+    #[UrlParam('id', type: 'integer', description: 'ID da secretaria a ser atualizada.', example: 1)]
     #[ResponseAtt(
         content: [
             'success' => true,
@@ -363,7 +363,7 @@ class SecretariatController extends Controller
      * Delete a secretariat.
      */
     #[Endpoint('Excluir Secretaria', description: 'Remove uma secretaria a partir do seu ID. Requer a permissão `delete` do módulo `secretariats`.', authenticated: true)]
-    #[UrlParam('secretariat', type: 'integer', description: 'ID da secretaria a ser removida.', example: 1)]
+    #[UrlParam('id', type: 'integer', description: 'ID da secretaria a ser removida.', example: 1)]
     #[ResponseAtt(
         content: [
             'success' => true,

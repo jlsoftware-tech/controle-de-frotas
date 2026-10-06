@@ -118,7 +118,7 @@ class PermissionController extends Controller
      * Show a permission.
      */
     #[Endpoint('Visualizar Permissão', description: 'Retorna os dados de uma permissão específica a partir do seu ID. Requer a permissão `view` do módulo `profiles`. As datas são retornadas em ISO 8601 (UTC), pois o modelo é serializado diretamente.', authenticated: true)]
-    #[UrlParam('permission', type: 'integer', description: 'ID da permissão.', example: 1)]
+    #[UrlParam('id', type: 'integer', description: 'ID da permissão.', example: 1)]
     #[ResponseAtt(
         content: [
             'success' => true,
