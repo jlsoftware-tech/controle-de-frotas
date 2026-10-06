@@ -91,6 +91,7 @@ code { font-family: var(--mono); }
 .group { padding-bottom: 0; }
 .group + .group { margin-top: 56px; }
 .group-head { position: relative; background: var(--surface); border-top: 4px solid var(--accent); border-bottom: 1px solid var(--line); padding: 34px clamp(16px, 4vw, 48px) 28px; margin-top: 40px; }
+.group.is-collapsed .group-body { display: none; }
 .group-toggle { position: absolute; top: 30px; right: clamp(16px, 4vw, 48px); width: 36px; height: 36px; border: 1px solid var(--line); }
 .group-head h1, .group-desc { padding-right: 52px; }
 .group-eyebrow { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
