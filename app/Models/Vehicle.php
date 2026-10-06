@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable([
     'name',
     'plate',
-    'renavan',
+    'renavam',
     'chassi',
     'brand',
     'model',
