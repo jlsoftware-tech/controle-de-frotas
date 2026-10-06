@@ -31,11 +31,11 @@
 
     <div class="nav-list" id="nav-list">
         @foreach($headings as $h1)
-            <div class="nav-group" data-group="{!! $h1['slug'] !!}">
+            <div class="nav-group is-collapsed" data-group="{!! $h1['slug'] !!}">
                 <div class="nav-title-row">
                     <a class="nav-title" href="#{!! $h1['slug'] !!}" data-spy="{!! $h1['slug'] !!}">{!! $h1['name'] !!}</a>
                     @if(count($h1['subheadings']) > 0)
-                        <button type="button" class="nav-chevron" aria-expanded="true" aria-label="Recolher {{ strip_tags($h1['name']) }}">
+                        <button type="button" class="nav-chevron" aria-expanded="false" aria-label="Expandir {{ strip_tags($h1['name']) }}">
                             <svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true"><path d="M5 7.5l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </button>
                     @endif
