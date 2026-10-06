@@ -24,10 +24,22 @@
 
     <input type="search" class="nav-search" id="nav-search" placeholder="{{ u::trans('scribe::labels.search') }}…" aria-label="{{ u::trans('scribe::labels.search') }}" autocomplete="off">
 
+    <div class="nav-actions">
+        <button type="button" class="nav-action" id="expand-all">Expandir tudo</button>
+        <button type="button" class="nav-action" id="collapse-all">Recolher tudo</button>
+    </div>
+
     <div class="nav-list" id="nav-list">
         @foreach($headings as $h1)
-            <div class="nav-group">
-                <a class="nav-title" href="#{!! $h1['slug'] !!}" data-spy="{!! $h1['slug'] !!}">{!! $h1['name'] !!}</a>
+            <div class="nav-group" data-group="{!! $h1['slug'] !!}">
+                <div class="nav-title-row">
+                    <a class="nav-title" href="#{!! $h1['slug'] !!}" data-spy="{!! $h1['slug'] !!}">{!! $h1['name'] !!}</a>
+                    @if(count($h1['subheadings']) > 0)
+                        <button type="button" class="nav-chevron" aria-expanded="true" aria-label="Recolher {{ strip_tags($h1['name']) }}">
+                            <svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true"><path d="M5 7.5l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+                    @endif
+                </div>
                 @foreach($h1['subheadings'] as $h2)
                     @php $method = $methodBySlug[$h2['slug']] ?? null; @endphp
                     <a class="nav-item" href="#{!! $h2['slug'] !!}" data-spy="{!! $h2['slug'] !!}">
