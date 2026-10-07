@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Support\ApiResponder;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest as BaseFormRequest;
@@ -40,11 +41,36 @@ class FormRequest extends BaseFormRequest
      */
     protected function failedValidation(Validator $validator)
     {
-        throw new HttpResponseException(response()->json([
-            'success' => false,
-            'status_code' => 422,
-            'message' => 'Os dados enviados são inválidos.',
-            'data' => $validator->errors()->toArray(),
-        ], 422));
+        throw new HttpResponseException(
+            ApiResponder::error(
+                'Os dados enviados são inválidos.',
+                422,
+                $validator->errors()->toArray()
+            )
+        );
+    }
+
+    /**
+     * Dados de parâmetros personalizados do corpo da requisição para a documentação do Scribe.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    public function bodyParameters(): array
+    {
+        return [
+            //
+        ];
+    }
+
+    /**
+     * Dados de parâmetros personalizados da query string da requisição para a documentação do Scribe.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    public function queryParameters(): array
+    {
+        return [
+            //
+        ];
     }
 }
