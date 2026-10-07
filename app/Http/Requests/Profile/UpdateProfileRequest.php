@@ -6,10 +6,12 @@ use App\Http\Requests\FormRequest;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Knuckles\Scribe\Attributes\BodyParam;
 
-#[BodyParam(name: 'name', description: 'nome do perfil de acesso', example: 'admin')]
-#[BodyParam(name: 'description', description: 'descrição do perfil de acesso', example: 'acesso geral ao sistema')]
-#[BodyParam(name: 'permissions', type: 'integer[]', description: 'lista dos ids das permissões de acesso do perfil', required: false, example: '[1, 2, 3, 4]')]
-
+/**
+ * Request body for updating a profile (`PUT|PATCH /api/v1/profiles/{profile}`).
+ */
+#[BodyParam('name', type: 'string', description: 'Nome do perfil de acesso (máximo de 255 caracteres).', example: 'Administrador')]
+#[BodyParam('description', type: 'string', description: 'Descrição do perfil de acesso (máximo de 255 caracteres).', required: false, example: 'Acesso geral ao sistema')]
+#[BodyParam('permissions', type: 'integer[]', description: 'IDs das permissões do perfil, sem repetições. Substitui o conjunto atual de permissões do perfil.', required: false, example: [1, 2, 3, 4])]
 class UpdateProfileRequest extends FormRequest
 {
     /**

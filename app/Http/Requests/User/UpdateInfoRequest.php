@@ -5,10 +5,13 @@ namespace App\Http\Requests\User;
 use App\Http\Requests\FormRequest;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Validation\Rule;
-use Knuckles\Scribe\Attributes\QueryParam;
+use Knuckles\Scribe\Attributes\BodyParam;
 
-#[QueryParam('name', description: 'Nome do usuário', required: false, example: 'Jorge Luis Fonseca', nullable: true)]
-#[QueryParam('email', description: 'E-mail do usuário', required: false, example: 'jorge_lois@gmail.com', nullable: true)]
+/**
+ * Request body for updating the authenticated user's personal data (`PUT /api/v1/users/update`).
+ */
+#[BodyParam('name', type: 'string', description: 'Nome do usuário (máximo de 255 caracteres).', required: false, example: 'Jorge Luis Fonseca')]
+#[BodyParam('email', type: 'string', description: 'E-mail do usuário (máximo de 255 caracteres). Deve ser único entre os demais usuários.', required: false, example: 'jorge_lois@gmail.com')]
 class UpdateInfoRequest extends FormRequest
 {
     /**
@@ -36,10 +39,5 @@ class UpdateInfoRequest extends FormRequest
                 'max:255',
             ],
         ];
-    }
-
-    public function bodyParameters(): array
-    {
-        return [];
     }
 }

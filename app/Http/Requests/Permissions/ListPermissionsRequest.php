@@ -7,11 +7,14 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Knuckles\Scribe\Attributes\QueryParam;
 use Override;
 
-#[QueryParam('page', type: 'integer', description: 'Número da página atual para paginação dos resultados.', required: false, example: 1, nullable: true)]
-#[QueryParam('per_page', type: 'integer', description: 'Quantidade de registros retornados por página (mínimo: 1, máximo: 100).', required: false, example: 10, nullable: true)]
-#[QueryParam('search', type: 'string', description: 'Termo para busca e filtragem por nome da permissão.', required: false, example: 'Criar Usuário', nullable: true)]
-#[QueryParam('sort', type: 'string', description: 'Campo utilizado para ordenação dos resultados.', required: false, example: 'name', enum: ['name', 'module', 'created_at'], nullable: true)]
-#[QueryParam('order', type: 'string', description: 'Direção da ordenação dos resultados.', required: false, example: 'desc', enum: ['asc', 'desc'], nullable: true)]
+/**
+ * Query parameters for listing permissions (`GET /api/v1/permissions`).
+ */
+#[QueryParam('page', type: 'integer', description: 'Número da página atual para paginação dos resultados. Padrão: 1.', required: false, example: 1, nullable: true)]
+#[QueryParam('per_page', type: 'integer', description: 'Quantidade de registros retornados por página (mínimo: 1, máximo: 100). Padrão: 10.', required: false, example: 10, nullable: true)]
+#[QueryParam('search', type: 'string', description: 'Termo para busca por parte do nome da ação da permissão (`action`).', required: false, example: 'view', nullable: true)]
+#[QueryParam('sort', type: 'string', description: 'Campo utilizado para ordenação dos resultados. Padrão: `action`.', required: false, example: 'action', enum: ['action', 'module', 'created_at'], nullable: true)]
+#[QueryParam('order', type: 'string', description: 'Direção da ordenação dos resultados (`asc` ou `desc`). Padrão: `asc`.', required: false, example: 'desc', enum: ['asc', 'desc'], nullable: true)]
 class ListPermissionsRequest extends FormRequest
 {
     /**
