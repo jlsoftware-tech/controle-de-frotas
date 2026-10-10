@@ -23,7 +23,14 @@ use Symfony\Component\HttpFoundation\Response;
 #[Group('Autenticação', description: 'Endpoints para gerenciamento de autenticação, cadastro e recuperação de senha de usuários.')]
 class AuthController extends Controller
 {
-    #[Endpoint('Login', description: 'Autentica um usuário existente com e-mail e senha, retornando o token JWT e as informações do usuário.')]
+    /**
+     * Authenticate the user and issue a JWT token.
+     */
+    #[Endpoint(
+        'Login',
+        description: 'Autentica um usuário existente com e-mail e senha, retornando o token JWT e as informações do usuário. O token expira em 1 dia (padrão) ou em 7 dias quando `remember` é `true`. Deve ser enviado nas demais rotas no cabeçalho `Authorization: Bearer {token}`.',
+        authenticated: false
+    )]
     #[ResponseAtt(
         content: [
             'success' => true,
@@ -65,14 +72,16 @@ class AuthController extends Controller
     )]
     #[ResponseAtt(
         content: [
+            'success' => false,
+            'status_code' => Response::HTTP_UNPROCESSABLE_ENTITY,
             'message' => 'Os dados enviados são inválidos.',
-            'errors' => [
+            'data' => [
                 'email' => ['O campo e-mail é obrigatório.'],
                 'password' => ['O campo senha é obrigatório.'],
             ],
         ],
-        status: 422,
-        description: 'Erro de validação nos campos informados.'
+        status: Response::HTTP_UNPROCESSABLE_ENTITY,
+        description: 'Erro de validação nos campos informados. `data` é indexado pelo nome do campo.'
     )]
     public function login(LoginRequest $request): JsonResponse
     {
@@ -100,7 +109,10 @@ class AuthController extends Controller
         );
     }
 
-    #[Endpoint('Logout', description: 'Realiza o logout do usuário invalidando o token JWT atual.', authenticated: true)]
+    /**
+     * End the user's session by invalidating the current JWT token.
+     */
+    #[Endpoint('Logout', description: 'Realiza o logout do usuário invalidando o token JWT atual (o token é colocado na blacklist e não pode mais ser utilizado). A rota responde ao método `GET`.', authenticated: true)]
     #[ResponseAtt(
         content: [
             'success' => true,
@@ -115,11 +127,21 @@ class AuthController extends Controller
         content: [
             'success' => false,
             'status_code' => Response::HTTP_UNAUTHORIZED,
-            'message' => 'Não autenticado',
+            'message' => 'Token expirado',
             'data' => null,
         ],
         status: Response::HTTP_UNAUTHORIZED,
-        description: 'Token de autenticação não fornecido ou inválido.'
+        description: 'Token não fornecido (`Não autenticado`), inválido (`Token inválido`) ou expirado (`Token expirado`).'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
+            'status_code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+            'message' => 'Ocorreu algum erro ao encerrar sua sessão. Tente novamente ou contate o administrador.',
+            'data' => null,
+        ],
+        status: Response::HTTP_INTERNAL_SERVER_ERROR,
+        description: 'Falha ao invalidar o token.'
     )]
     public function logout(): JsonResponse
     {
@@ -136,65 +158,14 @@ class AuthController extends Controller
         return ApiResponder::success(null, 'Logout realizado com sucesso.');
     }
 
-    #[Endpoint('Renovar Token', description: 'Renova o token JWT de autenticação atual e retorna um novo token.', authenticated: true)]
-    #[ResponseAtt(
-        content: [
-            'success' => true,
-            'status_code' => Response::HTTP_OK,
-            'message' => 'Sucesso.',
-            'data' => [
-                'token' => 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-                'user' => [
-                    'id' => 1,
-                    'name' => 'João Silva',
-                    'email' => 'joao.silva@example.com',
-                    'profile' => [
-                        'id' => 1,
-                        'name' => 'Perfil de teste',
-                    ],
-                    'secretariat' => [
-                        'id' => 1,
-                        'name' => 'Secretaria',
-                        'acronym' => 'AJS',
-                    ],
-                    'created_at' => '03/09/2026 19:13:32',
-                    'updated_at' => '03/09/2026 19:13:32',
-                    'deleted_at' => null,
-                ],
-            ],
-        ],
-        status: Response::HTTP_OK,
-        description: 'Token renovado com sucesso.'
-    )]
-    #[ResponseAtt(
-        content: [
-            'message' => 'Unauthenticated.',
-        ],
-        status: Response::HTTP_UNAUTHORIZED,
-        description: 'Token não fornecido ou inválido para renovação.'
-    )]
     /**
-     * @deprecated Rota removida em 2026-09. Será excluído na próxima alteração.
+     * Send the password recovery link by e-mail.
      */
-    public function refresh()
-    {
-        //        try {
-        //            $token = Auth::guard('api')->refresh();
-        //        } catch (JWTException) {
-        //            return ApiResponder::error('Sua sessão expirou.', Response::HTTP_UNAUTHORIZED);
-        //        }
-        //
-        //        // Define o novo token do usuário
-        //        // Se não definir, o usuário continuaria com o token invalidado pelo refresh()
-        //        Auth::guard('api')->setToken($token)->authenticate();
-        //
-        //        return ApiResponder::success([
-        //            'token' => $token,
-        //            'user' => Auth::guard('api')->user()->toResource(),
-        //        ]);
-    }
-
-    #[Endpoint('Esqueci minha senha', description: 'Envia um e-mail com instruções e token para redefinição de senha.')]
+    #[Endpoint(
+        'Esqueci minha senha',
+        description: 'Envia um e-mail com o token para redefinição de senha. O token deve ser utilizado em `POST /api/v1/auth/reset-password`. O mesmo erro 500 é retornado quando o e-mail não está cadastrado ou quando há muitas solicitações em sequência (throttle).',
+        authenticated: false
+    )]
     #[ResponseAtt(
         content: [
             'success' => true,
@@ -217,9 +188,11 @@ class AuthController extends Controller
     )]
     #[ResponseAtt(
         content: [
-            'message' => 'The email field is required.',
-            'errors' => [
-                'email' => ['The email field is required.'],
+            'success' => false,
+            'status_code' => Response::HTTP_UNPROCESSABLE_ENTITY,
+            'message' => 'Os dados enviados são inválidos.',
+            'data' => [
+                'email' => ['O campo e-mail é obrigatório.'],
             ],
         ],
         status: Response::HTTP_UNPROCESSABLE_ENTITY,
@@ -244,7 +217,10 @@ class AuthController extends Controller
             );
     }
 
-    #[Endpoint('Redefinir Senha', description: 'Redefine a senha do usuário utilizando o token recebido por e-mail.', authenticated: false)]
+    /**
+     * Reset the password using the token received by e-mail.
+     */
+    #[Endpoint('Redefinir Senha', description: 'Redefine a senha do usuário utilizando o token recebido por e-mail (ver `POST /api/v1/auth/forgot-password`). Não exige autenticação.', authenticated: false)]
     #[ResponseAtt(
         content: [
             'success' => true,
@@ -263,13 +239,15 @@ class AuthController extends Controller
             'data' => null,
         ],
         status: Response::HTTP_UNAUTHORIZED,
-        description: 'Token inválido ou expirado.'
+        description: 'Token inválido ou expirado, ou e-mail que não corresponde ao token.'
     )]
     #[ResponseAtt(
         content: [
-            'message' => 'The password field confirmation does not match.',
-            'errors' => [
-                'password' => ['The password field confirmation does not match.'],
+            'success' => false,
+            'status_code' => Response::HTTP_UNPROCESSABLE_ENTITY,
+            'message' => 'Os dados enviados são inválidos.',
+            'data' => [
+                'password' => ['A confirmação do campo senha não confere.'],
             ],
         ],
         status: Response::HTTP_UNPROCESSABLE_ENTITY,

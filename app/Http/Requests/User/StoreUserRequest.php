@@ -6,12 +6,15 @@ use App\Http\Requests\FormRequest;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Knuckles\Scribe\Attributes\BodyParam;
 
-#[BodyParam('name', description: 'Nome completo do usuário.', example: 'Maria Santos')]
-#[BodyParam('email', description: 'E-mail do usuário para autenticação.', example: 'maria.santos@example.com')]
-#[BodyParam('password', description: 'Senha de acesso do usuário (mínimo de 8 caracteres).', example: 'senha12345')]
-#[BodyParam('password_confirmation', description: 'Confirmação da senha de acesso.', example: 'senha12345')]
-#[BodyParam('profile_id', description: 'ID do perfil de acesso atribuído ao usuário.', example: 1)]
-#[BodyParam('secretariat_id', description: 'ID da secretaria vinculada ao usuário.', example: 1)]
+/**
+ * Request body for creating a user (`POST /api/v1/users`).
+ */
+#[BodyParam('name', type: 'string', description: 'Nome completo do usuário (máximo de 255 caracteres).', example: 'Maria Santos')]
+#[BodyParam('email', type: 'string', description: 'E-mail do usuário para autenticação (máximo de 255 caracteres). Deve ser único.', example: 'maria.santos@example.com')]
+#[BodyParam('password', type: 'string', description: 'Senha de acesso do usuário (mínimo de 8 caracteres).', example: 'senha12345')]
+#[BodyParam('password_confirmation', type: 'string', description: 'Confirmação da senha. Deve ser idêntica a `password`.', example: 'senha12345')]
+#[BodyParam('profile_id', type: 'integer', description: 'ID do perfil de acesso atribuído ao usuário.', example: 1)]
+#[BodyParam('secretariat_id', type: 'integer', description: 'ID da secretaria vinculada ao usuário.', example: 1)]
 class StoreUserRequest extends FormRequest
 {
     /**
@@ -35,41 +38,6 @@ class StoreUserRequest extends FormRequest
             'password' => 'required|string|min:8|confirmed',
             'profile_id' => 'required|integer|exists:profiles,id',
             'secretariat_id' => 'required|integer|exists:secretariats,id',
-        ];
-    }
-
-    /**
-     * Custom parameter data for Scribe documentation.
-     *
-     * @return array<string, array<string, mixed>>
-     */
-    public function bodyParameters(): array
-    {
-        return [
-            'name' => [
-                'description' => 'Nome completo do usuário.',
-                'example' => 'Maria Santos',
-            ],
-            'email' => [
-                'description' => 'E-mail do usuário para autenticação.',
-                'example' => 'maria.santos@example.com',
-            ],
-            'password' => [
-                'description' => 'Senha de acesso do usuário (mínimo de 8 caracteres).',
-                'example' => 'senha12345',
-            ],
-            'password_confirmation' => [
-                'description' => 'Confirmação da senha de acesso.',
-                'example' => 'senha12345',
-            ],
-            'profile_id' => [
-                'description' => 'ID do perfil de acesso atribuído ao usuário.',
-                'example' => 1,
-            ],
-            'secretariat_id' => [
-                'description' => 'ID da secretaria vinculada ao usuário.',
-                'example' => 1,
-            ],
         ];
     }
 }

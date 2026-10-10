@@ -4,10 +4,13 @@ namespace App\Http\Requests\User;
 
 use App\Http\Requests\FormRequest;
 use Illuminate\Contracts\Validation\ValidationRule;
-use Knuckles\Scribe\Attributes\QueryParam;
+use Knuckles\Scribe\Attributes\BodyParam;
 
-#[QueryParam('password', description: 'Nova senha do usuário', required: false, example: 'jemzkjcm')]
-#[QueryParam('password_confirmation', description: 'Confirmação da nova senha do usuário', required: false, example: 'jemzkjcm')]
+/**
+ * Request body for resetting the authenticated user's password (`PUT /api/v1/users/reset-password`).
+ */
+#[BodyParam('password', type: 'string', description: 'Nova senha do usuário (mínimo de 8 caracteres). Deve ser diferente da senha atual.', example: 'jemzkjcm')]
+#[BodyParam('password_confirmation', type: 'string', description: 'Confirmação da nova senha. Deve ser idêntica a `password`.', example: 'jemzkjcm')]
 class ResetPasswordRequest extends FormRequest
 {
     /**
@@ -35,10 +38,5 @@ class ResetPasswordRequest extends FormRequest
         return [
             'password.required' => 'Informe uma senha',
         ];
-    }
-
-    public function bodyParameters(): array
-    {
-        return [];
     }
 }

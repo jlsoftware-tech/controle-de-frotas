@@ -18,21 +18,19 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
-use Knuckles\Scribe\Attributes\BodyParam;
 use Knuckles\Scribe\Attributes\Endpoint;
 use Knuckles\Scribe\Attributes\Group;
 use Knuckles\Scribe\Attributes\Response as ResponseAtt;
 use Knuckles\Scribe\Attributes\UrlParam;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Group('Endpoints de usuário', 'Gerenciamento de recursos.', true)]
+#[Group('Usuários', description: 'Gerenciamento de usuários e consulta dos dados, perfil e permissões do usuário autenticado.', authenticated: true)]
 class UserController extends Controller
 {
-    #[Endpoint(
-        'Listar recursos da barra lateral (sidebar)',
-        description: 'Lista dos recursos permitidos de acordo com o perfil do usuário.',
-        authenticated: true
-    )]
+    /**
+     * List the sidebar resources allowed by the authenticated user's permissions.
+     */
+    #[Endpoint('Listar recursos da barra lateral (sidebar)', description: 'Retorna os menus e submenus (com ícone, nome, descrição e URL do front-end) aos quais o usuário autenticado tem acesso, de acordo com as permissões do seu perfil. Menus sem nenhum submenu permitido são omitidos.', authenticated: true)]
     #[ResponseAtt(
         content: [
             'success' => true,
@@ -46,11 +44,13 @@ class UserController extends Controller
                         [
                             'icon' => 'FaUsers',
                             'name_sub_menu' => 'Gerenciar usuários',
+                            'description' => 'Cadastre, edite e gerencie os usuários do sistema.',
                             'url' => '/usuarios',
                         ],
                         [
                             'icon' => 'FaUserShield',
                             'name_sub_menu' => 'Perfis de acesso',
+                            'description' => 'Crie e gerencie os perfis de acesso para definir quais recursos cada usuário pode utilizar.',
                             'url' => '/perfis',
                         ],
                     ],
@@ -58,17 +58,17 @@ class UserController extends Controller
             ],
         ],
         status: 200,
-        description: 'Opções do menu sidebar de acordo com as permissões do usuário.'
+        description: 'Menus permitidos para o usuário.'
     )]
     #[ResponseAtt(
         content: [
             'success' => false,
             'status_code' => 401,
-            'message' => 'Não autenticado',
+            'message' => 'Token expirado',
             'data' => null,
         ],
         status: 401,
-        description: 'Token de autenticação não fornecido ou inválido.'
+        description: 'Token não fornecido (`Não autenticado`), inválido (`Token inválido`) ou expirado (`Token expirado`).'
     )]
     #[ResponseAtt(
         content: [
@@ -78,11 +78,8 @@ class UserController extends Controller
             'data' => null,
         ],
         status: 403,
-        description: 'Usuário sem permissão para acessar os recursos.'
+        description: 'O usuário não possui permissão para nenhum menu.'
     )]
-    /**
-     * Lista todas as ações conforme o perfil do usuário
-     */
     public function sidebar()
     {
         // verifica quais ações que usuário autenticado tem permissão de usar,
@@ -181,11 +178,15 @@ class UserController extends Controller
         return ApiResponder::success($sidebar);
     }
 
-    #[Endpoint('Listar Usuários', description: 'Retorna uma lista paginada de usuários cadastrados no sistema com opções de busca, ordenação e paginação.', authenticated: true)]
+    /**
+     * List all users.
+     */
+    #[Endpoint('Listar Usuários', description: 'Retorna a lista paginada de usuários cadastrados, com busca por nome, ordenação e paginação. Requer a permissão `view` do módulo `users`.', authenticated: true)]
     #[ResponseAtt(
         content: [
             'success' => true,
-            'statusCode' => 200,
+            'status_code' => 200,
+            'message' => 'Lista de todos os usuário',
             'data' => [
                 'items' => [
                     [
@@ -231,25 +232,34 @@ class UserController extends Controller
         content: [
             'success' => false,
             'status_code' => 401,
-            'message' => 'Não autenticado',
+            'message' => 'Token expirado',
             'data' => null,
         ],
         status: 401,
-        description: 'Token de autenticação não fornecido ou inválido.'
+        description: 'Token não fornecido (`Não autenticado`), inválido (`Token inválido`) ou expirado (`Token expirado`).'
     )]
     #[ResponseAtt(
         content: [
-            'message' => 'O campo ordenação selecionado é inválido.',
-            'errors' => [
+            'success' => false,
+            'status_code' => 403,
+            'message' => 'Você não tem permissão para executar esta ação.',
+            'data' => null,
+        ],
+        status: 403,
+        description: 'Usuário sem a permissão `users.view`.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
+            'status_code' => 422,
+            'message' => 'Os dados enviados são inválidos.',
+            'data' => [
                 'order' => ['O campo ordenação selecionado é inválido.'],
             ],
         ],
         status: 422,
-        description: 'Erro de validação nos parâmetros de consulta.'
+        description: 'Erro de validação nos campos informados. `data` é indexado pelo nome do campo.'
     )]
-    /**
-     * Display a listing of the resource.
-     */
     public function index(ListUsersRequest $request): JsonResponse
     {
         Gate::authorize('viewAny', User::class);
@@ -276,9 +286,9 @@ class UserController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Create a new user.
      */
-    #[Endpoint('Cadastrar Usuário', description: 'Cadastra um novo usuário no sistema com perfil e secretaria vinculados.', authenticated: true)]
+    #[Endpoint('Cadastrar Usuário', description: 'Cadastra um novo usuário com perfil e secretaria vinculados. Requer a permissão `create` do módulo `users`.', authenticated: true)]
     #[ResponseAtt(
         content: [
             'success' => true,
@@ -309,16 +319,28 @@ class UserController extends Controller
         content: [
             'success' => false,
             'status_code' => 401,
-            'message' => 'Não autenticado',
+            'message' => 'Token expirado',
             'data' => null,
         ],
         status: 401,
-        description: 'Token de autenticação não fornecido ou inválido.'
+        description: 'Token não fornecido (`Não autenticado`), inválido (`Token inválido`) ou expirado (`Token expirado`).'
     )]
     #[ResponseAtt(
         content: [
-            'message' => 'O campo nome é obrigatório.',
-            'errors' => [
+            'success' => false,
+            'status_code' => 403,
+            'message' => 'Você não tem permissão para executar esta ação.',
+            'data' => null,
+        ],
+        status: 403,
+        description: 'Usuário sem a permissão `users.create`.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
+            'status_code' => 422,
+            'message' => 'Os dados enviados são inválidos.',
+            'data' => [
                 'name' => ['O campo nome é obrigatório.'],
                 'email' => ['O campo e-mail é obrigatório.'],
                 'password' => ['O campo senha é obrigatório.'],
@@ -327,7 +349,17 @@ class UserController extends Controller
             ],
         ],
         status: 422,
-        description: 'Erro de validação nos campos informados.'
+        description: 'Erro de validação nos campos informados. `data` é indexado pelo nome do campo.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
+            'status_code' => 500,
+            'message' => 'Ocorreu um erro ao cadastrar o usuário. Por favor, tente novamente.',
+            'data' => null,
+        ],
+        status: 500,
+        description: 'Falha ao salvar o usuário.'
     )]
     public function store(StoreUserRequest $request): JsonResponse
     {
@@ -356,10 +388,10 @@ class UserController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Show a user.
      */
-    #[Endpoint('Visualizar Usuário', description: 'Retorna os dados detalhados de um usuário específico a partir do seu ID.', authenticated: true)]
-    #[UrlParam('id', type: 'integer', description: 'ID do usuário a ser visualizado.', example: 1)]
+    #[Endpoint('Visualizar Usuário', description: 'Retorna os dados detalhados de um usuário a partir do seu ID. Requer a permissão `view` do módulo `users`.', authenticated: true)]
+    #[UrlParam('user', type: 'integer', description: 'ID do usuário a ser visualizado.', example: 1)]
     #[ResponseAtt(
         content: [
             'success' => true,
@@ -384,17 +416,27 @@ class UserController extends Controller
             ],
         ],
         status: 200,
-        description: 'Detalhes do usuário recuperados com sucesso.'
+        description: 'Usuário recuperado com sucesso (`message` vazia).'
     )]
     #[ResponseAtt(
         content: [
             'success' => false,
             'status_code' => 401,
-            'message' => 'Não autenticado',
+            'message' => 'Token expirado',
             'data' => null,
         ],
         status: 401,
-        description: 'Token de autenticação não fornecido ou inválido.'
+        description: 'Token não fornecido (`Não autenticado`), inválido (`Token inválido`) ou expirado (`Token expirado`).'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
+            'status_code' => 403,
+            'message' => 'Você não tem permissão para executar esta ação.',
+            'data' => null,
+        ],
+        status: 403,
+        description: 'Usuário sem a permissão `users.view`.'
     )]
     #[ResponseAtt(
         content: [
@@ -418,10 +460,10 @@ class UserController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update a user.
      */
-    #[Endpoint('Atualizar Usuário', description: 'Atualiza os dados cadastrais de um usuário existente a partir do seu ID.', authenticated: true)]
-    #[UrlParam('id', type: 'integer', description: 'ID do usuário a ser atualizado.', example: 1)]
+    #[Endpoint('Atualizar Usuário', description: 'Atualiza parcialmente os dados cadastrais de um usuário a partir do seu ID; apenas os campos enviados são alterados. Requer a permissão `update` do módulo `users`.', authenticated: true)]
+    #[UrlParam('user', type: 'integer', description: 'ID do usuário a ser atualizado.', example: 1)]
     #[ResponseAtt(
         content: [
             'success' => true,
@@ -441,32 +483,32 @@ class UserController extends Controller
                     'acronym' => 'SECAD',
                 ],
                 'created_at' => '01/09/2026 10:00:00',
-                'updated_at' => '01/09/2026 10:05:00',
+                'updated_at' => '01/09/2026 10:00:00',
                 'deleted_at' => null,
             ],
         ],
         status: 200,
-        description: 'Dados atualizados com sucesso.'
+        description: 'Usuário atualizado com sucesso.'
     )]
     #[ResponseAtt(
         content: [
             'success' => false,
             'status_code' => 401,
-            'message' => 'Não autenticado',
+            'message' => 'Token expirado',
             'data' => null,
         ],
         status: 401,
-        description: 'Token de autenticação não fornecido ou inválido.'
+        description: 'Token não fornecido (`Não autenticado`), inválido (`Token inválido`) ou expirado (`Token expirado`).'
     )]
     #[ResponseAtt(
         content: [
-            'message' => 'O campo e-mail deve ser um endereço de e-mail válido.',
-            'errors' => [
-                'email' => ['O campo e-mail deve ser um endereço de e-mail válido.'],
-            ],
+            'success' => false,
+            'status_code' => 403,
+            'message' => 'Você não tem permissão para executar esta ação.',
+            'data' => null,
         ],
-        status: 422,
-        description: 'Erro de validação nos campos informados.'
+        status: 403,
+        description: 'Usuário sem a permissão `users.update`.'
     )]
     #[ResponseAtt(
         content: [
@@ -477,6 +519,28 @@ class UserController extends Controller
         ],
         status: 404,
         description: 'Usuário não encontrado.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
+            'status_code' => 422,
+            'message' => 'Os dados enviados são inválidos.',
+            'data' => [
+                'email' => ['O campo e-mail deve ser um endereço de e-mail válido.'],
+            ],
+        ],
+        status: 422,
+        description: 'Erro de validação nos campos informados. `data` é indexado pelo nome do campo.'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
+            'status_code' => 500,
+            'message' => 'Ocorreu um erro ao atualizar os dados.',
+            'data' => null,
+        ],
+        status: 500,
+        description: 'Falha ao atualizar o usuário.'
     )]
     public function update(UpdateUserRequest $request, User $user): JsonResponse
     {
@@ -497,10 +561,10 @@ class UserController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Delete a user.
      */
-    #[Endpoint('Excluir Usuário', description: 'Remove um usuário do sistema a partir do seu ID.', authenticated: true)]
-    #[UrlParam('id', type: 'integer', description: 'ID do usuário a ser excluído.', example: 1)]
+    #[Endpoint('Excluir Usuário', description: 'Remove um usuário (exclusão lógica) a partir do seu ID. Requer a permissão `delete` do módulo `users`.', authenticated: true)]
+    #[UrlParam('user', type: 'integer', description: 'ID do usuário a ser excluído.', example: 1)]
     #[ResponseAtt(
         content: [
             'success' => true,
@@ -515,11 +579,21 @@ class UserController extends Controller
         content: [
             'success' => false,
             'status_code' => 401,
-            'message' => 'Não autenticado',
+            'message' => 'Token expirado',
             'data' => null,
         ],
         status: 401,
-        description: 'Token de autenticação não fornecido ou inválido.'
+        description: 'Token não fornecido (`Não autenticado`), inválido (`Token inválido`) ou expirado (`Token expirado`).'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
+            'status_code' => 403,
+            'message' => 'Você não tem permissão para executar esta ação.',
+            'data' => null,
+        ],
+        status: 403,
+        description: 'Usuário sem a permissão `users.delete`.'
     )]
     #[ResponseAtt(
         content: [
@@ -541,9 +615,9 @@ class UserController extends Controller
     }
 
     /**
-     * Retorna os dados do perfil de acesso do usuário autenticado.
+     * Return the access profile of the authenticated user.
      */
-    #[Endpoint('Perfil de acesso do usuário', description: 'Retorna os dados do perfil de acesso associado ao usuário autenticado.', authenticated: true)]
+    #[Endpoint('Perfil de acesso do usuário', description: 'Retorna os dados do perfil de acesso associado ao usuário autenticado. As datas são retornadas em ISO 8601 (UTC), pois o modelo é serializado diretamente.', authenticated: true)]
     #[ResponseAtt(
         content: [
             'success' => true,
@@ -553,8 +627,8 @@ class UserController extends Controller
                 'id' => 1,
                 'name' => 'Administrador',
                 'description' => 'Perfil com acesso total ao sistema.',
-                'created_at' => '01/09/2026 10:00:00',
-                'updated_at' => '01/09/2026 10:00:00',
+                'created_at' => '2026-09-01T10:00:00.000000Z',
+                'updated_at' => '2026-09-01T10:00:00.000000Z',
             ],
         ],
         status: 200,
@@ -564,11 +638,11 @@ class UserController extends Controller
         content: [
             'success' => false,
             'status_code' => 401,
-            'message' => 'Não autenticado',
+            'message' => 'Token expirado',
             'data' => null,
         ],
         status: 401,
-        description: 'Token de autenticação não fornecido ou inválido.'
+        description: 'Token não fornecido (`Não autenticado`), inválido (`Token inválido`) ou expirado (`Token expirado`).'
     )]
     public function profile(): JsonResponse
     {
@@ -580,43 +654,51 @@ class UserController extends Controller
     }
 
     /**
-     * Retorna as permissões do perfil do usuário autenticado.
+     * Return the permissions of the authenticated user.
      */
-    #[Endpoint('Permissões que o usuário possui', description: 'Retorna a lista das permissões associadas ao perfil do usuário autenticado.', authenticated: true)]
+    #[Endpoint('Permissões que o usuário possui', description: 'Retorna, agrupadas por módulo, cada ação existente no sistema (`view`, `create`, `update`, `delete`) indicando com `true` ou `false` se o usuário autenticado pode executá-la. Use `modules[]` para filtrar os módulos retornados.', authenticated: true)]
     #[ResponseAtt(
         content: [
             'success' => true,
             'status_code' => 200,
             'message' => 'Sucesso.',
             'data' => [
-                [
-                    'users' => [
-                        'view' => true,
-                        'create' => true,
-                        'update' => true,
-                        'delete' => false,
-                    ],
-                    'profiles' => [
-                        'view' => true,
-                        'create' => true,
-                        'update' => true,
-                        'delete' => false,
-                    ],
+                'users' => [
+                    'view' => true,
+                    'create' => true,
+                    'update' => true,
+                    'delete' => false,
+                ],
+                'profiles' => [
+                    'view' => true,
+                    'create' => false,
+                    'update' => false,
+                    'delete' => false,
                 ],
             ],
         ],
         status: 200,
-        description: 'Lista de permissões recuperada com sucesso.'
+        description: 'Permissões do usuário agrupadas por módulo.'
     )]
     #[ResponseAtt(
         content: [
             'success' => false,
             'status_code' => 401,
-            'message' => 'Não autenticado',
+            'message' => 'Token expirado',
             'data' => null,
         ],
         status: 401,
-        description: 'Token de autenticação não fornecido ou inválido.'
+        description: 'Token não fornecido (`Não autenticado`), inválido (`Token inválido`) ou expirado (`Token expirado`).'
+    )]
+    #[ResponseAtt(
+        content: [
+            'message' => 'O campo modules deve ser uma lista.',
+            'errors' => [
+                'modules' => ['O campo modules deve ser uma lista.'],
+            ],
+        ],
+        status: 422,
+        description: '`modules` não é uma lista. Este request usa o formato de erro padrão do Laravel (`message` e `errors`).'
     )]
     public function permissions(ListUserPermissionsRequest $request): JsonResponse
     {
@@ -642,9 +724,9 @@ class UserController extends Controller
     }
 
     /**
-     * Atualiza os dados pessoais do usuário logado
+     * Update the authenticated user's personal data.
      */
-    #[Endpoint('Atualização dos dados pessoais', description: 'Endpoint para realizar a atualização dos dados pessoais do usuário logado.', authenticated: true)]
+    #[Endpoint('Atualização dos dados pessoais', description: 'Atualiza o nome e/ou o e-mail do usuário autenticado. Pelo menos um campo deve ser enviado. A resposta traz o modelo do usuário (sem `profile` e `secretariat` aninhados), com datas em ISO 8601 (UTC).', authenticated: true)]
     #[ResponseAtt(
         content: [
             'success' => true,
@@ -652,28 +734,18 @@ class UserController extends Controller
             'message' => 'Dados atualizados com sucesso',
             'data' => [
                 'id' => 1,
-                'name' => 'Test User',
-                'email' => 'test@example.com',
-                'profile' => [
-                    'id' => 1,
-                    'name' => 'Test Profile',
-                ],
+                'name' => 'Jorge Luis Fonseca',
+                'email' => 'jorge_lois@gmail.com',
+                'email_verified_at' => null,
+                'profile_id' => 1,
+                'secretariat_id' => 1,
+                'created_at' => '2026-09-01T10:00:00.000000Z',
+                'updated_at' => '2026-09-01T10:05:00.000000Z',
+                'deleted_at' => null,
             ],
         ],
         status: 200,
-        description: 'Atualiza dados com sucesso.'
-    )]
-    #[ResponseAtt(
-        content: [
-            'success' => false,
-            'status_code' => 422,
-            'message' => 'Os dados enviados são inválidos',
-            'data' => [
-                'email' => 'O campo e-mail deve ser um endereço de e-mail válido.',
-            ],
-        ],
-        status: 422,
-        description: 'Formato de e-mail inválido.'
+        description: 'Dados atualizados com sucesso.'
     )]
     #[ResponseAtt(
         content: [
@@ -683,17 +755,29 @@ class UserController extends Controller
             'data' => null,
         ],
         status: 400,
-        description: 'Envio de campos vazios.'
+        description: 'Nenhum campo (`name` ou `email`) foi enviado.'
     )]
     #[ResponseAtt(
         content: [
             'success' => false,
             'status_code' => 401,
-            'message' => 'Token inválido',
+            'message' => 'Token expirado',
             'data' => null,
         ],
         status: 401,
-        description: 'Usuário não autenticado.'
+        description: 'Token não fornecido (`Não autenticado`), inválido (`Token inválido`) ou expirado (`Token expirado`).'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
+            'status_code' => 422,
+            'message' => 'Os dados enviados são inválidos.',
+            'data' => [
+                'email' => ['O campo e-mail deve ser um endereço de e-mail válido.'],
+            ],
+        ],
+        status: 422,
+        description: 'Erro de validação nos campos informados. `data` é indexado pelo nome do campo.'
     )]
     public function updateInfo(UpdateInfoRequest $request): JsonResponse
     {
@@ -712,11 +796,9 @@ class UserController extends Controller
     }
 
     /**
-     * Redefine a senha quando logado no sistema
+     * Reset the authenticated user's password.
      */
-    #[Endpoint('Redefinição de senha', description: 'Endpoint para redefinição de senha do usuário logado', authenticated: true)]
-    #[BodyParam('password', 'string', 'A nova senha do usuário', required: true, example: 'jemzkjcm')]
-    #[BodyParam('password_confirmation', 'string', 'Confirmação da nova senha', required: true, example: 'jemzkjcm')]
+    #[Endpoint('Redefinição de senha', description: 'Redefine a senha do usuário autenticado. Se a nova senha for igual à atual, nada é alterado e a resposta (200) informa que deve ser enviada uma senha diferente.', authenticated: true)]
     #[ResponseAtt(
         content: [
             'success' => true,
@@ -725,45 +807,29 @@ class UserController extends Controller
             'data' => null,
         ],
         status: 200,
-        description: 'Redefinição de senha com sucesso.'
-    )]
-    #[ResponseAtt(
-        content: [
-            'success' => false,
-            'status_code' => 422,
-            'message' => 'Os dados enviados são inválidos',
-            'data' => [
-                'password' => [
-                    'Informe uma senha',
-                ],
-            ],
-        ],
-        status: 422,
-        description: 'Campo "password" vazio ou inexistente.'
-    )]
-    #[ResponseAtt(
-        content: [
-            'success' => false,
-            'status_code' => 422,
-            'message' => 'Os dados enviados são inválidos',
-            'data' => [
-                'password' => [
-                    'A confirmação do campo senha não confere',
-                ],
-            ],
-        ],
-        status: 422,
-        description: 'Campo "password_confirmation" vazio ou inexistente.'
+        description: 'Senha redefinida com sucesso. Quando a nova senha é igual à atual, retorna 200 com a mensagem `Informe uma senha diferente para redefinir sua senha` e a senha não é alterada.'
     )]
     #[ResponseAtt(
         content: [
             'success' => false,
             'status_code' => 401,
-            'message' => 'Token inválido',
+            'message' => 'Token expirado',
             'data' => null,
         ],
         status: 401,
-        description: 'Usuário não autenticado.'
+        description: 'Token não fornecido (`Não autenticado`), inválido (`Token inválido`) ou expirado (`Token expirado`).'
+    )]
+    #[ResponseAtt(
+        content: [
+            'success' => false,
+            'status_code' => 422,
+            'message' => 'Os dados enviados são inválidos.',
+            'data' => [
+                'password' => ['Informe uma senha'],
+            ],
+        ],
+        status: 422,
+        description: '`password` ausente (`Informe uma senha`), com menos de 8 caracteres ou sem `password_confirmation` correspondente (`A confirmação do campo senha não confere.`). `data` é indexado pelo nome do campo.'
     )]
     public function resetPassword(ResetPasswordRequest $request): JsonResponse
     {

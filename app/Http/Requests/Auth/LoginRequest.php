@@ -6,9 +6,12 @@ use App\Http\Requests\FormRequest;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Knuckles\Scribe\Attributes\BodyParam;
 
-#[BodyParam('email', description: 'Email cadastrado do usuário.', example: 'admin@example.com')]
-#[BodyParam('password', description: 'Senha de acesso do usuário.', example: 'senha123')]
-#[BodyParam('remember', 'bool', description: 'Checkbox "Lembrar-me".', example: true)]
+/**
+ * Request body for login (`POST /api/v1/auth/login`).
+ */
+#[BodyParam('email', type: 'string', description: 'E-mail cadastrado do usuário.', example: 'admin@example.com')]
+#[BodyParam('password', type: 'string', description: 'Senha de acesso do usuário.', example: 'senha123')]
+#[BodyParam('remember', type: 'boolean', description: 'Quando `true` ("Lembrar-me"), o token emitido expira em 7 dias em vez de 1 dia.', required: false, example: true)]
 class LoginRequest extends FormRequest
 {
     /**
@@ -30,28 +33,6 @@ class LoginRequest extends FormRequest
             'email' => 'required|email',
             'password' => 'required|string',
             'remember' => 'boolean',
-        ];
-    }
-
-    /**
-     * Custom parameter data for Scribe documentation.
-     *
-     * @return array<string, array<string, mixed>>
-     */
-    public function bodyParameters(): array
-    {
-        return [
-            'email' => [
-                'description' => 'Email cadastrado do usuário.',
-                'example' => 'admin@example.com',
-            ],
-            'password' => [
-                'description' => 'Senha de acesso do usuário.',
-                'example' => 'senha123',
-            ],
-            'remember' => [
-                'description' => 'Checkbox "Lembrar-me".',
-            ],
         ];
     }
 }
