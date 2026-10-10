@@ -2,13 +2,31 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+#[Fillable([
+    'name',
+    'plate',
+    'renavam',
+    'chassi',
+    'brand',
+    'model',
+    'model_year',
+    'fuel_type',
+    'tank_capacity',
+    'status',
+    'secretariat_id',
+])]
 
 class Vehicle extends Model
 {
+    use SoftDeletes;
+
     public function secretariat(): BelongsTo
     {
         return $this->belongsTo(Secretariat::class);
@@ -21,7 +39,7 @@ class Vehicle extends Model
 
     public function measures(): HasMany
     {
-        return $this->hasMany(VehicleDocument::class);
+        return $this->hasMany(VehicleMeasure::class);
     }
 
     public function tires(): HasMany

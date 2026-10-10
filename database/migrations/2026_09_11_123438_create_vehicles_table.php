@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('plate')->nullable();
-            $table->string('renavan')->nullable();
+            $table->string('renavam')->nullable();
             $table->string('chassi')->nullable();
             $table->string('brand');
             $table->string('model');
@@ -27,6 +27,7 @@ return new class extends Migration
                 ->default('AVAILABLE');
             $table->foreignId('secretariat_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
