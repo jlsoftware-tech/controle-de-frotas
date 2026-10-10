@@ -43,7 +43,7 @@ class StoreVehicleRequest extends FormRequest
             'model' => 'required|string|min:3',
             'model_year' => 'required|int|min:1950|max:' . now()->year,
             'fuel_type' => 'nullable|in:GASOLINE,DIESEL,ETHANOL,ELECTRICITY',
-            'tank_capacity' => 'nullable|int|gt:0',
+            'tank_capacity' => 'nullable|int|between:1,200',
             'status' => 'in:AVAILABLE,UNAVAILABLE',
             'secretariat_id' => 'required|integer|exists:secretariats,id',
         ];

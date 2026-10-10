@@ -43,7 +43,6 @@ class UpdateVehicleRequest extends FormRequest
                 'sometimes',
                 'string',
                 'min:3',
-                Rule::unique('vehicles', 'name')->ignore($vehicle?->id),
             ],
             'plate' => [
                 'nullable',

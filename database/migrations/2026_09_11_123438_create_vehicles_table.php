@@ -27,6 +27,7 @@ return new class extends Migration
                 ->default('AVAILABLE');
             $table->foreignId('secretariat_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

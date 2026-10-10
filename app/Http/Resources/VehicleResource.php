@@ -18,7 +18,7 @@ class VehicleResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'plate' => $this->plate,
-            'renavan' => $this->renavan,
+            'renavam' => $this->renavam,
             'chassi' => $this->chassi,
             'brand' => $this->brand,
             'model' => $this->model,
@@ -27,9 +27,9 @@ class VehicleResource extends JsonResource
             'tank_capacity' => $this->tank_capacity,
             'status' => $this->status,
             'secretariat_id' => $this->secretariat_id,
-            'created_at' => $this->created_at->format('d/m/Y H:m:s'),
-            'updated_at' => $this->updated_at->format('d/m/Y H:m:s'),
-            'deleted_at' => $this->deleted_at?->format('d/m/Y H:m:s'),
+            'created_at' => $this->created_at->format('d/m/Y H:i:s'),
+            'updated_at' => $this->updated_at->format('d/m/Y H:i:s'),
+            'deleted_at' => $this->deleted_at?->format('d/m/Y H:i:s'),
         ];
     }
 }

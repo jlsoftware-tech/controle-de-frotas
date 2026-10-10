@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
     'name',
@@ -21,8 +22,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'status',
     'secretariat_id'
 ])]
+
 class Vehicle extends Model
 {
+    use SoftDeletes;
+
     public function secretariat(): BelongsTo
     {
         return $this->belongsTo(Secretariat::class);
@@ -35,7 +39,7 @@ class Vehicle extends Model
 
     public function measures(): HasMany
     {
-        return $this->hasMany(VehicleDocument::class);
+        return $this->hasMany(VehicleMeasure::class);
     }
 
     public function tires(): HasMany
