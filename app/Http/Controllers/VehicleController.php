@@ -254,7 +254,7 @@ class VehicleController extends Controller
                 'created_at' => '01/09/2026 10:00:00',
                 'updated_at' => '05/09/2026 09:00:00',
                 'deleted_at' => null,
-            ]
+            ],
         ],
         status: 200,
         description: 'Dados atualizados com sucesso.'
@@ -371,6 +371,7 @@ class VehicleController extends Controller
         Gate::authorize('delete', $vehicle);
 
         $vehicle->delete();
+
         return ApiResponder::success(message: 'Veículo removido com sucesso!');
     }
 }
