@@ -64,7 +64,7 @@ class UpdateVehicleRequest extends FormRequest
             ],
             'brand' => 'sometimes|string',
             'model' => 'sometimes|string|min:3',
-            'model_year' => 'sometimes|int|min:1950|max:' . now()->year,
+            'model_year' => 'sometimes|int|min:1950|max:'.now()->year,
             'fuel_type' => 'nullable|in:GASOLINE,DIESEL,ETHANOL,ELECTRICITY',
             'tank_capacity' => 'nullable|int|between:1,200',
             'status' => 'in:AVAILABLE,UNAVAILABLE',

@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'fuel_type',
     'tank_capacity',
     'status',
-    'secretariat_id'
+    'secretariat_id',
 ])]
 class Vehicle extends Model
 {

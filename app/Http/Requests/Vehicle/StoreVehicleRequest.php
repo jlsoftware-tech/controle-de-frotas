@@ -41,7 +41,7 @@ class StoreVehicleRequest extends FormRequest
             'chassi' => 'nullable|unique:vehicles,chassi|regex:/^[A-Z0-9]{17}$/',
             'brand' => 'required|string',
             'model' => 'required|string|min:3',
-            'model_year' => 'required|int|min:1950|max:' . now()->year,
+            'model_year' => 'required|int|min:1950|max:'.now()->year,
             'fuel_type' => 'nullable|in:GASOLINE,DIESEL,ETHANOL,ELECTRICITY',
             'tank_capacity' => 'nullable|int|gt:0',
             'status' => 'in:AVAILABLE,UNAVAILABLE',
