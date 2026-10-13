@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Driver;
 use App\Models\Permission;
 use App\Models\Profile;
 use App\Models\Secretariat;
@@ -48,5 +49,14 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $testUser->permissions()->attach(Permission::all());
+
+        Driver::create([
+            'cpf' => '00011122233',
+            'cnh' => '00011122233',
+            'cnh_category' => 'AB',
+            'cnh_expiration_date' => now(),
+            'phone_number' => '88988888888',
+            'user_id' => $testUser->id
+        ]);
     }
 }
