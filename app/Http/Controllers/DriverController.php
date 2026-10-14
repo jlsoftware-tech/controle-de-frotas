@@ -3,11 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Driver\ListDriversRequest;
+use App\Http\Requests\Driver\StoreDriverRequest;
 use App\Models\Driver;
+use App\Models\User;
 use App\Support\ApiResponder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Symfony\Component\HttpFoundation\Response;
 
 class DriverController extends Controller
 {
@@ -43,9 +48,41 @@ class DriverController extends Controller
     /**
      * Store a newly created driver in storage.
      */
-    public function store(Request $request)
+    public function store(StoreDriverRequest $request): JsonResponse
     {
-        //
+        try {
+            $driver = DB::transaction(function () use ($request) {
+                $user = User::create([
+                    'name' => $request->name,
+                    'email' => $request->email,
+                    'password' => Hash::make($request->password),
+                    'profile_id' => $request->profile_id,
+                    'secretariat_id' => $request->secretariat_id,
+                ]);
+
+                return Driver::create([
+                    'cpf' => $request->cpf,
+                    'cnh' => $request->cnh,
+                    'cnh_expiration_date' => $request->cnh_expiration_date,
+                    'cnh_category' => $request->cnh_category,
+                    'phone_number' => $request->phone_number,
+                    'status' => $request->status,
+                    'user_id' => $user->id
+                ]);
+            });
+        }
+        catch (\Exception) {
+            return ApiResponder::error(
+                'Ocorreu um erro ao cadastrar motorista.',
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+
+        return ApiResponder::success(
+            $driver->toResource(),
+            'Motorista cadastrado com sucesso!',
+            Response::HTTP_CREATED
+        );
     }
 
     /**
