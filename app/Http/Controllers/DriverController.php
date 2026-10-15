@@ -88,15 +88,17 @@ class DriverController extends Controller
     /**
      * Display the specified driver.
      */
-    public function show(string $id)
+    public function show(Driver $driver)
     {
-        //
+        return ApiResponder::success(
+            $driver->toResource()
+        );
     }
 
     /**
      * Update the specified driver in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Driver $driver)
     {
         //
     }
@@ -104,8 +106,10 @@ class DriverController extends Controller
     /**
      * Remove the specified driver from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Driver $driver)
     {
-        //
+        $driver->delete();
+
+        return ApiResponder::success(message: "Motorista removido com sucesso");
     }
 }

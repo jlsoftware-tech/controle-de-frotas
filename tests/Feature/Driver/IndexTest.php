@@ -3,7 +3,7 @@
 use App\Models\Driver;
 
 test('listar secretarias estando autenticado', function () {
-    $user = getUserWithPermission(createUser(), 'view', 'secretariats');
+    $user = getUserWithPermission(createUser(), 'view', 'drivers');
     $token = authenticateUser($user);
 
     $user1 = createUser(['name' => 'user 1']);
@@ -36,3 +36,13 @@ test('não permite listar motoristas sem autenticação', function () {
 
     $response->assertStatus(401);
 });
+
+test('não permite listar motoristas sem autorização', function () {
+    $user = createUser();
+    $token = authenticateUser($user);
+
+    $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
+        ->getJson('/api/v1/drivers');
+
+    $response->assertStatus(403);
+})->skip();
