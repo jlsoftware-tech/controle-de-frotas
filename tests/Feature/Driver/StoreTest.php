@@ -1,41 +1,13 @@
 <?php
 
-use App\Models\Profile;
-use App\Models\Secretariat;
+use App\Models\Driver;
 use Symfony\Component\HttpFoundation\Response;
-
-function getFieldsForDriverCreation($fields = [])
-{
-    $data = [
-        'name' => fake()->name(),
-        'email' => fake()->email(),
-        'password' => $pass = fake()->password(8),
-        'password_confirmation' => $pass,
-        'cpf' => fake()->cpf(false),
-        'cnh' => fake()->unique()->numerify('###########'),
-        'cnh_category' => fake()->randomElement(['A', 'B', 'C', 'D', 'E', 'AB', 'AC', 'AD', 'AE']),
-        'cnh_expiration_date' => fake()
-            ->dateTimeBetween('tomorrow', '+1 year')
-            ->format('Y-m-d'),
-        'phone_number' => fake()->e164PhoneNumber(),
-        'profile_id' => Profile::create(['name' => 'test', 'description' => 'test'])->id,
-        'secretariat_id' => Secretariat::create(['name' => 'test', 'acronym' => 'test'])->id,
-    ];
-
-    if (! empty($fields)) {
-        foreach ($fields as $key => $value) {
-            $data[$key] = $value;
-        }
-    }
-
-    return $data;
-}
 
 test('cria motorista com dados válidos estando autenticado', function () {
     $user = getUserWithPermission(createUser(), 'create', 'drivers');
     $token = authenticateUser($user);
 
-    $fields = getFieldsForDriverCreation();
+    $fields = Driver::factory()->raw();
 
     $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
         ->postJson('/api/v1/drivers', $fields);
@@ -83,7 +55,7 @@ test('não cria motorista com cpf inválido', function () {
     $token = authenticateUser($user);
 
     $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
-        ->postJson('/api/v1/drivers', getFieldsForDriverCreation([
+        ->postJson('/api/v1/drivers', Driver::factory()->raw([
             'cpf' => '123a'
         ]));
 
@@ -95,10 +67,10 @@ test('não cria motorista com cpf repetido', function () {
     $token = authenticateUser($user);
 
     $response1 = $this->withHeaders(['Authorization' => 'Bearer '.$token])
-        ->postJson('/api/v1/drivers', getFieldsForDriverCreation());
+        ->postJson('/api/v1/drivers', Driver::factory()->raw());
 
     $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
-        ->postJson('/api/v1/drivers', getFieldsForDriverCreation([
+        ->postJson('/api/v1/drivers', Driver::factory()->raw([
             'cpf' => $response1['data']['cpf']
         ]));
 
@@ -110,7 +82,7 @@ test('não cria motorista com cnh inválida', function () {
     $token = authenticateUser($user);
 
     $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
-        ->postJson('/api/v1/drivers', getFieldsForDriverCreation([
+        ->postJson('/api/v1/drivers', Driver::factory()->raw([
             'cnh' => '123a'
         ]));
 
@@ -122,10 +94,10 @@ test('não cria motorista com cnh repetida', function () {
     $token = authenticateUser($user);
 
     $response1 = $this->withHeaders(['Authorization' => 'Bearer '.$token])
-        ->postJson('/api/v1/drivers', getFieldsForDriverCreation());
+        ->postJson('/api/v1/drivers', Driver::factory()->raw());
 
     $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
-        ->postJson('/api/v1/drivers', getFieldsForDriverCreation([
+        ->postJson('/api/v1/drivers', Driver::factory()->raw([
             'cnh' => $response1['data']['cnh']
         ]));
 
@@ -137,7 +109,7 @@ test('não cria motorista com cnh vencida', function () {
     $token = authenticateUser($user);
 
     $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
-        ->postJson('/api/v1/drivers', getFieldsForDriverCreation([
+        ->postJson('/api/v1/drivers', Driver::factory()->raw([
             'cnh_expiration_date' => now()->subDay()
         ]));
 
@@ -149,7 +121,7 @@ test('não cria motorista com telefone inválido', function () {
     $token = authenticateUser($user);
 
     $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
-        ->postJson('/api/v1/drivers', getFieldsForDriverCreation([
+        ->postJson('/api/v1/drivers', Driver::factory()->raw([
             'phone_number' => '1234'
         ]));
 
@@ -157,7 +129,7 @@ test('não cria motorista com telefone inválido', function () {
 });
 
 test('não cria motorista sem autenticação', function () {
-    $response = $this->postJson('/api/v1/drivers', getFieldsForDriverCreation());
+    $response = $this->postJson('/api/v1/drivers', Driver::factory()->raw());
 
     $response->assertStatus(Response::HTTP_UNAUTHORIZED);
 });
@@ -167,7 +139,7 @@ test('não cria motorista sem autorização', function () {
     $token = authenticateUser($user);
 
     $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
-        ->postJson('/api/v1/drivers', getFieldsForDriverCreation());
+        ->postJson('/api/v1/drivers', Driver::factory()->raw());
 
     $response->assertStatus(Response::HTTP_FORBIDDEN);
 })->skip();

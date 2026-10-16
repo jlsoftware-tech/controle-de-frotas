@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 #[Fillable(['cpf', 'cnh', 'cnh_expiration_date', 'cnh_category', 'phone_number', 'status', 'user_id'])]
 class Driver extends Model
 {
+    use HasFactory;
     use SoftDeletes;
 
     protected static function booted(): void
