@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Driver\ListDriversRequest;
 use App\Http\Requests\Driver\StoreDriverRequest;
+use App\Http\Requests\Driver\UpdateDriverRequest;
 use App\Models\Driver;
 use App\Models\User;
 use App\Support\ApiResponder;
@@ -98,9 +99,36 @@ class DriverController extends Controller
     /**
      * Update the specified driver in storage.
      */
-    public function update(Request $request, Driver $driver)
+    public function update(UpdateDriverRequest $request, Driver $driver)
     {
-        //
+        try {
+            $updated = DB::transaction(function () use ($request, $driver) {
+                $updatedUser = $driver->user->update($request->only([
+                    'name', 'email'
+                ]));
+
+                $updatedDriver = $driver->update($request->only([
+                    'cpf', 'cnh', 'cnh_expiration_date', 'cnh_category', 'phone_number', 'status'
+                ]));
+
+                return $updatedDriver || $updatedUser;
+            });
+        }
+        catch(\Exception) {
+            return ApiResponder::error('Erro ao atualizar motorista');
+        }
+
+        return $updated ?
+            ApiResponder::success(
+                $driver->toResource(),
+                'Dados atualizados com sucesso',
+                Response::HTTP_OK
+            )
+            :
+            ApiResponder::error(
+                message: 'Motorista não foi atualizado',
+                statusCode: Response::HTTP_INTERNAL_SERVER_ERROR
+            );
     }
 
     /**
