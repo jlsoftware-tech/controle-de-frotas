@@ -1,21 +1,19 @@
 <?php
 
 use App\Models\Driver;
+use Symfony\Component\HttpFoundation\Response;
 
 test('listar secretarias estando autenticado', function () {
     $user = getUserWithPermission(createUser(), 'view', 'drivers');
     $token = authenticateUser($user);
 
-    $user1 = createUser(['name' => 'user 1']);
-    $user2 = createUser(['name' => 'user 2']);
-
-    Driver::create(['cpf' => '00011122233', 'cnh' => '11111111111', 'cnh_category' => 'AB', 'cnh_expiration_date' => now(), 'phone_number' => '88988888888', 'user_id' => $user1->id]);
-    Driver::create(['cpf' => '00011122234', 'cnh' => '11111111112', 'cnh_category' => 'AB', 'cnh_expiration_date' => now(), 'phone_number' => '88988888888', 'user_id' => $user2->id]);
+   createValidDriver();
+   createValidDriver();
 
     $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
         ->getJson('/api/v1/drivers');
 
-    $response->assertStatus(200);
+    $response->assertStatus(Response::HTTP_OK);
     $response->assertJsonStructure([
         'success',
         'status_code',
@@ -34,7 +32,7 @@ test('listar secretarias estando autenticado', function () {
 test('não permite listar motoristas sem autenticação', function () {
     $response = $this->getJson('/api/v1/drivers');
 
-    $response->assertStatus(401);
+    $response->assertStatus(Response::HTTP_UNAUTHORIZED);
 });
 
 test('não permite listar motoristas sem autorização', function () {
@@ -44,5 +42,5 @@ test('não permite listar motoristas sem autorização', function () {
     $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
         ->getJson('/api/v1/drivers');
 
-    $response->assertStatus(403);
-})->skip();
+    $response->assertStatus(Response::HTTP_FORBIDDEN);
+});

@@ -3,8 +3,10 @@
 namespace App\Http\Requests\Driver;
 
 use App\Http\Requests\User\StoreUserRequest;
+use App\Models\Driver;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class StoreDriverRequest extends StoreUserRequest
 {
@@ -13,7 +15,7 @@ class StoreDriverRequest extends StoreUserRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return Auth::guard('api')->user()->can('create', Driver::class);
     }
 
     /**

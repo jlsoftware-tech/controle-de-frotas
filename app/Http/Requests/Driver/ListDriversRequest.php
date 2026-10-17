@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests\Driver;
 
+use App\Models\Driver;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class ListDriversRequest extends FormRequest
 {
@@ -12,7 +14,7 @@ class ListDriversRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return Auth::guard('api')->user()->can('viewAny', Driver::class);
     }
 
     /**

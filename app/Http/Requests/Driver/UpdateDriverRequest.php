@@ -3,7 +3,9 @@
 namespace App\Http\Requests\Driver;
 
 use App\Http\Requests\User\UpdateUserRequest;
+use App\Models\Driver;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class UpdateDriverRequest extends UpdateUserRequest
@@ -13,7 +15,7 @@ class UpdateDriverRequest extends UpdateUserRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return Auth::guard('api')->user()->can('update', $this->driver);
     }
 
     /**

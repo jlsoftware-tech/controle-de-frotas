@@ -1,18 +1,18 @@
 <?php
 
 use App\Models\Driver;
+use Symfony\Component\HttpFoundation\Response;
 
 test('exibir os dados de um motorista específico', function () {
     $user = getUserWithPermission(createUser(), 'view', 'drivers');
     $token = authenticateUser($user);
 
-    $user = createUser(['name' => 'motorista teste']);
-    $driver = Driver::create(['cpf' => '00011122233', 'cnh' => '11111111111', 'cnh_category' => 'AB', 'cnh_expiration_date' => now(), 'phone_number' => '88988888888', 'user_id' => $user->id]);
+    $driver = createValidDriver();
 
     $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
         ->getJson('/api/v1/drivers/'.$driver->id);
 
-    $response->assertStatus(200);
+    $response->assertStatus(Response::HTTP_OK);
     $response->assertJsonStructure([
         'success',
         'status_code',
@@ -45,7 +45,7 @@ test('retorna 404 ao exibir motorista inexistente', function () {
     $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
         ->getJson('/api/v1/drivers/99999');
 
-    $response->assertStatus(404);
+    $response->assertStatus(Response::HTTP_NOT_FOUND);
 
     $response->assertJsonStructure([
         'success',
@@ -63,12 +63,11 @@ test('retorna 404 ao exibir motorista inexistente', function () {
 });
 
 test('não permite exibir usuário sem autenticação', function () {
-    $user = createUser();
-    $driver = Driver::create(['cpf' => '00011122233', 'cnh' => '11111111111', 'cnh_category' => 'AB', 'cnh_expiration_date' => now(), 'phone_number' => '88988888888', 'user_id' => $user->id]);
+    $driver = createValidDriver();
 
-    $response = $this->getJson('/api/v1/drivers/'.$user->id);
+    $response = $this->getJson('/api/v1/drivers/'.$driver->id);
 
-    $response->assertStatus(401);
+    $response->assertStatus(Response::HTTP_UNAUTHORIZED);
 
     $response->assertJsonStructure([
         'success',
@@ -82,11 +81,10 @@ test('não permite exibir motorista sem autorização', function () {
     $user = createUser();
     $token = authenticateUser($user);
 
-    $user = createUser(['name' => 'motorista teste']);
-    $driver = Driver::create(['cpf' => '00011122233', 'cnh' => '11111111111', 'cnh_category' => 'AB', 'cnh_expiration_date' => now(), 'phone_number' => '88988888888', 'user_id' => $user->id]);
+    $driver = createValidDriver();
 
     $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
         ->getJson('/api/v1/drivers/'.$driver->id);
 
-    $response->assertStatus(403);
-})->skip();
+    $response->assertStatus(Response::HTTP_FORBIDDEN);
+});

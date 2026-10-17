@@ -135,4 +135,4 @@ test('não edita motorista sem autorização', function () {
         ->putJson('/api/v1/drivers/'.$driver->id, ['nome' => 'joaozinho']);
 
     $response->assertStatus(Response::HTTP_FORBIDDEN);
-})->skip();
+});

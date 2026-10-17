@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        $modules = ['users', 'profiles', 'secretariats'];
+        $modules = ['users', 'profiles', 'secretariats', 'drivers'];
         $actions = ['view', 'create', 'update', 'delete'];
 
         foreach ($modules as $module) {

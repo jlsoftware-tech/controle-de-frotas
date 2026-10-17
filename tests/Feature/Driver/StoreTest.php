@@ -142,4 +142,4 @@ test('não cria motorista sem autorização', function () {
         ->postJson('/api/v1/drivers', Driver::factory()->raw());
 
     $response->assertStatus(Response::HTTP_FORBIDDEN);
-})->skip();
+});

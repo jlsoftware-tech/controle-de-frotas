@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -91,6 +92,8 @@ class DriverController extends Controller
      */
     public function show(Driver $driver)
     {
+        Gate::authorize('view', $driver);
+
         return ApiResponder::success(
             $driver->toResource()
         );
@@ -136,6 +139,8 @@ class DriverController extends Controller
      */
     public function destroy(Driver $driver)
     {
+        Gate::authorize('delete', $driver);
+
         $driver->delete();
 
         return ApiResponder::success(message: "Motorista removido com sucesso");
