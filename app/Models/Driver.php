@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -29,6 +30,7 @@ class Driver extends Model
             $driver->user()->withTrashed()->first()?->restore();
         });
     }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -37,5 +39,11 @@ class Driver extends Model
     public function request(): BelongsToMany
     {
         return $this->belongsToMany(TransportationRequest::class);
+    }
+
+    public function scopeWithUser(Builder $query): Builder
+    {
+        return $query->join('users', 'users.id', '=', 'drivers.user_id')
+            ->select('drivers.*');
     }
 }

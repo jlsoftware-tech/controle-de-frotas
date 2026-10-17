@@ -29,13 +29,9 @@ class DriverController extends Controller
         $sort = $request->validated('sort');
         $order = $request->validated('order');
 
-        $drivers = Driver::query()
-            ->with('user')
-            ->whereHas('user', function (Builder $query) use ($request, $search, $sort, $order) {
-                return $query
-                    ->when($request->filled('search'), fn ($q) => $q->where('name', 'like', "%{$search}%"))
-                    ->orderBy($sort, $order);
-            })
+        $drivers = Driver::withUser()
+            ->when($request->filled('search'), fn ($q) => $q->where('users.name', 'ilike', "%{$search}%"))
+            ->orderBy('users.'.$sort, $order)
             ->paginate($per_page, ['*'], 'page', $page);
 
         if (count($drivers) === 0) {
