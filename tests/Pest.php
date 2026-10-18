@@ -4,6 +4,7 @@ use App\Models\Permission;
 use App\Models\Profile;
 use App\Models\Secretariat;
 use App\Models\User;
+use App\Models\Vehicle;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -95,4 +96,42 @@ function getUserWithPermission($user, $action, $module)
     $user->permissions()->attach(Permission::create(['action' => $action, 'module' => $module]));
 
     return $user;
+}
+
+/**
+ * Cria um veículo com valores padrão, se não for passado nenhum argumento para a função.
+ * Os campos não informados serão preenchidos automaticamente, inclusive a secretaria.
+ */
+function createVehicle(array $attributes = []): Vehicle
+{
+    $_attributes = [
+        'name' => fake()->unique()->lexify('veiculo ?????'),
+        'brand' => 'Chevrolet',
+        'model' => 'Onix',
+        'model_year' => 2020,
+        'secretariat_id' => $attributes['secretariat_id']
+            ?? Secretariat::create(['name' => fake()->unique()->lexify('Secretaria ?????'), 'acronym' => 'SEC'])->id,
+    ];
+
+    return Vehicle::create(array_merge($_attributes, $attributes));
+}
+
+/**
+ * Monta um payload válido para cadastro de veículo. Informe apenas os campos que devem ser sobrescritos.
+ */
+function validVehiclePayload(int $secretariatId, array $overrides = []): array
+{
+    return array_merge([
+        'name' => 'chevrolet onix 1.0',
+        'plate' => 'ABC1D23',
+        'renavam' => '01234567890',
+        'chassi' => '9BWZZZ377VT004251',
+        'brand' => 'Chevrolet',
+        'model' => 'Onix',
+        'model_year' => 2020,
+        'fuel_type' => 'GASOLINE',
+        'tank_capacity' => 44,
+        'status' => 'AVAILABLE',
+        'secretariat_id' => $secretariatId,
+    ], $overrides);
 }
