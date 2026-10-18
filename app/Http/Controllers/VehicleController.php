@@ -99,9 +99,7 @@ class VehicleController extends Controller
             ->paginate($per_page, ['*'], 'page', $page);
 
         if (count($vehicles) === 0) {
-            return $search
-                ? ApiResponder::success(message: 'Nenhum veículo encontrado para essa pesquisa.')
-                : ApiResponder::success(message: 'Nenhum veículo foi cadastrado ainda.');
+            return ApiResponder::success(message: 'Nenhum veículo encontrado para essa pesquisa.');
         }
 
         return ApiResponder::success($vehicles->toResourceCollection());

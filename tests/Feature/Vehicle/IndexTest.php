@@ -121,22 +121,6 @@ test('não lista veículos excluídos', function () {
     expect(collect($response->json('data.items'))->pluck('name')->all())->toBe(['veiculo ativo']);
 });
 
-test('retorna mensagem quando nenhum veículo foi cadastrado', function () {
-    $user = getUserWithPermission(createUser(), 'view', 'vehicles');
-    $token = authenticateUser($user);
-
-    $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
-        ->getJson('/api/v1/vehicles');
-
-    $response->assertStatus(200);
-    $response->assertJson([
-        'success' => true,
-        'status_code' => 200,
-        'message' => 'Nenhum veículo foi cadastrado ainda.',
-        'data' => null,
-    ]);
-});
-
 test('retorna mensagem quando a busca não encontra veículos', function () {
     $user = getUserWithPermission(createUser(), 'view', 'vehicles');
     $token = authenticateUser($user);
