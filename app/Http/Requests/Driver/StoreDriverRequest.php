@@ -30,16 +30,16 @@ class StoreDriverRequest extends StoreUserRequest
             'cpf' => ['required', 'unique:drivers', 'string', 'size:11'],
             'cnh' => ['required', 'unique:drivers', 'string', 'size:11'],
             'cnh_expiration_date' => ['required', 'date', 'after:today'],
-            'cnh_category' => ['required', 'string', 'in:A,BA,B,C,D,E,AB,AC,AD,AE'],
+            'cnh_category' => ['required', 'string', 'in:A,B,C,D,E,AB,AC,AD,AE'],
             'phone_number' => ['required', 'string', 'min:8', 'max:14'],
-            'status' => ['sometimes', 'string', 'in:VALID,EXPIRED']
+            'status' => ['sometimes', 'string', 'in:ACTIVE,INACTIVE']
         ];
     }
 
     protected function prepareForValidation()
     {
         $this->merge([
-            'status' => $this->input('status', 'VALID')
+            'status' => $this->input('status', 'ACTIVE')
         ]);
     }
 }

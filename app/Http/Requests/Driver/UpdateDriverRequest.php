@@ -34,7 +34,7 @@ class UpdateDriverRequest extends UpdateUserRequest
             'cnh_expiration_date' => ['sometimes', 'date', 'after:today'],
             'cnh_category' => ['sometimes', 'string', 'in:A,BA,B,C,D,E,AB,AC,AD,AE'],
             'phone_number' => ['sometimes', 'string', 'min:8', 'max:14'],
-            'status' => ['sometimes', 'string', 'in:VALID,EXPIRED']
+            'status' => ['sometimes', 'string', 'in:ACTIVE,INACTIVE']
         ];
     }
 }
