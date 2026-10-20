@@ -6,7 +6,16 @@ use App\Models\Driver;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Knuckles\Scribe\Attributes\QueryParam;
 
+/**
+ * Query parameters for listing driver (`GET /api/v1/drivers`).
+ */
+#[QueryParam('page', type: 'integer', description: 'Número da página atual para paginação dos resultados. Padrão: 1.', required: false, example: 1, nullable: true)]
+#[QueryParam('per_page', type: 'integer', description: 'Quantidade de registros retornados por página (mínimo: 1, máximo: 100). Padrão: 10.', required: false, example: 10, nullable: true)]
+#[QueryParam('search', type: 'string', description: 'Termo para busca por parte do nome do motorista.', required: false, example: 'João', nullable: true)]
+#[QueryParam('sort', type: 'string', description: 'Campo utilizado para ordenação dos resultados. Padrão: `name`.', required: false, example: 'name', enum: ['name', 'email', 'created_at'], nullable: true)]
+#[QueryParam('order', type: 'string', description: 'Direção da ordenação dos resultados (`asc` ou `desc`). Padrão: `asc`.', required: false, example: 'desc', enum: ['asc', 'desc'], nullable: true)]
 class ListDriversRequest extends FormRequest
 {
     /**
