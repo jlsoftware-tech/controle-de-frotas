@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Driver;
 
 use App\Http\Requests\User\UpdateUserRequest;
-use App\Models\Driver;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -18,7 +17,7 @@ use Knuckles\Scribe\Attributes\BodyParam;
 #[BodyParam('cpf', description: 'CPF do motorista (11 números, sem pontos ou traços). Deve ser único.', required: false, example: '12345678912')]
 #[BodyParam('cnh', description: 'CNH do motorista (11 números). Deve ser único.', required: false, example: '12345678912')]
 #[BodyParam('cnh_expiration_date', type: 'date', description: 'Data de vencimento da CNH.', required: false, example: '2050-01-01')]
-#[BodyParam('cnh_category', description: 'Categoria da CNH.', required: false, example: 'AB', enum: ['A','B','C','D','E','AB','AC','AD','AE'])]
+#[BodyParam('cnh_category', description: 'Categoria da CNH.', required: false, example: 'AB', enum: ['A', 'B', 'C', 'D', 'E', 'AB', 'AC', 'AD', 'AE'])]
 #[BodyParam('phone_number', description: 'Número de telefone de motorista (entre 8 e 14 dígitos).', required: false, example: '+5588988112233')]
 #[BodyParam('status', description: 'Status de atividade do motorista.', required: false, example: 'ACTIVE', enum: ['ACTIVE', 'INACTIVE'])]
 class UpdateDriverRequest extends UpdateUserRequest
@@ -47,7 +46,7 @@ class UpdateDriverRequest extends UpdateUserRequest
             'cnh_expiration_date' => ['sometimes', 'date', 'after:today'],
             'cnh_category' => ['sometimes', 'string', 'in:A,BA,B,C,D,E,AB,AC,AD,AE'],
             'phone_number' => ['sometimes', 'string', 'min:8', 'max:14'],
-            'status' => ['sometimes', 'string', 'in:ACTIVE,INACTIVE']
+            'status' => ['sometimes', 'string', 'in:ACTIVE,INACTIVE'],
         ];
     }
 

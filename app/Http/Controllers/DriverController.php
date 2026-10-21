@@ -8,9 +8,7 @@ use App\Http\Requests\Driver\UpdateDriverRequest;
 use App\Models\Driver;
 use App\Models\User;
 use App\Support\ApiResponder;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
@@ -46,7 +44,7 @@ class DriverController extends Controller
                         'phone_number' => '+250302923654',
                         'profile' => [
                             'id' => 1,
-                            'name' => 'Test Profile'
+                            'name' => 'Test Profile',
                         ],
                         'secretariat' => [
                             'id' => 1,
@@ -55,7 +53,7 @@ class DriverController extends Controller
                         ],
                         'created_at' => '19/10/2026 12:08:40',
                         'updated_at' => '19/10/2026 12:08:40',
-                        'deleted_at' => null
+                        'deleted_at' => null,
                     ],
                 ],
                 'pagination' => [
@@ -107,7 +105,7 @@ class DriverController extends Controller
             'data' => [
                 'order' => ['O campo ordenação selecionado é inválido.'],
                 'status' => ['O status selecionado é inválido.'],
-                'cnh_category' => ['A categoria de CNH selecionada é inválida']
+                'cnh_category' => ['A categoria de CNH selecionada é inválida'],
             ],
         ],
         status: 422,
@@ -160,7 +158,7 @@ class DriverController extends Controller
                 'phone_number' => '+250302923654',
                 'profile' => [
                     'id' => 1,
-                    'name' => 'Test Profile'
+                    'name' => 'Test Profile',
                 ],
                 'secretariat' => [
                     'id' => 1,
@@ -169,8 +167,8 @@ class DriverController extends Controller
                 ],
                 'created_at' => '19/10/2026 12:08:40',
                 'updated_at' => '19/10/2026 12:08:40',
-                'deleted_at' => null
-            ]
+                'deleted_at' => null,
+            ],
         ],
         status: 201,
         description: 'Motorista cadastrado com sucesso.'
@@ -263,11 +261,10 @@ class DriverController extends Controller
                     'cnh_category' => $request->cnh_category,
                     'phone_number' => $request->phone_number,
                     'status' => $request->status,
-                    'user_id' => $user->id
+                    'user_id' => $user->id,
                 ]);
             });
-        }
-        catch (\Exception) {
+        } catch (\Exception) {
             return ApiResponder::error(
                 'Ocorreu um erro ao cadastrar motorista.',
                 Response::HTTP_INTERNAL_SERVER_ERROR
@@ -303,17 +300,17 @@ class DriverController extends Controller
                 'phone_number' => '+250302923654',
                 'profile' => [
                     'id' => 1,
-                    'name' => 'Test Profile'
+                    'name' => 'Test Profile',
                 ],
                 'secretariat' => [
                     'id' => 1,
                     'name' => 'Test Secretariat',
-                    'acronym' => 'Test Secretariat'
+                    'acronym' => 'Test Secretariat',
                 ],
                 'created_at' => '19/10/2026 12:08:40',
                 'updated_at' => '19/10/2026 12:08:40',
-                'deleted_at' => null
-            ]
+                'deleted_at' => null,
+            ],
         ],
         status: 200,
         description: 'Motorista recuperado com sucesso (`message` vazia).'
@@ -379,16 +376,16 @@ class DriverController extends Controller
                 'phone_number' => '+250302923654',
                 'profile' => [
                     'id' => 1,
-                    'name' => 'Test Profile'
+                    'name' => 'Test Profile',
                 ],
                 'secretariat' => [
                     'id' => 1,
                     'name' => 'Test Secretariat',
-                    'acronym' => 'Test Secretariat'
+                    'acronym' => 'Test Secretariat',
                 ],
                 'created_at' => '19/10/2026 12:08:40',
                 'updated_at' => '19/10/2026 12:08:40',
-                'deleted_at' => null
+                'deleted_at' => null,
             ],
         ],
         status: 200,
@@ -457,17 +454,16 @@ class DriverController extends Controller
         try {
             $updated = DB::transaction(function () use ($request, $driver) {
                 $updatedUser = $driver->user->update($request->only([
-                    'name', 'email'
+                    'name', 'email',
                 ]));
 
                 $updatedDriver = $driver->update($request->only([
-                    'cpf', 'cnh', 'cnh_expiration_date', 'cnh_category', 'phone_number', 'status'
+                    'cpf', 'cnh', 'cnh_expiration_date', 'cnh_category', 'phone_number', 'status',
                 ]));
 
                 return $updatedDriver || $updatedUser;
             });
-        }
-        catch(\Exception) {
+        } catch (\Exception) {
             return ApiResponder::error('Erro ao atualizar motorista');
         }
 

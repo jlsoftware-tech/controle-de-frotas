@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Driver;
 use Symfony\Component\HttpFoundation\Response;
 
 test('exibir os dados de um motorista específico', function () {
@@ -20,8 +19,8 @@ test('exibir os dados de um motorista específico', function () {
             'id', 'cpf', 'status', 'name', 'email', 'cnh', 'cnh_category', 'cnh_expiration_date', 'phone_number',
             'profile' => ['id', 'name'],
             'secretariat' => ['id', 'name', 'acronym'],
-            'created_at', 'updated_at', 'deleted_at'
-        ]
+            'created_at', 'updated_at', 'deleted_at',
+        ],
     ]);
 
     $response->assertJson([

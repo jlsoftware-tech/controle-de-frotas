@@ -22,8 +22,8 @@ test('edita motorista com dados válidos estando autenticado', function () {
             'id', 'cpf', 'status', 'name', 'email', 'cnh', 'cnh_category', 'cnh_expiration_date', 'phone_number',
             'profile' => ['id', 'name'],
             'secretariat' => ['id', 'name', 'acronym'],
-            'created_at', 'updated_at', 'deleted_at'
-        ]
+            'created_at', 'updated_at', 'deleted_at',
+        ],
     ]);
 
     $response->assertJson([
@@ -37,11 +37,10 @@ test('edita motorista com dados válidos estando autenticado', function () {
             'cnh' => $newData['cnh'],
             'cnh_category' => $newData['cnh_category'],
             'cnh_expiration_date' => $newData['cnh_expiration_date'],
-            'phone_number' => $newData['phone_number']
+            'phone_number' => $newData['phone_number'],
         ],
     ]);
 });
-
 
 test('não edita motorista com cpf inválido', function () {
     $user = getUserWithPermission(createUser(), 'update', 'drivers');

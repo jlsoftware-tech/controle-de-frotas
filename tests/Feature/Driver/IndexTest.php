@@ -1,14 +1,13 @@
 <?php
 
-use App\Models\Driver;
 use Symfony\Component\HttpFoundation\Response;
 
 test('listar secretarias estando autenticado', function () {
     $user = getUserWithPermission(createUser(), 'view', 'drivers');
     $token = authenticateUser($user);
 
-   createValidDriver();
-   createValidDriver();
+    createValidDriver();
+    createValidDriver();
 
     $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
         ->getJson('/api/v1/drivers');

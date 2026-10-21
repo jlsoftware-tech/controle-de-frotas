@@ -20,8 +20,8 @@ test('cria motorista com dados válidos estando autenticado', function () {
             'id', 'cpf', 'status', 'name', 'email', 'cnh', 'cnh_category', 'cnh_expiration_date', 'phone_number',
             'profile' => ['id', 'name'],
             'secretariat' => ['id', 'name', 'acronym'],
-            'created_at', 'updated_at', 'deleted_at'
-        ]
+            'created_at', 'updated_at', 'deleted_at',
+        ],
     ]);
 
     $response->assertJson([
@@ -35,7 +35,7 @@ test('cria motorista com dados válidos estando autenticado', function () {
             'cnh' => $fields['cnh'],
             'cnh_category' => $fields['cnh_category'],
             'cnh_expiration_date' => $fields['cnh_expiration_date'],
-            'phone_number' => $fields['phone_number']
+            'phone_number' => $fields['phone_number'],
         ],
     ]);
 });
@@ -56,7 +56,7 @@ test('não cria motorista com cpf inválido', function () {
 
     $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
         ->postJson('/api/v1/drivers', Driver::factory()->raw([
-            'cpf' => '123a'
+            'cpf' => '123a',
         ]));
 
     $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
@@ -71,7 +71,7 @@ test('não cria motorista com cpf repetido', function () {
 
     $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
         ->postJson('/api/v1/drivers', Driver::factory()->raw([
-            'cpf' => $response1['data']['cpf']
+            'cpf' => $response1['data']['cpf'],
         ]));
 
     $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
@@ -83,7 +83,7 @@ test('não cria motorista com cnh inválida', function () {
 
     $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
         ->postJson('/api/v1/drivers', Driver::factory()->raw([
-            'cnh' => '123a'
+            'cnh' => '123a',
         ]));
 
     $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
@@ -98,7 +98,7 @@ test('não cria motorista com cnh repetida', function () {
 
     $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
         ->postJson('/api/v1/drivers', Driver::factory()->raw([
-            'cnh' => $response1['data']['cnh']
+            'cnh' => $response1['data']['cnh'],
         ]));
 
     $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
@@ -110,7 +110,7 @@ test('não cria motorista com cnh vencida', function () {
 
     $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
         ->postJson('/api/v1/drivers', Driver::factory()->raw([
-            'cnh_expiration_date' => now()->subDay()
+            'cnh_expiration_date' => now()->subDay(),
         ]));
 
     $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
@@ -122,7 +122,7 @@ test('não cria motorista com telefone inválido', function () {
 
     $response = $this->withHeaders(['Authorization' => 'Bearer '.$token])
         ->postJson('/api/v1/drivers', Driver::factory()->raw([
-            'phone_number' => '1234'
+            'phone_number' => '1234',
         ]));
 
     $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);

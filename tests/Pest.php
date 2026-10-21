@@ -148,6 +148,6 @@ function createValidDriver()
         'cnh_category' => $data['cnh_category'],
         'cnh_expiration_date' => $data['cnh_expiration_date'],
         'phone_number' => $data['phone_number'],
-        'user_id' => $user->id
+        'user_id' => $user->id,
     ]);
 }

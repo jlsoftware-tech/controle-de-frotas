@@ -56,7 +56,7 @@ class DatabaseSeeder extends Seeder
             'cnh_category' => 'AB',
             'cnh_expiration_date' => now(),
             'phone_number' => '88988888888',
-            'user_id' => $testUser->id
+            'user_id' => $testUser->id,
         ]);
     }
 }
