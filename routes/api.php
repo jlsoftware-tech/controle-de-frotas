@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DriverController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SecretariatController;
@@ -39,6 +40,11 @@ Route::prefix('v1')->group(function () use ($notFound) {
         Route::apiResource('/secretariats', SecretariatController::class)
             ->whereNumber('secretariat')
             ->missing($notFound);
+
+        Route::apiResource('/drivers', DriverController::class)
+            ->whereNumber('driver')
+            ->missing($notFound);
+
         Route::apiResource('/profiles', ProfileController::class)->missing($notFound);
         Route::apiResource('/permissions', PermissionController::class)->only(['index', 'show']);
         Route::apiResource('/vehicles', VehicleController::class)->missing($notFound);

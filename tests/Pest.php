@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Driver;
 use App\Models\Permission;
 use App\Models\Profile;
 use App\Models\Secretariat;
@@ -134,4 +135,19 @@ function validVehiclePayload(int $secretariatId, array $overrides = []): array
         'status' => 'AVAILABLE',
         'secretariat_id' => $secretariatId,
     ], $overrides);
+}
+
+function createValidDriver()
+{
+    $data = Driver::factory()->raw();
+    $user = createUser(['name' => $data['name'], 'email' => $data['email']]);
+
+    return Driver::create([
+        'cpf' => $data['cpf'],
+        'cnh' => $data['cnh'],
+        'cnh_category' => $data['cnh_category'],
+        'cnh_expiration_date' => $data['cnh_expiration_date'],
+        'phone_number' => $data['phone_number'],
+        'user_id' => $user->id,
+    ]);
 }
