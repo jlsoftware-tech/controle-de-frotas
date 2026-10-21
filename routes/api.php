@@ -5,6 +5,7 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SecretariatController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\VehicleController;
 use App\Support\ApiResponder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -40,5 +41,6 @@ Route::prefix('v1')->group(function () use ($notFound) {
             ->missing($notFound);
         Route::apiResource('/profiles', ProfileController::class)->missing($notFound);
         Route::apiResource('/permissions', PermissionController::class)->only(['index', 'show']);
+        Route::apiResource('/vehicles', VehicleController::class)->missing($notFound);
     });
 });
