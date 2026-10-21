@@ -16,6 +16,8 @@ use Knuckles\Scribe\Attributes\QueryParam;
 #[QueryParam('search', type: 'string', description: 'Termo para busca por parte do nome do motorista.', required: false, example: 'João', nullable: true)]
 #[QueryParam('sort', type: 'string', description: 'Campo utilizado para ordenação dos resultados. Padrão: `name`.', required: false, example: 'name', enum: ['name', 'email', 'created_at'], nullable: true)]
 #[QueryParam('order', type: 'string', description: 'Direção da ordenação dos resultados (`asc` ou `desc`). Padrão: `asc`.', required: false, example: 'desc', enum: ['asc', 'desc'], nullable: true)]
+#[QueryParam('status', type: 'string', description: 'Filtra os motoristas pelo seu status. Padrão: `ACTIVE`.', required: false, example: 'INACTIVE', enum: ['ALL', 'ACTIVE', 'INACTIVE'], nullable: true)]
+#[QueryParam('cnh_category', type: 'string', description: 'Filtra os motoristas pela categoria da cnh. Padrão `ALL`', required: false, example: 'AB', enum: ['ALL','A','B','C','D','E','AB','AC','AD','AE'], nullable: true)]
 class ListDriversRequest extends FormRequest
 {
     /**
@@ -44,6 +46,8 @@ class ListDriversRequest extends FormRequest
                 'in:name,created_at',
             ],
             'order' => ['nullable', 'sometimes', 'string', 'in:desc,asc'],
+            'status' => ['nullable', 'sometimes', 'string', 'in:ALL,INACTIVE,ACTIVE'],
+            'cnh_category' => ['nullable', 'sometimes', 'string', 'in:ALL,A,B,C,D,E,AB,AC,AD,AE']
         ];
     }
 
@@ -54,7 +58,16 @@ class ListDriversRequest extends FormRequest
             'page' => $this->input('page', 1),
             'per_page' => $this->input('per_page', 10),
             'sort' => $this->input('sort', 'name'),
-            'order' => $this->input('order', 'asc')
+            'order' => $this->input('order', 'asc'),
+            'status' => strtoupper($this->input('status', 'ACTIVE')),
+            'cnh_category' => strtoupper($this->input('cnh_category', 'ALL'))
         ]);
+    }
+
+    public function messages()
+    {
+        return [
+            'cnh_category.in' => 'A categoria de CNH selecionada é inválida',
+        ];
     }
 }

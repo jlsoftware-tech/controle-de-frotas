@@ -26,7 +26,7 @@ class DriverController extends Controller
     /**
      * Display a listing of drivers.
      */
-    #[Endpoint('Listar Motoristas', description: 'Retorna a lista paginada de motoristas cadastrados, com busca por nome, ordenação e paginação. Requer a permissão `view` do módulo `drivers`.', authenticated: true)]
+    #[Endpoint('Listar Motoristas', description: 'Retorna a lista paginada de motoristas cadastrados, com busca por nome, ordenação, paginação e filtragem por status (por padrão, retorna os motoristas ativos) e/ou categoria da cnh. Requer a permissão `view` do módulo `drivers`.', authenticated: true)]
     #[ResponseAtt(
         content: [
             'success' => true,
@@ -106,6 +106,8 @@ class DriverController extends Controller
             'message' => 'Os dados enviados são inválidos.',
             'data' => [
                 'order' => ['O campo ordenação selecionado é inválido.'],
+                'status' => ['O status selecionado é inválido.'],
+                'cnh_category' => ['A categoria de CNH selecionada é inválida']
             ],
         ],
         status: 422,
@@ -118,8 +120,12 @@ class DriverController extends Controller
         $search = $request->validated('search');
         $sort = $request->validated('sort');
         $order = $request->validated('order');
+        $status = $request->validated('status');
+        $cnh_category = $request->validated('cnh_category');
 
         $drivers = Driver::withUser()
+            ->when($status != 'ALL', fn ($q) => $q->where('status', $status))
+            ->when($cnh_category != 'ALL', fn ($q) => $q->where('cnh_category', $cnh_category))
             ->when($request->filled('search'), fn ($q) => $q->where('users.name', 'ilike', "%{$search}%"))
             ->orderBy('users.'.$sort, $order)
             ->paginate($per_page, ['*'], 'page', $page);

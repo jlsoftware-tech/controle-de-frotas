@@ -16,10 +16,10 @@ class DriverResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'cpf' => $this->cpf,
-            'status' => $this->status,
             'name' => $this->user->name,
             'email' => $this->user->email,
+            'status' => $this->status,
+            'cpf' => $this->cpf,
             'cnh' => $this->cnh,
             'cnh_category' => $this->cnh_category,
             'cnh_expiration_date' => $this->cnh_expiration_date,
