@@ -13,7 +13,7 @@ class VehiclePolicy
     public function viewAny(User $user): bool
     {
         return $user->permissions->contains(function ($permission, $key) {
-            return $permission->action === 'view' && $permission->module === 'vehicles';
+            return $permission->action === 'viewAny' && $permission->module === 'vehicles';
         });
     }
 
