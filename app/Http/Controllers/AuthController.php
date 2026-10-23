@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
-use App\Models\Scopes\SecretariatScope;
 use App\Models\User;
 use App\Notifications\ResetPasswordApiNotification;
 use App\Support\ApiResponder;
